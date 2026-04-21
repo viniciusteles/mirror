@@ -8,14 +8,14 @@ Commands:
   init                 Initialize a user home from identity templates
                        Usage: python -m memory init <user>
   seed                 Seed identity YAML files into the database
-  list                 List personas, journeys, or both
-                       Usage: python -m memory list [personas|journeys|all] [--mirror-home PATH] [--verbose]
+  list                 List personas, journeys, extensions, or all
+                       Usage: python -m memory list [personas|journeys|extensions|all] [--mirror-home PATH] [--verbose] [--extensions-root PATH] [--runtime NAME]
   inspect              Inspect one persona or extension
                        Usage: python -m memory inspect persona|extension <id> [--mirror-home PATH] [--extensions-root PATH]
   detect-persona       Show persona routing matches for a query
                        Usage: python -m memory detect-persona <query> [--mirror-home PATH]
   extensions           List or validate external skills under the active Mirror home
-                       Usage: python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH]
+                       Usage: python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME]
   mirror               Mirror skill commands
                        Usage: python -m memory mirror <load|deactivate|log|journeys> [args]
   conversation-logger  Conversation logging commands

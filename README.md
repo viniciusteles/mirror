@@ -332,16 +332,13 @@ Install shape for a real user home:
   SKILL.md
 ```
 
-You can validate example or user-home manifests with:
+You can list, validate, and inspect example or user-home manifests with:
 
 ```bash
+python -m memory list extensions --extensions-root examples/extensions
+python -m memory extensions list --extensions-root examples/extensions --runtime pi
 python -m memory extensions validate --extensions-root examples/extensions
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
-```
-
-You can also inspect one extension manifest in detail:
-
-```bash
 python -m memory inspect extension review-copy --extensions-root examples/extensions
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 ```

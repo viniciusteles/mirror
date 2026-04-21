@@ -56,21 +56,42 @@ def _persona_metadata(identity) -> dict:
 
 
 def cmd_list(args: list[str]) -> None:
-    """python -m memory list [personas|journeys|all] [--mirror-home PATH] [--verbose]"""
+    """python -m memory list [personas|journeys|extensions|all] [--mirror-home PATH] [--verbose] [--extensions-root PATH] [--runtime NAME]"""
+    from memory.cli.extensions import (
+        discover_extensions,
+        filter_manifests_for_runtime,
+        print_extension_list,
+        resolve_extensions_root,
+    )
     from memory.models import Identity
 
     mirror_home, positional, verbose = _parse_common_args(args)
+    extensions_root = None
+    runtime = None
+    filtered_positional: list[str] = []
+    i = 0
+    while i < len(positional):
+        if positional[i] == "--extensions-root" and i + 1 < len(positional):
+            extensions_root = Path(positional[i + 1]).expanduser()
+            i += 2
+        elif positional[i] == "--runtime" and i + 1 < len(positional):
+            runtime = positional[i + 1]
+            i += 2
+        else:
+            filtered_positional.append(positional[i])
+            i += 1
 
-    target = positional[0] if positional else "all"
-    if target not in ("personas", "journeys", "all"):
+    target = filtered_positional[0] if filtered_positional else "all"
+    if target not in ("personas", "journeys", "extensions", "all"):
         print(
-            "Usage: python -m memory list [personas|journeys|all] [--mirror-home PATH] [--verbose]"
+            "Usage: python -m memory list [personas|journeys|extensions|all] [--mirror-home PATH] [--verbose] [--extensions-root PATH] [--runtime NAME]"
         )
         sys.exit(1)
 
-    mem = _load_mem(mirror_home)
+    mem = _load_mem(mirror_home) if target in ("personas", "journeys", "all") else None
 
     if target in ("personas", "all"):
+        assert mem is not None
         result = mem.get_identity(layer="persona")
         personas: list[Identity] = result if isinstance(result, list) else []
         print("=== PERSONAS ===")
@@ -91,6 +112,7 @@ def cmd_list(args: list[str]) -> None:
             print()
 
     if target in ("journeys", "all"):
+        assert mem is not None
         result = mem.get_identity(layer="journey")
         journeys: list[Identity] = result if isinstance(result, list) else []
         print("=== JOURNEYS ===")
@@ -102,6 +124,16 @@ def cmd_list(args: list[str]) -> None:
                 desc = _extract_description(t.content or "")
                 suffix = f": {desc}" if desc else ""
                 print(f"  [{status}] {t.key}{suffix}")
+        if target == "all":
+            print()
+
+    if target in ("extensions", "all"):
+        root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)
+        manifests, errors = discover_extensions(root)
+        manifests = filter_manifests_for_runtime(manifests, runtime)
+        if runtime is not None:
+            print(f"Runtime filter: {runtime}")
+        print_extension_list(manifests, errors, root)
 
 
 def _parse_inspect_args(args: list[str]) -> tuple[str | None, Path | None, list[str]]:

@@ -5,7 +5,12 @@ from textwrap import dedent
 
 import pytest
 
-from memory.cli.extensions import cmd_extensions, discover_extensions, load_extension_manifest
+from memory.cli.extensions import (
+    cmd_extensions,
+    discover_extensions,
+    filter_manifests_for_runtime,
+    load_extension_manifest,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 
@@ -183,6 +188,81 @@ def test_cmd_extensions_uses_mirror_home_default_extensions_dir(tmp_path, capsys
     output = capsys.readouterr().out
     assert f"Extensions root: {mirror_home / 'extensions'}" in output
     assert "review-copy [prompt-skill]" in output
+
+
+def test_cmd_extensions_list_filters_by_runtime(tmp_path, capsys):
+    root = tmp_path / "extensions"
+    review_copy = root / "review-copy"
+    _write(review_copy / "SKILL.md", "# Review Copy\n")
+    _write(
+        review_copy / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          claude:
+            command_name: ext:review-copy
+            skill_file: SKILL.md
+          pi:
+            command_name: ext-review-copy
+            skill_file: SKILL.md
+        """,
+    )
+    xdigest = root / "xdigest"
+    _write(xdigest / "run.py", "print('ok')\n")
+    _write(
+        xdigest / "skill.yaml",
+        """
+        id: xdigest
+        name: X Digest
+        category: extension
+        kind: command-skill
+        summary: Generate digest reports
+        entrypoint:
+          command: python run.py
+        runtimes:
+          claude:
+            command_name: ext:xdigest
+        """,
+    )
+
+    cmd_extensions(["list", "--extensions-root", str(root), "--runtime", "pi"])
+
+    output = capsys.readouterr().out
+    assert "Runtime filter: pi" in output
+    assert "review-copy [prompt-skill]" in output
+    assert "xdigest [command-skill]" not in output
+
+
+def test_filter_manifests_for_runtime_returns_matching_extensions_only(tmp_path):
+    root = tmp_path / "extensions"
+    review_copy = root / "review-copy"
+    _write(review_copy / "SKILL.md", "# Review Copy\n")
+    _write(
+        review_copy / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          claude:
+            command_name: ext:review-copy
+            skill_file: SKILL.md
+          pi:
+            command_name: ext-review-copy
+            skill_file: SKILL.md
+        """,
+    )
+    manifests, _errors = discover_extensions(root)
+
+    filtered = filter_manifests_for_runtime(manifests, "pi")
+
+    assert [manifest["id"] for manifest in filtered] == ["review-copy"]
 
 
 def test_reference_review_copy_example_manifest_is_valid():

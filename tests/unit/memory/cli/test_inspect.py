@@ -57,6 +57,30 @@ def test_list_personas_verbose_shows_routing_keywords(mocker, capsys):
     assert "routing_keywords: article, draft" in output
 
 
+def test_list_extensions_reads_from_explicit_extensions_root(capsys):
+    cmd_list(["extensions", "--extensions-root", str(PROJECT_ROOT / "examples" / "extensions")])
+
+    output = capsys.readouterr().out
+    assert "=== EXTENSIONS ===" in output
+    assert "review-copy [prompt-skill]" in output
+
+
+def test_list_extensions_filters_by_runtime(capsys):
+    cmd_list(
+        [
+            "extensions",
+            "--extensions-root",
+            str(PROJECT_ROOT / "examples" / "extensions"),
+            "--runtime",
+            "pi",
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert "Runtime filter: pi" in output
+    assert "review-copy [prompt-skill]" in output
+
+
 def test_inspect_persona_shows_metadata_and_content(mocker, capsys):
     client = mocker.Mock()
     client.store.get_identity.return_value = Identity(

@@ -146,9 +146,10 @@ def discover_extensions(extensions_root: Path) -> tuple[list[dict], list[tuple[s
     return manifests, errors
 
 
-def _parse_args(args: list[str]) -> tuple[Path | None, str | None, list[str]]:
+def _parse_args(args: list[str]) -> tuple[Path | None, str | None, str | None, list[str]]:
     extensions_root = None
     mirror_home = None
+    runtime = None
     positional: list[str] = []
     i = 0
     while i < len(args):
@@ -158,44 +159,62 @@ def _parse_args(args: list[str]) -> tuple[Path | None, str | None, list[str]]:
         elif args[i] == "--mirror-home" and i + 1 < len(args):
             mirror_home = args[i + 1]
             i += 2
+        elif args[i] == "--runtime" and i + 1 < len(args):
+            runtime = args[i + 1]
+            i += 2
         else:
             positional.append(args[i])
             i += 1
-    return extensions_root, mirror_home, positional
+    return extensions_root, mirror_home, runtime, positional
+
+
+def filter_manifests_for_runtime(manifests: list[dict], runtime: str | None) -> list[dict]:
+    if runtime is None:
+        return manifests
+    return [manifest for manifest in manifests if runtime in manifest.get("runtimes", {})]
+
+
+def print_extension_list(manifests: list[dict], errors: list[tuple[str, str]], root: Path) -> None:
+    print(f"Extensions root: {root}")
+    print("=== EXTENSIONS ===")
+    if not manifests:
+        print("  (none)")
+    for manifest in manifests:
+        print(f"  {manifest['id']} [{manifest['kind']}]")
+        print(f"    name: {manifest['name']}")
+        runtime_parts = []
+        for runtime_name, runtime_data in sorted(manifest["runtimes"].items()):
+            runtime_parts.append(f"{runtime_name}={runtime_data['command_name']}")
+        print(f"    runtimes: {', '.join(runtime_parts)}")
+    if errors:
+        print("\n=== INVALID EXTENSIONS ===")
+        for ext_id, message in errors:
+            print(f"  {ext_id}: {message}")
 
 
 def cmd_extensions(args: list[str]) -> None:
-    """python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH]"""
-    extensions_root, mirror_home, positional = _parse_args(args)
+    """python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME]"""
+    extensions_root, mirror_home, runtime, positional = _parse_args(args)
     command = positional[0] if positional else "list"
     if command not in {"list", "validate"}:
         print(
-            "Usage: python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH]"
+            "Usage: python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME]"
         )
         sys.exit(1)
 
     root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)
     manifests, errors = discover_extensions(root)
+    manifests = filter_manifests_for_runtime(manifests, runtime)
 
     if command == "list":
-        print(f"Extensions root: {root}")
-        print("=== EXTENSIONS ===")
-        if not manifests:
-            print("  (none)")
-        for manifest in manifests:
-            print(f"  {manifest['id']} [{manifest['kind']}]")
-            print(f"    name: {manifest['name']}")
-            runtime_parts = []
-            for runtime_name, runtime_data in sorted(manifest["runtimes"].items()):
-                runtime_parts.append(f"{runtime_name}={runtime_data['command_name']}")
-            print(f"    runtimes: {', '.join(runtime_parts)}")
-        if errors:
-            print("\n=== INVALID EXTENSIONS ===")
-            for ext_id, message in errors:
-                print(f"  {ext_id}: {message}")
+        if runtime is not None:
+            print(f"Runtime filter: {runtime}")
+        print_extension_list(manifests, errors, root)
         return
 
     print(f"Extensions root: {root}")
+    if runtime is not None:
+        print(f"Runtime filter: {runtime}")
     if errors:
         print("=== INVALID EXTENSIONS ===")
         for ext_id, message in errors:

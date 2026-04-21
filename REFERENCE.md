@@ -249,16 +249,13 @@ Runtime names:
 - Claude Code: `ext:review-copy`
 - Pi: `ext-review-copy`
 
-Validate manifests with:
+List, validate, and inspect manifests with:
 
 ```bash
+python -m memory list extensions --extensions-root examples/extensions
+python -m memory extensions list --extensions-root examples/extensions --runtime pi
 python -m memory extensions validate --extensions-root examples/extensions
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
-```
-
-Inspect one extension with:
-
-```bash
 python -m memory inspect extension review-copy --extensions-root examples/extensions
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 ```
