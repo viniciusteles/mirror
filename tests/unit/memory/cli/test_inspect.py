@@ -148,3 +148,36 @@ def test_inspect_extension_shows_manifest_details(capsys):
 def test_inspect_extension_exits_when_missing(tmp_path):
     with pytest.raises(SystemExit):
         cmd_inspect(["extension", "missing", "--extensions-root", str(tmp_path)])
+
+
+def test_inspect_runtime_catalog_shows_catalog_details(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    runtime_root = mirror_home / "runtime" / "skills" / "pi"
+    runtime_root.mkdir(parents=True, exist_ok=True)
+    (runtime_root / "extensions.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1",
+                "runtime": "pi",
+                "target_root": str(runtime_root),
+                "generated_at": "2026-04-21T18:00:00+00:00",
+                "extensions": [
+                    {
+                        "id": "review-copy",
+                        "command_name": "ext-review-copy",
+                        "kind": "prompt-skill",
+                        "installed_skill_path": str(runtime_root / "ext-review-copy" / "SKILL.md"),
+                    }
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    cmd_inspect(["runtime-catalog", "pi", "--mirror-home", str(mirror_home)])
+
+    output = capsys.readouterr().out
+    assert "=== runtime-catalog/pi ===" in output
+    assert "schema_version: 1" in output
+    assert "review-copy -> ext-review-copy" in output

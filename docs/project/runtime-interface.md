@@ -233,6 +233,29 @@ This keeps:
 - runtime loading deterministic
 - installation and removal explicit
 
+### Pi runtime consumption prep
+
+Pi should prepare to consume the installed external skill surface with this
+algorithm:
+
+1. Resolve the active mirror home
+2. Read `~/.mirror/<user>/runtime/skills/pi/extensions.json`
+3. Validate:
+   - `schema_version == "1"`
+   - `runtime == "pi"`
+4. For each item in `extensions`:
+   - trust `command_name` as the runtime-visible command
+   - trust `installed_skill_path` as the materialized skill file
+   - ignore the source extension tree during execution
+5. If the catalog is missing or invalid:
+   - continue safely with built-in Pi skills only
+   - do not fail session logging or Mirror Mode hooks
+
+Recommended first integration behavior:
+- built-in Pi skills remain the default surface
+- external skills are additive
+- runtime catalog load failures should be logged, not fatal
+
 ---
 
 ## CLI Reference

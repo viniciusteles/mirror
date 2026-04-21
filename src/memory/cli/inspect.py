@@ -220,12 +220,39 @@ def _inspect_extension(
             print(f"    skill_path: {runtime_data['skill_path']}")
 
 
+def _inspect_runtime_catalog(runtime: str, mirror_home: str | None) -> None:
+    from memory.cli.extensions import _load_catalog
+    from memory.config import default_runtime_skills_dir_for_home, resolve_mirror_home
+
+    if mirror_home is None:
+        runtime_root = default_runtime_skills_dir_for_home(resolve_mirror_home(), runtime)
+    else:
+        runtime_root = default_runtime_skills_dir_for_home(Path(mirror_home).expanduser(), runtime)
+
+    catalog_path = runtime_root / "extensions.json"
+    catalog = _load_catalog(catalog_path)
+    print(f"=== runtime-catalog/{runtime} ===")
+    print(f"runtime_root: {runtime_root}")
+    print(f"catalog_path: {catalog_path}")
+    print(f"schema_version: {catalog.get('schema_version', '(unknown)')}")
+    print(f"generated_at: {catalog.get('generated_at', '(unknown)')}")
+    items = catalog.get("extensions", [])
+    print("extensions:")
+    if not items:
+        print("  (none)")
+        return
+    for item in items:
+        print(f"  {item.get('id', '(unknown)')} -> {item.get('command_name', '(unknown)')}")
+        print(f"    kind: {item.get('kind', '(unknown)')}")
+        print(f"    installed_skill_path: {item.get('installed_skill_path', '(unknown)')}")
+
+
 def cmd_inspect(args: list[str]) -> None:
-    """python -m memory inspect persona|extension <id> [--mirror-home PATH] [--extensions-root PATH]"""
+    """python -m memory inspect persona|extension|runtime-catalog <id> [--mirror-home PATH] [--extensions-root PATH]"""
     mirror_home, extensions_root, positional = _parse_inspect_args(args)
-    if len(positional) != 2 or positional[0] not in {"persona", "extension"}:
+    if len(positional) != 2 or positional[0] not in {"persona", "extension", "runtime-catalog"}:
         print(
-            "Usage: python -m memory inspect persona|extension <id> [--mirror-home PATH] [--extensions-root PATH]"
+            "Usage: python -m memory inspect persona|extension|runtime-catalog <id> [--mirror-home PATH] [--extensions-root PATH]"
         )
         sys.exit(1)
 
@@ -233,8 +260,11 @@ def cmd_inspect(args: list[str]) -> None:
     if target == "persona":
         _inspect_persona(target_id, mirror_home)
         return
+    if target == "extension":
+        _inspect_extension(target_id, mirror_home, extensions_root)
+        return
 
-    _inspect_extension(target_id, mirror_home, extensions_root)
+    _inspect_runtime_catalog(target_id, mirror_home)
 
 
 def cmd_detect_persona(args: list[str]) -> None:

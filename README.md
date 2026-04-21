@@ -341,6 +341,7 @@ python -m memory extensions validate --extensions-root examples/extensions
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
 python -m memory inspect extension review-copy --extensions-root examples/extensions
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/<user>
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
 python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>

@@ -11,6 +11,11 @@
  *
  * All heavy logic lives in the Python CLI. This extension is a thin dispatcher.
  * Failures are swallowed to never block Pi — but logged to $MEMORY_DIR/mirror-logger.log.
+ *
+ * External skill prep note:
+ * Pi should eventually read installed external skills from
+ *   ~/.mirror/<user>/runtime/skills/pi/extensions.json
+ * rather than from source manifests under ~/.mirror/<user>/extensions/.
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
