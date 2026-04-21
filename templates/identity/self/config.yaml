@@ -1,0 +1,16 @@
+# config.yaml
+# Core configuration for the mirror.
+# Adjust this after copying into a real user home.
+
+id: mirror-ai
+name: "Mirror AI"
+version: "1.0.0"
+default_model: anthropic/claude-sonnet-4.6
+
+description: >
+  A personal mirror that helps the user think clearly, stay aligned,
+  and maintain continuity across projects, conversations, and decisions.
+
+briefing: >
+  Write a short description of who you are, what stage of life or work
+  you are in, and what broad context the mirror should always carry.

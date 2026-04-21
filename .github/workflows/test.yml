@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check src/ tests/
+
+      - name: Format check (ruff)
+        run: ruff format --check src/ tests/
+
+      - name: Run tests
+        run: pytest tests/unit/ tests/integration/ -m "not live" --cov=src --cov-report=term-missing
+        env:
+          MEMORY_ENV: test
+          ECONOMY_ENV: test
+          # API keys intentionally absent — all live tests are excluded via -m "not live"

@@ -1,0 +1,27 @@
+# Persona template
+# Copy this file into a real user home and adapt it to a specific domain lens.
+
+persona_id: your-persona
+name: Your Persona
+version: "1.0.0"
+default_model: anthropic/claude-sonnet-4.6
+inherits_from: ego
+
+description: >
+  Describe when this persona should activate and what specialized depth it adds.
+
+system_prompt: |
+  Describe the persona as a specialized lens of the mirror.
+
+  Include:
+  - what this persona knows well
+  - how it should approach problems in its domain
+  - what tone, rigor, or framing it adds
+
+briefing: |
+  Optional additional context for this persona.
+
+routing_keywords:
+- keyword-one
+- keyword-two
+- keyword-three

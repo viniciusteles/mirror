@@ -1,0 +1,15 @@
+---
+name: "mm:journeys"
+description: Lists existing journeys with status and current stage
+user-invocable: true
+---
+
+# Journeys
+
+When receiving `/mm:journeys`, run:
+
+```bash
+python -m memory journeys
+```
+
+The script prints a compact journey list. Present the result to the user without modification.

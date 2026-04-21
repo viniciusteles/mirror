@@ -1,0 +1,214 @@
+"""Central configuration for the memory system."""
+
+import os
+from pathlib import Path
+
+# Load .env by walking upward until a file is found.
+_env_file = None
+for _parent in Path(__file__).resolve().parents:
+    _candidate = _parent / ".env"
+    if _candidate.exists():
+        _env_file = _candidate
+        break
+
+if _env_file:
+    for line in _env_file.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip())
+
+
+# Environment: 'production', 'development', 'test'.
+MEMORY_ENV = os.environ.get("MEMORY_ENV") or "production"
+
+
+def _path_from_env(name: str, default: Path) -> Path:
+    value = os.environ.get(name)
+    if not value:
+        return default
+    return Path(value).expanduser()
+
+
+def _bool_from_env(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _default_memory_dir(home: Path) -> Path:
+    return home / ".mirror-poc"
+
+
+def _default_user_homes_dir(home: Path) -> Path:
+    return home / ".mirror"
+
+
+def _default_user_home(home: Path, user: str) -> Path:
+    return _default_user_homes_dir(home) / user
+
+
+def resolve_mirror_home(
+    *,
+    mirror_home: str | Path | None = None,
+    mirror_user: str | None = None,
+    home: Path | None = None,
+) -> Path:
+    selected_home = Path(home).expanduser() if home is not None else Path.home()
+    explicit_home = mirror_home if mirror_home is not None else os.environ.get("MIRROR_HOME", "")
+    explicit_user = mirror_user if mirror_user is not None else os.environ.get("MIRROR_USER", "")
+
+    resolved_home = Path(explicit_home).expanduser() if explicit_home else None
+    derived_home = _default_user_home(selected_home, explicit_user) if explicit_user else None
+
+    if resolved_home and explicit_user and resolved_home.name != explicit_user:
+        raise ValueError(
+            f"MIRROR_HOME ({resolved_home}) conflicts with MIRROR_USER ({explicit_user})."
+        )
+    if resolved_home:
+        return resolved_home
+    if derived_home:
+        return derived_home
+    raise ValueError("Mirror home is not configured. Set MIRROR_HOME or MIRROR_USER.")
+
+
+def default_db_path_for_home(home: Path) -> Path:
+    return home / "memory.db"
+
+
+def default_backup_dir_for_home(home: Path) -> Path:
+    return home / "backups"
+
+
+def default_export_dir_for_home(home: Path) -> Path:
+    return home / "exports"
+
+
+def default_transcript_export_dir_for_home(home: Path) -> Path:
+    return default_export_dir_for_home(home) / "transcripts"
+
+
+# Directories by environment.
+_HOME = Path.home()
+DEFAULT_USER_HOMES_DIR = _default_user_homes_dir(_HOME)
+DEFAULT_MIRROR_DIR = _HOME / ".mirror-poc"
+DEFAULT_MEMORY_DIR = _default_memory_dir(_HOME)
+
+try:
+    _RESOLVED_MIRROR_HOME = resolve_mirror_home()
+except ValueError:
+    _RESOLVED_MIRROR_HOME = None
+
+_DEFAULT_RUNTIME_DIR = (
+    _RESOLVED_MIRROR_HOME
+    if _RESOLVED_MIRROR_HOME and MEMORY_ENV == "production" and not os.environ.get("MEMORY_DIR")
+    else DEFAULT_MEMORY_DIR
+)
+_LOCAL_DIR = _path_from_env("MEMORY_DIR", _DEFAULT_RUNTIME_DIR)
+
+# All environments use the local memory directory, isolated by database name.
+_ENV_DIRS = {
+    "production": _path_from_env("MEMORY_PROD_DIR", _LOCAL_DIR),
+    "development": _LOCAL_DIR,
+    "test": _LOCAL_DIR,
+}
+MEMORY_DIR = _ENV_DIRS.get(MEMORY_ENV, _LOCAL_DIR)
+# Session routing and mirror state used to live in singleton JSON files under
+# MEMORY_DIR. CV5 replaced that with the SQLite `runtime_sessions` table; the
+# legacy paths are no longer written or read by any runtime code.
+MUTE_FLAG_PATH = MEMORY_DIR / "mute"
+
+# Database isolated by environment.
+_DB_NAMES = {
+    "production": "memory.db",
+    "development": "memory_dev.db",
+    "test": "memory_test.db",
+}
+
+
+def db_path_for_env(env: str | None = None) -> Path:
+    selected_env = env or MEMORY_ENV
+    env_dir = _ENV_DIRS.get(selected_env, _LOCAL_DIR)
+    db_name = _DB_NAMES.get(selected_env, f"memory_{selected_env}.db")
+    return env_dir / db_name
+
+
+_DEFAULT_DB_PATH = (
+    default_db_path_for_home(_RESOLVED_MIRROR_HOME)
+    if _RESOLVED_MIRROR_HOME and MEMORY_ENV == "production" and not os.environ.get("DB_PATH")
+    else db_path_for_env()
+)
+DB_PATH = _path_from_env("DB_PATH", _DEFAULT_DB_PATH)
+DB_BACKUP_PATH = _path_from_env("DB_BACKUP_PATH", DB_PATH.parent / "backups")
+
+BACKUP_DIR = _path_from_env(
+    "BACKUP_DIR",
+    default_backup_dir_for_home(_RESOLVED_MIRROR_HOME) if _RESOLVED_MIRROR_HOME else DB_BACKUP_PATH,
+)
+EXPORT_DIR = _path_from_env(
+    "EXPORT_DIR",
+    default_export_dir_for_home(_RESOLVED_MIRROR_HOME)
+    if _RESOLVED_MIRROR_HOME
+    else DEFAULT_USER_HOMES_DIR / "exports",
+)
+TRANSCRIPT_EXPORT_DIR = _path_from_env(
+    "TRANSCRIPT_EXPORT_DIR",
+    default_transcript_export_dir_for_home(_RESOLVED_MIRROR_HOME)
+    if _RESOLVED_MIRROR_HOME and not os.environ.get("EXPORT_DIR")
+    else EXPORT_DIR / "transcripts",
+)
+# OpenAI embeddings.
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+EMBEDDING_MODEL = "text-embedding-3-small"
+EMBEDDING_DIMENSIONS = 1536
+
+# OpenRouter extraction.
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+EXTRACTION_MODEL = "google/gemini-2.5-flash-lite"
+
+# LLM model families: family -> tier -> OpenRouter model_id.
+LLM_FAMILIES = {
+    "gemini": {
+        "lite": "google/gemini-2.5-flash-lite",
+        "mid": "google/gemini-2.5-flash",
+        "flagship": "google/gemini-2.5-pro",
+    },
+    "grok": {
+        "lite": "x-ai/grok-3-mini",
+        "mid": "x-ai/grok-3",
+        "flagship": "x-ai/grok-4.1-fast",
+    },
+    "deepseek": {
+        "lite": "deepseek/deepseek-chat",
+        "mid": "deepseek/deepseek-v3.2",
+        "flagship": "deepseek/deepseek-r1",
+    },
+    "openai": {
+        "lite": "openai/gpt-5.4-nano",
+        "mid": "openai/gpt-5.4-mini",
+        "flagship": "openai/gpt-5.4",
+    },
+    "claude": {
+        "lite": "anthropic/claude-haiku-4.5",
+        "mid": "anthropic/claude-sonnet-4.6",
+        "flagship": "anthropic/claude-opus-4.6",
+    },
+    "llama": {
+        "lite": "meta-llama/llama-3.3-70b-instruct",
+        "mid": "meta-llama/llama-4-scout",
+        "flagship": "meta-llama/llama-4-maverick",
+    },
+}
+
+# Busca híbrida — pesos
+SEARCH_WEIGHTS = {
+    "semantic": 0.6,
+    "recency": 0.2,
+    "reinforcement": 0.1,
+    "relevance": 0.1,
+}
+
+# Recência — half-life em dias
+RECENCY_HALF_LIFE_DAYS = 90

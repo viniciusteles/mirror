@@ -1,0 +1,13 @@
+.DS_Store
+__pycache__/
+*.pyc
+.env
+claude.sh
+.claude/settings.local.json
+.claude/worktrees/
+conversas/
+.venv/
+*.egg-info/
+.coverage
+.pytest_cache/
+.ruff_cache/

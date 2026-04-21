@@ -1,0 +1,16 @@
+# principles.yaml
+# Organizational principles template.
+
+version: "1.0.0"
+
+principles: |
+  # Organizational Principles
+
+  List the principles that should guide work inside this organization.
+
+  Examples:
+  - quality before noise
+  - trust before scale
+  - sustainable pace over artificial urgency
+  - clarity over jargon
+  - service over performance

@@ -1,0 +1,23 @@
+# identity.yaml
+# Organization context template.
+
+version: "1.0.0"
+
+identity: |
+  # Organization Identity
+
+  ## What This Organization Is
+
+  Describe the organization, company, studio, project, or professional vehicle.
+
+  ## What It Does
+
+  Describe its main activity, audience, and value proposition.
+
+  ## Why It Exists
+
+  Describe the deeper reason the organization matters.
+
+  ## Relationship To The User
+
+  Explain how the user is connected to it: founder, operator, teacher, advisor, etc.

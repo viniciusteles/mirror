@@ -1,0 +1,172 @@
+"""Allow `python -m memory <command>` dispatch."""
+
+import sys
+
+USAGE = """Usage: python -m memory <command> [args]
+
+Commands:
+  init                 Initialize a user home from identity templates
+                       Usage: python -m memory init <user>
+  seed                 Seed identity YAML files into the database
+  list                 List personas, journeys, or both
+                       Usage: python -m memory list [personas|journeys|all] [--mirror-home PATH] [--verbose]
+  inspect              Inspect one persona from the database
+                       Usage: python -m memory inspect persona <id> [--mirror-home PATH]
+  detect-persona       Show persona routing matches for a query
+                       Usage: python -m memory detect-persona <query> [--mirror-home PATH]
+  mirror               Mirror skill commands
+                       Usage: python -m memory mirror <load|deactivate|log|journeys> [args]
+  conversation-logger  Conversation logging commands
+                       Usage: python -m memory conversation-logger <status|mute|unmute|switch|...>
+  backup               Create a zipped backup of the memory database
+                       Usage: python -m memory backup [--silent]
+  journal              Record a journal entry
+                       Usage: python -m memory journal [--journey SLUG] [--mirror-home PATH] <text>
+  journey              Inspect or update a journey
+                       Usage: python -m memory journey [status [SLUG]] | update <slug> <content> | set-path <slug> <path> [--mirror-home PATH]
+  build                Builder Mode DB context loader
+                       Usage: python -m memory build load <slug>
+  memories             List memories with filters
+                       Usage: python -m memory memories [--type T] [--layer L] [--journey J] [--search Q] [--mirror-home PATH]
+  conversations        List recent conversations
+                       Usage: python -m memory conversations [--limit N] [--journey J] [--persona P] [--mirror-home PATH]
+  recall               Load messages from a previous conversation
+                       Usage: python -m memory recall <conversation_id> [--limit N] [--mirror-home PATH]
+  tasks                Task management
+                       Usage: python -m memory tasks [--mirror-home PATH] [list|add|done|doing|block|import|sync|delete] [args]
+  week                 Weekly planning
+                       Usage: python -m memory week [--mirror-home PATH] [view|plan <text>|save]
+  journeys             List journeys with status, stage, and description
+                       Usage: python -m memory journeys [--mirror-home PATH]
+  migrate-legacy       Validate or run explicit legacy migration into a user home
+                       Usage: python -m memory migrate-legacy validate --source PATH --target-home PATH
+                              python -m memory migrate-legacy run --source PATH --target-home PATH
+  consult              Ask other LLMs through OpenRouter with Mirror context
+                       Usage: python -m memory consult <family> [tier] "question" [--persona P] [--journey J] [--org] [--mirror-home PATH]
+                              python -m memory consult credits
+"""
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print(USAGE)
+        sys.exit(1)
+
+    command = sys.argv[1]
+
+    if command == "init":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.init import main as _init_main
+
+        _init_main()
+
+    elif command == "seed":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.seed import main as _seed_main
+
+        _seed_main()
+
+    elif command == "list":
+        from memory.cli.inspect import cmd_list
+
+        cmd_list(sys.argv[2:])
+
+    elif command == "inspect":
+        from memory.cli.inspect import cmd_inspect
+
+        cmd_inspect(sys.argv[2:])
+
+    elif command == "detect-persona":
+        from memory.cli.inspect import cmd_detect_persona
+
+        cmd_detect_persona(sys.argv[2:])
+
+    elif command == "mirror":
+        from memory.skills.mirror import main as _mirror_main
+
+        _mirror_main(sys.argv[2:])
+
+    elif command == "conversation-logger":
+        from memory.cli.conversation_logger import main as _logger_main
+
+        _logger_main(sys.argv[2:])
+
+    elif command == "backup":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.backup import main as _backup_main
+
+        _backup_main()
+
+    elif command == "journal":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.journal import main as _journal_main
+
+        _journal_main()
+
+    elif command == "journey":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.journey import main as _journey_main
+
+        _journey_main()
+
+    elif command == "memories":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.memories import main as _memories_main
+
+        _memories_main()
+
+    elif command == "conversations":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.conversations import main as _conversations_main
+
+        _conversations_main()
+
+    elif command == "recall":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.recall import main as _recall_main
+
+        _recall_main()
+
+    elif command == "tasks":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.tasks_cmd import main as _tasks_main
+
+        _tasks_main()
+
+    elif command == "week":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.week import main as _week_main
+
+        _week_main()
+
+    elif command == "journeys":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.journeys import main as _journeys_main
+
+        _journeys_main()
+
+    elif command == "build":
+        from memory.cli.build import main as _build_main
+
+        _build_main(sys.argv[2:])
+
+    elif command == "consult":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.consult import main as _consult_main
+
+        _consult_main()
+
+    elif command == "migrate-legacy":
+        sys.argv = [sys.argv[0], *sys.argv[2:]]
+        from memory.cli.migrate_legacy import main as _migrate_legacy_main
+
+        _migrate_legacy_main()
+
+    else:
+        print(f"Unknown command: {command}\n")
+        print(USAGE)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

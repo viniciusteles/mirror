@@ -1,0 +1,23 @@
+# Journey template
+# Copy this file into a real user home and adapt it to one ongoing project, arc, or area of life.
+
+journey_id: your-journey
+name: Your Journey
+status: active
+version: "1.0.0"
+
+description: >
+  A short description of what this journey is and why it matters.
+
+briefing: >
+  The current phase, immediate objectives, and what the mirror should know in order to help.
+
+context: |
+  # Journey Context
+
+  Use this section for fuller context, such as:
+  - current state
+  - decisions already made
+  - constraints
+  - important people
+  - links or references

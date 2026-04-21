@@ -1,0 +1,36 @@
+# identity.yaml
+# User profile template. Fill this with the real user's context after copying it into a user home.
+
+version: "1.0.0"
+
+user: |
+  # [Your Name]
+
+  ## Basic Profile
+
+  - Name:
+  - Role:
+  - Location:
+  - Life stage:
+
+  ## Important Context
+
+  Describe the user's current reality in enough detail for the mirror to be useful.
+
+  Examples:
+  - work and business context
+  - family and relationship context
+  - current priorities and pressures
+  - important long-term goals
+
+  ## Professional Trajectory
+
+  Describe the arc, not just the résumé.
+
+  ## Personal Operating Style
+
+  Describe how this person tends to think, decide, create, avoid, or overload.
+
+  ## Important People
+
+  List key people and enough context for the mirror to recognize them when they appear in conversation.

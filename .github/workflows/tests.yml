@@ -1,0 +1,38 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --extra dev --frozen
+
+      - name: Lint (ruff)
+        run: uv run ruff check src/ tests/
+
+      - name: Format check (ruff)
+        run: uv run ruff format --check src/ tests/
+
+      - name: Run tests
+        run: uv run pytest tests/unit/ tests/integration/ -m "not live" --cov=src --cov-report=term-missing
+        env:
+          MEMORY_ENV: test
+          ECONOMY_ENV: test
+          # API keys intentionally absent — all live tests are excluded via -m "not live"

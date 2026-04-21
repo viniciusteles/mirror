@@ -1,0 +1,100 @@
+"""Tests for memory inspection CLI helpers."""
+
+import json
+
+import pytest
+
+from memory.cli.inspect import cmd_detect_persona, cmd_inspect, cmd_list
+from memory.models import Identity
+
+
+def test_list_journeys_reads_english_identity_layer(mocker, capsys):
+    client = mocker.Mock()
+    client.get_identity.return_value = [
+        Identity(layer="journey", key="mirror-poc", content="# Mirror POC\n**Status:** active")
+    ]
+    mocker.patch("memory.client.MemoryClient", return_value=client)
+
+    cmd_list(["journeys"])
+
+    output = capsys.readouterr().out
+    client.get_identity.assert_called_once_with(layer="journey")
+    assert "=== JOURNEYS ===" in output
+    assert "[active] mirror-poc" in output
+
+
+def test_list_journeys_does_not_fall_back_to_legacy_layer(mocker, capsys):
+    client = mocker.Mock()
+    client.get_identity.return_value = []
+    mocker.patch("memory.client.MemoryClient", return_value=client)
+
+    cmd_list(["journeys"])
+
+    output = capsys.readouterr().out
+    client.get_identity.assert_called_once_with(layer="journey")
+    assert "  (none)" in output
+
+
+def test_list_personas_verbose_shows_routing_keywords(mocker, capsys):
+    client = mocker.Mock()
+    client.get_identity.return_value = [
+        Identity(
+            layer="persona",
+            key="writer",
+            content="Writer prompt.",
+            metadata=json.dumps({"routing_keywords": ["article", "draft"]}),
+        )
+    ]
+    mocker.patch("memory.client.MemoryClient", return_value=client)
+
+    cmd_list(["personas", "--verbose"])
+
+    output = capsys.readouterr().out
+    assert "writer" in output
+    assert "routing_keywords: article, draft" in output
+
+
+def test_inspect_persona_shows_metadata_and_content(mocker, capsys):
+    client = mocker.Mock()
+    client.store.get_identity.return_value = Identity(
+        layer="persona",
+        key="writer",
+        content="Writer prompt.",
+        version="2.0.0",
+        metadata=json.dumps(
+            {
+                "persona_id": "writer",
+                "name": "Writer",
+                "routing_keywords": ["article", "draft"],
+            }
+        ),
+    )
+    mocker.patch("memory.client.MemoryClient", return_value=client)
+
+    cmd_inspect(["persona", "writer"])
+
+    output = capsys.readouterr().out
+    assert "=== persona/writer ===" in output
+    assert "routing_keywords: article, draft" in output
+    assert "Writer prompt." in output
+
+
+def test_inspect_persona_exits_when_missing(mocker):
+    client = mocker.Mock()
+    client.store.get_identity.return_value = None
+    mocker.patch("memory.client.MemoryClient", return_value=client)
+
+    with pytest.raises(SystemExit):
+        cmd_inspect(["persona", "missing"])
+
+
+def test_detect_persona_prints_ranked_matches(mocker, capsys):
+    client = mocker.Mock()
+    client.detect_persona.return_value = [("engineer", 3.0, "keyword")]
+    mocker.patch("memory.client.MemoryClient", return_value=client)
+
+    cmd_detect_persona(["debug", "this", "python", "issue"])
+
+    output = capsys.readouterr().out
+    assert "query: debug this python issue" in output
+    assert "engineer: 3.0 (keyword)" in output
