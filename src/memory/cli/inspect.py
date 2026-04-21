@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from pathlib import Path
 
 
 def _extract_status(content: str) -> str:
@@ -103,14 +104,25 @@ def cmd_list(args: list[str]) -> None:
                 print(f"  [{status}] {t.key}{suffix}")
 
 
-def cmd_inspect(args: list[str]) -> None:
-    """python -m memory inspect persona <id> [--mirror-home PATH]"""
-    mirror_home, positional, _verbose = _parse_common_args(args)
-    if len(positional) != 2 or positional[0] != "persona":
-        print("Usage: python -m memory inspect persona <id> [--mirror-home PATH]")
-        sys.exit(1)
+def _parse_inspect_args(args: list[str]) -> tuple[str | None, Path | None, list[str]]:
+    mirror_home = None
+    extensions_root = None
+    positional: list[str] = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--mirror-home" and i + 1 < len(args):
+            mirror_home = args[i + 1]
+            i += 2
+        elif args[i] == "--extensions-root" and i + 1 < len(args):
+            extensions_root = Path(args[i + 1]).expanduser()
+            i += 2
+        else:
+            positional.append(args[i])
+            i += 1
+    return mirror_home, extensions_root, positional
 
-    persona_id = positional[1]
+
+def _inspect_persona(persona_id: str, mirror_home: str | None) -> None:
     mem = _load_mem(mirror_home)
     ident = mem.store.get_identity("persona", persona_id)
     if not ident:
@@ -133,6 +145,64 @@ def cmd_inspect(args: list[str]) -> None:
 
     print("\ncontent:\n")
     print(ident.content)
+
+
+def _inspect_extension(
+    extension_id: str,
+    mirror_home: str | None,
+    extensions_root: Path | None,
+) -> None:
+    from memory.cli.extensions import (
+        ExtensionValidationError,
+        load_extension_manifest,
+        resolve_extensions_root,
+    )
+
+    root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)
+    extension_dir = root / extension_id
+    try:
+        manifest = load_extension_manifest(extension_dir)
+    except ExtensionValidationError as exc:
+        print(f"extension/{extension_id} not found or invalid")
+        print(f"reason: {exc}")
+        sys.exit(1)
+
+    print(f"=== extension/{extension_id} ===")
+    print(f"name: {manifest['name']}")
+    print(f"category: {manifest['category']}")
+    print(f"kind: {manifest['kind']}")
+    print(f"summary: {manifest['summary']}")
+    print(f"root: {manifest['root']}")
+    print(f"manifest_path: {manifest['manifest_path']}")
+    if manifest.get("entrypoint"):
+        print("entrypoint:")
+        for key, value in manifest["entrypoint"].items():
+            print(f"  {key}: {value}")
+    print("runtimes:")
+    for runtime_name, runtime_data in sorted(manifest["runtimes"].items()):
+        print(f"  {runtime_name}:")
+        print(f"    command_name: {runtime_data['command_name']}")
+        if runtime_data.get("skill_file"):
+            print(f"    skill_file: {runtime_data['skill_file']}")
+        if runtime_data.get("skill_path"):
+            print(f"    skill_path: {runtime_data['skill_path']}")
+
+
+def cmd_inspect(args: list[str]) -> None:
+    """python -m memory inspect persona|extension <id> [--mirror-home PATH] [--extensions-root PATH]"""
+    mirror_home, extensions_root, positional = _parse_inspect_args(args)
+    if len(positional) != 2 or positional[0] not in {"persona", "extension"}:
+        print(
+            "Usage: python -m memory inspect persona|extension <id> [--mirror-home PATH] [--extensions-root PATH]"
+        )
+        sys.exit(1)
+
+    target, target_id = positional
+    if target == "persona":
+        _inspect_persona(target_id, mirror_home)
+        return
+
+    _inspect_extension(target_id, mirror_home, extensions_root)
 
 
 def cmd_detect_persona(args: list[str]) -> None:

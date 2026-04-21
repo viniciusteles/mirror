@@ -85,3 +85,34 @@ def test_detect_persona_reads_from_explicit_mirror_home(tmp_path, capsys):
 
     output = capsys.readouterr().out
     assert "engineer: 2.0 (keyword)" in output
+
+
+def test_inspect_extension_reads_from_explicit_mirror_home(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    ext_dir = mirror_home / "extensions" / "review-copy"
+    ext_dir.mkdir(parents=True)
+    (ext_dir / "SKILL.md").write_text("# Review Copy\n", encoding="utf-8")
+    (ext_dir / "skill.yaml").write_text(
+        "\n".join(
+            [
+                "id: review-copy",
+                "name: Review Copy",
+                "category: extension",
+                "kind: prompt-skill",
+                "summary: Multi-LLM copy review workflow",
+                "runtimes:",
+                "  pi:",
+                "    command_name: ext-review-copy",
+                "    skill_file: SKILL.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    cmd_inspect(["extension", "review-copy", "--mirror-home", str(mirror_home)])
+
+    output = capsys.readouterr().out
+    assert "=== extension/review-copy ===" in output
+    assert "command_name: ext-review-copy" in output
+    assert f"root: {ext_dir}" in output

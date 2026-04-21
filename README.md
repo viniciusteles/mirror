@@ -339,6 +339,13 @@ python -m memory extensions validate --extensions-root examples/extensions
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
 ```
 
+You can also inspect one extension manifest in detail:
+
+```bash
+python -m memory inspect extension review-copy --extensions-root examples/extensions
+python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+```
+
 Financial import/reporting tools live in `~/dev/workspace/financial-tools`. The
 `treasurer` persona can interpret financial context from that tool, but Mirror
 Mind does not import bank statements or own financial tables.

@@ -1,11 +1,14 @@
 """Tests for memory inspection CLI helpers."""
 
 import json
+from pathlib import Path
 
 import pytest
 
 from memory.cli.inspect import cmd_detect_persona, cmd_inspect, cmd_list
 from memory.models import Identity
+
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_list_journeys_reads_english_identity_layer(mocker, capsys):
@@ -98,3 +101,26 @@ def test_detect_persona_prints_ranked_matches(mocker, capsys):
     output = capsys.readouterr().out
     assert "query: debug this python issue" in output
     assert "engineer: 3.0 (keyword)" in output
+
+
+def test_inspect_extension_shows_manifest_details(capsys):
+    cmd_inspect(
+        [
+            "extension",
+            "review-copy",
+            "--extensions-root",
+            str(PROJECT_ROOT / "examples" / "extensions"),
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert "=== extension/review-copy ===" in output
+    assert "kind: prompt-skill" in output
+    assert "command_name: ext:review-copy" in output
+    assert "command_name: ext-review-copy" in output
+    assert "skill_file: SKILL.md" in output
+
+
+def test_inspect_extension_exits_when_missing(tmp_path):
+    with pytest.raises(SystemExit):
+        cmd_inspect(["extension", "missing", "--extensions-root", str(tmp_path)])
