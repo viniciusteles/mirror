@@ -10,7 +10,11 @@ from pathlib import Path
 
 import yaml
 
-from memory.config import default_extensions_dir_for_home, resolve_mirror_home
+from memory.config import (
+    default_extensions_dir_for_home,
+    default_runtime_skills_dir_for_home,
+    resolve_mirror_home,
+)
 
 _ALLOWED_KINDS = {"prompt-skill", "command-skill"}
 _RUNTIME_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
@@ -234,15 +238,76 @@ def sync_extensions_for_runtime(
     return synced
 
 
+def install_extension(
+    extension_id: str,
+    *,
+    source_root: Path,
+    mirror_home: Path,
+    runtime: str | None = None,
+) -> dict[str, object]:
+    source_dir = source_root / extension_id
+    load_extension_manifest(source_dir)
+
+    target_extensions_root = default_extensions_dir_for_home(mirror_home)
+    target_extension_dir = target_extensions_root / extension_id
+    target_extensions_root.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source_dir, target_extension_dir, dirs_exist_ok=True)
+
+    installed_manifest = load_extension_manifest(target_extension_dir)
+    runtimes = [runtime] if runtime is not None else sorted(installed_manifest["runtimes"].keys())
+
+    synced: dict[str, list[dict[str, str]]] = {}
+    for runtime_name in runtimes:
+        runtime_target_root = default_runtime_skills_dir_for_home(mirror_home, runtime_name)
+        synced[runtime_name] = sync_extensions_for_runtime(
+            [installed_manifest], runtime_name, runtime_target_root
+        )
+
+    return {
+        "extension_id": extension_id,
+        "source_dir": str(source_dir),
+        "installed_dir": str(target_extension_dir),
+        "synced": synced,
+    }
+
+
 def cmd_extensions(args: list[str]) -> None:
-    """python -m memory extensions [list|validate|sync] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
+    """python -m memory extensions [list|validate|sync|install] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
     extensions_root, mirror_home, runtime, target_root, positional = _parse_args(args)
     command = positional[0] if positional else "list"
-    if command not in {"list", "validate", "sync"}:
+    if command not in {"list", "validate", "sync", "install"}:
         print(
-            "Usage: python -m memory extensions [list|validate|sync] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
+            "Usage: python -m memory extensions [list|validate|sync|install] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
         )
         sys.exit(1)
+
+    if command == "install":
+        if len(positional) != 2:
+            print(
+                "Usage: python -m memory extensions install <id> [--extensions-root PATH] [--mirror-home PATH] [--runtime NAME]"
+            )
+            sys.exit(1)
+        if mirror_home is None:
+            print("install requires --mirror-home PATH")
+            sys.exit(1)
+        if extensions_root is None:
+            print("install requires --extensions-root PATH")
+            sys.exit(1)
+
+        result = install_extension(
+            positional[1],
+            source_root=extensions_root,
+            mirror_home=Path(mirror_home).expanduser(),
+            runtime=runtime,
+        )
+        print(f"Installed extension/{result['extension_id']}")
+        print(f"  source: {result['source_dir']}")
+        print(f"  installed: {result['installed_dir']}")
+        for runtime_name, items in result["synced"].items():
+            print(f"  runtime {runtime_name}:")
+            for item in items:
+                print(f"    {item['command_name']} -> {item['target_skill_path']}")
+        return
 
     root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)
     manifests, errors = discover_extensions(root)

@@ -19,6 +19,15 @@ user-invocable: true
 > Concrete migration flow:
 >
 > ```bash
+> python -m memory extensions install \
+>   review-copy \
+>   --extensions-root examples/extensions \
+>   --mirror-home ~/.mirror/<user>
+> ```
+>
+> Equivalent explicit flow:
+>
+> ```bash
 > mkdir -p ~/.mirror/<user>/extensions
 > cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
 >

@@ -89,6 +89,10 @@ def default_extensions_dir_for_home(home: Path) -> Path:
     return home / "extensions"
 
 
+def default_runtime_skills_dir_for_home(home: Path, runtime: str) -> Path:
+    return home / "runtime" / "skills" / runtime
+
+
 def default_transcript_export_dir_for_home(home: Path) -> Path:
     return default_export_dir_for_home(home) / "transcripts"
 

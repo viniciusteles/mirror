@@ -332,7 +332,7 @@ Install shape for a real user home:
   SKILL.md
 ```
 
-You can list, validate, inspect, and sync example or user-home manifests with:
+You can list, validate, inspect, sync, and install example or user-home manifests with:
 
 ```bash
 python -m memory list extensions --extensions-root examples/extensions
@@ -343,6 +343,7 @@ python -m memory inspect extension review-copy --extensions-root examples/extens
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
 ```
 
 `sync` materializes runtime-visible skill folders such as:
@@ -353,23 +354,27 @@ and writes a small `extensions.json` catalog into the target root.
 
 ### Concrete `review-copy` migration flow
 
-Install the example into a real user home:
+One-command install into a real user home:
+
+```bash
+python -m memory extensions install \
+  review-copy \
+  --extensions-root examples/extensions \
+  --mirror-home ~/.mirror/<user>
+```
+
+This installs the source tree under `~/.mirror/<user>/extensions/` and syncs
+runtime-facing skill trees under `~/.mirror/<user>/runtime/skills/`.
+
+Equivalent explicit step-by-step flow:
 
 ```bash
 mkdir -p ~/.mirror/<user>/extensions
 cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
-```
 
-Validate and inspect it:
-
-```bash
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
-```
 
-Materialize runtime-facing skill trees:
-
-```bash
 python -m memory extensions sync \
   --mirror-home ~/.mirror/<user> \
   --runtime pi \

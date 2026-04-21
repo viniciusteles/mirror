@@ -9,6 +9,7 @@ from memory.cli.extensions import (
     cmd_extensions,
     discover_extensions,
     filter_manifests_for_runtime,
+    install_extension,
     load_extension_manifest,
     sync_extensions_for_runtime,
 )
@@ -319,6 +320,47 @@ def test_cmd_extensions_sync_writes_runtime_surface(tmp_path, capsys):
     assert "Synced 1 extension(s)" in output
     assert (target_root / "ext-review-copy" / "SKILL.md").exists()
     assert (target_root / "extensions.json").exists()
+
+
+def test_install_extension_copies_source_tree_and_syncs_runtime_targets(tmp_path):
+    mirror_home = tmp_path / ".mirror" / "pati"
+
+    result = install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+
+    assert (mirror_home / "extensions" / "review-copy" / "skill.yaml").exists()
+    assert (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy" / "SKILL.md").exists()
+    assert (mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy" / "SKILL.md").exists()
+    assert result["extension_id"] == "review-copy"
+
+
+def test_cmd_extensions_install_requires_mirror_home_and_source_root():
+    with pytest.raises(SystemExit):
+        cmd_extensions(["install", "review-copy"])
+
+
+def test_cmd_extensions_install_writes_user_home_and_runtime_surfaces(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+
+    cmd_extensions(
+        [
+            "install",
+            "review-copy",
+            "--extensions-root",
+            str(PROJECT_ROOT / "examples" / "extensions"),
+            "--mirror-home",
+            str(mirror_home),
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert "Installed extension/review-copy" in output
+    assert (mirror_home / "extensions" / "review-copy" / "skill.yaml").exists()
+    assert (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy" / "SKILL.md").exists()
+    assert (mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy" / "SKILL.md").exists()
 
 
 def test_reference_review_copy_example_manifest_is_valid():
