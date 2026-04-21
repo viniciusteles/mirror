@@ -356,6 +356,13 @@ python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 
 and writes an `extensions.json` runtime catalog into the target root.
 
+Pi consumption prototype:
+- on `session_start`, `.pi/extensions/mirror-logger.ts` now reads the installed
+  Pi runtime catalog when present
+- validates the runtime catalog envelope
+- logs discovered external skill commands
+- shows a lightweight `ext N` status hint in the Pi UI
+
 Catalog shape (v1):
 - `schema_version`
 - `runtime`

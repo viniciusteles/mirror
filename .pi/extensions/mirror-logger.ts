@@ -19,7 +19,7 @@
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { appendFileSync, mkdirSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -36,6 +36,20 @@ const LOG_FILE = join(MIRROR_DIR, "mirror-logger.log");
 
 // Content size limit for CLI arguments (~50KB, safe for macOS ARG_MAX)
 const MAX_CONTENT_SIZE = 50_000;
+
+type RuntimeCatalogEntry = {
+	id?: string;
+	command_name?: string;
+	installed_skill_path?: string;
+};
+
+type RuntimeCatalog = {
+	schema_version?: string;
+	runtime?: string;
+	target_root?: string;
+	generated_at?: string;
+	extensions?: RuntimeCatalogEntry[];
+};
 
 export default function (pi: ExtensionAPI) {
 	// --- Helpers ---
@@ -83,17 +97,71 @@ export default function (pi: ExtensionAPI) {
 		return text.slice(0, MAX_CONTENT_SIZE) + "\n[… truncated]";
 	}
 
+	function resolveMirrorHome(): string | null {
+		const explicitHome = process.env.MIRROR_HOME?.trim();
+		if (explicitHome) {
+			return explicitHome.startsWith("~") ? join(homedir(), explicitHome.slice(2)) : explicitHome;
+		}
+		const mirrorUser = process.env.MIRROR_USER?.trim();
+		if (mirrorUser) {
+			return join(homedir(), ".mirror", mirrorUser);
+		}
+		return null;
+	}
+
+	function loadInstalledPiExternalSkills(): RuntimeCatalog | null {
+		try {
+			const mirrorHome = resolveMirrorHome();
+			if (!mirrorHome) return null;
+			const catalogPath = join(mirrorHome, "runtime", "skills", "pi", "extensions.json");
+			if (!existsSync(catalogPath)) return null;
+
+			const raw = readFileSync(catalogPath, "utf-8");
+			const data = JSON.parse(raw) as RuntimeCatalog;
+			if (data.schema_version !== "1") {
+				log("WARN", `unsupported Pi external skill catalog schema: ${String(data.schema_version ?? "(missing)")}`);
+				return null;
+			}
+			if (data.runtime !== "pi") {
+				log("WARN", `unexpected Pi external skill catalog runtime: ${String(data.runtime ?? "(missing)")}`);
+				return null;
+			}
+			if (!Array.isArray(data.extensions)) {
+				log("WARN", "invalid Pi external skill catalog: extensions must be an array");
+				return null;
+			}
+			return data;
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : String(err);
+			log("WARN", `failed to load Pi external skill catalog: ${message.slice(0, 500)}`);
+			return null;
+		}
+	}
+
 	// --- 1. session_start → unmute + close stale orphans + extract pending ---
 
 	pi.on("session_start", async (_event, ctx) => {
 		log("INFO", "session_start fired");
 		const summary = await runPy(["-m", "memory", "conversation-logger", "session-start"]);
+		const externalCatalog = loadInstalledPiExternalSkills();
+		const externalSkills = externalCatalog?.extensions ?? [];
+		const externalSkillSummary = externalSkills.length
+			? `External skills: ${externalSkills.map((item) => item.command_name ?? item.id ?? "(unknown)").join(", ")}`
+			: "External skills: none";
 		log("INFO", `session-start result: ${summary || "(empty)"}`);
+		log("INFO", externalSkillSummary);
 		if (ctx.hasUI) {
 			if (summary) {
 				ctx.ui.notify(summary, "info");
 			}
-			ctx.ui.setStatus("mirror", summary || "Memory ready");
+			if (externalSkills.length > 0) {
+				ctx.ui.notify(`Loaded ${externalSkills.length} external Pi skill(s)`, "info");
+			}
+			const status = summary || "Memory ready";
+			ctx.ui.setStatus(
+				"mirror",
+				externalSkills.length > 0 ? `${status} · ext ${externalSkills.length}` : status,
+			);
 		}
 	});
 

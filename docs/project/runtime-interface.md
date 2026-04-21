@@ -256,6 +256,15 @@ Recommended first integration behavior:
 - external skills are additive
 - runtime catalog load failures should be logged, not fatal
 
+Current prototype status:
+- `.pi/extensions/mirror-logger.ts` now reads the installed Pi runtime catalog on
+  `session_start`
+- it validates `schema_version` and `runtime`
+- it logs discovered external skill commands
+- it surfaces a lightweight status hint in the Pi UI (`ext N`)
+- it still does **not** dynamically register commands; this is visibility and
+  readiness only, not full runtime loading yet
+
 ---
 
 ## CLI Reference

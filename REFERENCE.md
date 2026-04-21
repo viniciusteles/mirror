@@ -282,6 +282,14 @@ Each extension entry includes both logical metadata (`id`, `name`, `kind`,
 `summary`, `command_name`) and filesystem metadata (`source_extension_dir`,
 `manifest_path`, `source_skill_path`, `installed_skill_path`).
 
+Pi runtime prototype behavior:
+- `.pi/extensions/mirror-logger.ts` reads the installed Pi runtime catalog on
+  `session_start`
+- validates the envelope (`schema_version`, `runtime`)
+- logs discovered external skill commands
+- surfaces a lightweight external-skill count in the Pi UI
+- does not yet dynamically register or dispatch those commands
+
 Concrete `review-copy` migration flow:
 
 Preferred one-command install:
