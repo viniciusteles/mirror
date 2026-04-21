@@ -70,11 +70,12 @@ is the first thing they'll hit if it's missing.
   persona metadata/routing, with `routing_keywords` sourced from the database,
   not from seed YAML files at runtime.
 - CV6.E5 now has a deeper extension plan: `review-copy` is the first reference
-  extension, plus new planning exists for an external skill registry,
-  manifest contract, and later migration of `review-copy` to a user-home
-  external skill model.
+  extension, plus planning exists for an external skill registry, manifest
+  contract, explicit `skill.yaml` v1 schema, and later migration of
+  `review-copy` to a user-home external skill model.
 - The current recommended direction is: external skills should live under
-  `~/.mirror/<user>/extensions/`, declare themselves through a manifest, and be
-  surfaced with explicit `ext:` / `ext-` namespacing rather than as core skills.
+  `~/.mirror/<user>/extensions/`, declare themselves through a validated
+  `skill.yaml`, and be surfaced with explicit `ext:` / `ext-` namespacing
+  rather than as core skills.
 - Should `uv run` be documented more prominently in CLAUDE.md for future
   engineering sessions? Currently only in `docs/getting-started.md`.

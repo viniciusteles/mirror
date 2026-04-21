@@ -1,0 +1,182 @@
+"""Tests for external skill extension CLI helpers."""
+
+from textwrap import dedent
+
+import pytest
+
+from memory.cli.extensions import cmd_extensions, discover_extensions, load_extension_manifest
+
+
+def _write(path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(dedent(content).lstrip(), encoding="utf-8")
+
+
+def test_load_prompt_skill_manifest(tmp_path):
+    ext_dir = tmp_path / "extensions" / "review-copy"
+    _write(ext_dir / "SKILL.md", "# Review Copy\n")
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          claude:
+            command_name: ext:review-copy
+            skill_file: SKILL.md
+          pi:
+            command_name: ext-review-copy
+            skill_file: SKILL.md
+        """,
+    )
+
+    manifest = load_extension_manifest(ext_dir)
+
+    assert manifest["id"] == "review-copy"
+    assert manifest["kind"] == "prompt-skill"
+    assert manifest["runtimes"]["claude"]["command_name"] == "ext:review-copy"
+
+
+def test_load_command_skill_manifest(tmp_path):
+    ext_dir = tmp_path / "extensions" / "xdigest"
+    _write(ext_dir / "run.py", "print('ok')\n")
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: xdigest
+        name: X Digest
+        category: extension
+        kind: command-skill
+        summary: Generate digest reports
+        entrypoint:
+          command: python run.py
+        runtimes:
+          claude:
+            command_name: ext:xdigest
+          pi:
+            command_name: ext-xdigest
+        """,
+    )
+
+    manifest = load_extension_manifest(ext_dir)
+
+    assert manifest["kind"] == "command-skill"
+    assert manifest["entrypoint"]["command"] == "python run.py"
+
+
+def test_discover_extensions_reports_invalid_manifests(tmp_path):
+    root = tmp_path / "extensions"
+    valid_dir = root / "review-copy"
+    _write(valid_dir / "SKILL.md", "# Review Copy\n")
+    _write(
+        valid_dir / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          claude:
+            command_name: ext:review-copy
+            skill_file: SKILL.md
+        """,
+    )
+    invalid_dir = root / "bad-skill"
+    _write(
+        invalid_dir / "skill.yaml",
+        """
+        id: bad skill
+        name: Bad Skill
+        category: extension
+        kind: prompt-skill
+        summary: Broken manifest
+        runtimes:
+          claude:
+            command_name: ext:bad-skill
+            skill_file: SKILL.md
+        """,
+    )
+
+    manifests, errors = discover_extensions(root)
+
+    assert [m["id"] for m in manifests] == ["review-copy"]
+    assert errors
+    assert errors[0][0] == "bad-skill"
+
+
+def test_cmd_extensions_list_reads_from_explicit_extensions_root(tmp_path, capsys):
+    root = tmp_path / "extensions"
+    ext_dir = root / "review-copy"
+    _write(ext_dir / "SKILL.md", "# Review Copy\n")
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          claude:
+            command_name: ext:review-copy
+            skill_file: SKILL.md
+        """,
+    )
+
+    cmd_extensions(["list", "--extensions-root", str(root)])
+
+    output = capsys.readouterr().out
+    assert "review-copy [prompt-skill]" in output
+    assert "claude=ext:review-copy" in output
+
+
+def test_cmd_extensions_validate_exits_on_invalid_manifest(tmp_path):
+    root = tmp_path / "extensions"
+    bad_dir = root / "bad-skill"
+    _write(
+        bad_dir / "skill.yaml",
+        """
+        id: bad-skill
+        name: Bad Skill
+        category: extension
+        kind: prompt-skill
+        summary: Broken manifest
+        runtimes:
+          pi:
+            command_name: not-namespaced
+            skill_file: SKILL.md
+        """,
+    )
+
+    with pytest.raises(SystemExit):
+        cmd_extensions(["validate", "--extensions-root", str(root)])
+
+
+def test_cmd_extensions_uses_mirror_home_default_extensions_dir(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    ext_dir = mirror_home / "extensions" / "review-copy"
+    _write(ext_dir / "SKILL.md", "# Review Copy\n")
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          pi:
+            command_name: ext-review-copy
+            skill_file: SKILL.md
+        """,
+    )
+
+    cmd_extensions(["list", "--mirror-home", str(mirror_home)])
+
+    output = capsys.readouterr().out
+    assert f"Extensions root: {mirror_home / 'extensions'}" in output
+    assert "review-copy [prompt-skill]" in output

@@ -14,6 +14,8 @@ Commands:
                        Usage: python -m memory inspect persona <id> [--mirror-home PATH]
   detect-persona       Show persona routing matches for a query
                        Usage: python -m memory detect-persona <query> [--mirror-home PATH]
+  extensions           List or validate external skills under the active Mirror home
+                       Usage: python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH]
   mirror               Mirror skill commands
                        Usage: python -m memory mirror <load|deactivate|log|journeys> [args]
   conversation-logger  Conversation logging commands
@@ -80,6 +82,11 @@ def main() -> None:
         from memory.cli.inspect import cmd_detect_persona
 
         cmd_detect_persona(sys.argv[2:])
+
+    elif command == "extensions":
+        from memory.cli.extensions import cmd_extensions
+
+        cmd_extensions(sys.argv[2:])
 
     elif command == "mirror":
         from memory.skills.mirror import main as _mirror_main
