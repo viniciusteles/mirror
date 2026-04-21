@@ -39,6 +39,8 @@ external tools, rather than arbitrary in-process plugin loading.
 |------|-------|--------|
 | CV6.E5.S1 | Define the extension boundary and capability model | Planned — see `cv6-e5-s1-extension-boundary-and-capability-model/plan.md` |
 | CV6.E5.S2 | Establish the first extension migration/reference path | Planned — see `cv6-e5-s2-review-copy-reference-path/plan.md` |
+| CV6.E5.S3 | Define the external skill registry and manifest contract | Planned — see `cv6-e5-s3-external-skill-registry-and-manifest-contract/plan.md` |
+| CV6.E5.S4 | Migrate `review-copy` to the external skill model | Planned — see `cv6-e5-s4-migrate-review-copy-to-external-skill-model/plan.md` |
 
 Stories get `plan.md` and `test-guide.md` before implementation begins.
 
