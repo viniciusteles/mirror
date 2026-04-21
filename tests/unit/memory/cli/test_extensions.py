@@ -7,6 +7,7 @@ from textwrap import dedent
 import pytest
 
 from memory.cli.extensions import (
+    cleanup_claude_runtime_skills,
     cmd_extensions,
     discover_extensions,
     expose_claude_runtime_skills,
@@ -465,6 +466,52 @@ def test_expose_claude_runtime_skills_copies_runtime_surface_into_project(tmp_pa
     assert result["exposed"]
 
 
+def test_expose_claude_runtime_skills_prunes_previous_overlay_entries(tmp_path):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    project_root = tmp_path / "project"
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+    stale_dir = project_root / ".claude" / "skills" / "ext:stale-skill"
+    stale_dir.mkdir(parents=True)
+    stale_skill = stale_dir / "SKILL.md"
+    stale_skill.write_text("# stale\n", encoding="utf-8")
+    overlay_catalog = project_root / ".claude" / "skills" / "extensions.external.json"
+    overlay_catalog.write_text(
+        json.dumps([{"target_skill_path": str(stale_skill)}], indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    result = expose_claude_runtime_skills(mirror_home, project_root)
+
+    assert not stale_skill.exists()
+    assert not stale_dir.exists()
+    assert str(stale_skill) in result["removed"]
+    assert (project_root / ".claude" / "skills" / "ext:review-copy" / "SKILL.md").exists()
+
+
+def test_cleanup_claude_runtime_skills_removes_overlay_artifacts(tmp_path):
+    project_root = tmp_path / "project"
+    skill_dir = project_root / ".claude" / "skills" / "ext:review-copy"
+    skill_dir.mkdir(parents=True)
+    skill_path = skill_dir / "SKILL.md"
+    skill_path.write_text("# Review Copy\n", encoding="utf-8")
+    overlay_catalog = project_root / ".claude" / "skills" / "extensions.external.json"
+    overlay_catalog.write_text(
+        json.dumps([{"target_skill_path": str(skill_path)}], indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    result = cleanup_claude_runtime_skills(project_root)
+
+    assert str(skill_path) in result["removed"]
+    assert not skill_path.exists()
+    assert not skill_dir.exists()
+    assert not overlay_catalog.exists()
+
+
 def test_cmd_extensions_expose_claude_requires_mirror_home():
     with pytest.raises(SystemExit):
         cmd_extensions(["expose-claude"])
@@ -486,6 +533,26 @@ def test_cmd_extensions_expose_claude_writes_project_skill_surface(tmp_path, cap
     output = capsys.readouterr().out
     assert "Exposed Claude external skills" in output
     assert (project_root / ".claude" / "skills" / "ext:review-copy" / "SKILL.md").exists()
+
+
+def test_cmd_extensions_clean_claude_removes_project_skill_surface(tmp_path, capsys):
+    project_root = tmp_path / "project"
+    skill_dir = project_root / ".claude" / "skills" / "ext:review-copy"
+    skill_dir.mkdir(parents=True)
+    skill_path = skill_dir / "SKILL.md"
+    skill_path.write_text("# Review Copy\n", encoding="utf-8")
+    overlay_catalog = project_root / ".claude" / "skills" / "extensions.external.json"
+    overlay_catalog.write_text(
+        json.dumps([{"target_skill_path": str(skill_path)}], indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    cmd_extensions(["clean-claude", "--target-root", str(project_root)])
+
+    output = capsys.readouterr().out
+    assert "Removed Claude external skills" in output
+    assert not skill_path.exists()
+    assert not overlay_catalog.exists()
 
 
 def test_reference_review_copy_example_manifest_is_valid():

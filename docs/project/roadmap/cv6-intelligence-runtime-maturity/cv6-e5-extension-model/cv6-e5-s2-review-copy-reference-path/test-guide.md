@@ -4,7 +4,8 @@
 
 ## Scope
 
-This story is planning/documentation only. No relocation of `review-copy` is in scope yet.
+This story started as planning/documentation only. `review-copy` has now moved
+through that path into an external reference example.
 
 Verification is about confirming that `review-copy` has a concrete, credible
 reference-extension path instead of remaining an undefined special case.
@@ -19,8 +20,8 @@ Confirm the docs clearly define:
    - `review-copy` is a reference extension, not core
 
 2. **Short-term path**
-   - keep the skill in-repo temporarily
-   - clarify its status before moving it
+   - the historical in-repo staging is documented accurately
+   - current docs point to the external example/runtime path
 
 3. **Why it is a good example**
    - orchestrates stable core commands
@@ -41,8 +42,8 @@ Read these docs together and confirm they agree:
 - `docs/project/roadmap/cv6-intelligence-runtime-maturity/cv6-e5-extension-model/cv6-e5-s1-extension-boundary-and-capability-model/plan.md`
 - `docs/project/roadmap/cv6-intelligence-runtime-maturity/cv6-e5-extension-model/cv6-e5-s2-review-copy-reference-path/plan.md`
 - `docs/project/roadmap/cv6-intelligence-runtime-maturity/cv6-e3-multi-user-cleanup-and-boundary-audit/cv6-e3-s2-resolve-high-risk-boundary-leaks/plan.md`
-- `.pi/skills/mm-review-copy/SKILL.md`
-- `.claude/skills/mm:review-copy/SKILL.md`
+- `examples/extensions/review-copy/SKILL.md`
+- `examples/extensions/review-copy/skill.yaml`
 
 Check specifically that the wording does **not** imply:
 - `review-copy` is already part of the permanent core framework
@@ -63,4 +64,10 @@ Then run:
 git diff --check
 ```
 
-No runtime verification suite is required because no code behavior changes are in scope.
+Optional runtime verification:
+
+```bash
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home /tmp/mm-home
+python -m memory extensions expose-claude --mirror-home /tmp/mm-home --target-root /tmp/mm-project
+python -m memory extensions clean-claude --target-root /tmp/mm-project
+```

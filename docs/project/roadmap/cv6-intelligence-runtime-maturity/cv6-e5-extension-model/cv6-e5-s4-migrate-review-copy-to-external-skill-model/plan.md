@@ -38,6 +38,9 @@ The extension remains prompt-driven unless later complexity justifies a command-
 
 Introduce the external-skill shape for `review-copy` while the in-repo reference remains documented.
 
+Status: completed. The external-skill shape exists, and the repo-local
+`review-copy` skill files have now been removed from both runtimes.
+
 Goals:
 - prove the manifest/location model can represent a real skill
 - avoid breaking existing users immediately
@@ -48,6 +51,9 @@ Goals:
 Once discovery/registration exists:
 - prefer the user-home external version
 - keep in-repo docs only as a migration aid if still needed
+
+Status: completed for `review-copy`. The expected command surface is now
+`ext:review-copy` / `ext-review-copy`.
 
 ### Phase 3 — Remove or archive in-repo reference
 

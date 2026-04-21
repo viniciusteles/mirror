@@ -45,8 +45,8 @@ Read these docs together and confirm they agree:
 - `docs/project/roadmap/cv6-intelligence-runtime-maturity/cv6-e5-extension-model/cv6-e5-s2-review-copy-reference-path/plan.md`
 - `docs/project/roadmap/cv6-intelligence-runtime-maturity/cv6-e5-extension-model/cv6-e5-s3-external-skill-registry-and-manifest-contract/plan.md`
 - `docs/project/roadmap/cv6-intelligence-runtime-maturity/cv6-e5-extension-model/cv6-e5-s4-migrate-review-copy-to-external-skill-model/plan.md`
-- `.pi/skills/mm-review-copy/SKILL.md`
-- `.claude/skills/mm:review-copy/SKILL.md`
+- `examples/extensions/review-copy/SKILL.md`
+- `examples/extensions/review-copy/skill.yaml`
 
 Check specifically that the wording does **not** imply:
 - `review-copy` should stay permanently in the core repo surface
@@ -68,6 +68,9 @@ python -m memory extensions validate --extensions-root examples/extensions
 python -m memory inspect extension review-copy --extensions-root examples/extensions
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/review-copy-pi
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/review-copy-claude
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home /tmp/mm-home
+python -m memory extensions expose-claude --mirror-home /tmp/mm-home --target-root /tmp/mm-project
+python -m memory extensions clean-claude --target-root /tmp/mm-project
 
 git diff --check
 ```

@@ -14,8 +14,8 @@ Commands:
                        Usage: python -m memory inspect persona|extension|runtime-catalog <id> [--mirror-home PATH] [--extensions-root PATH]
   detect-persona       Show persona routing matches for a query
                        Usage: python -m memory detect-persona <query> [--mirror-home PATH]
-  extensions           List, validate, sync, install, uninstall, or expose external skills under the active Mirror home
-                       Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]
+  extensions           List, validate, sync, install, uninstall, expose, or clean external skills under the active Mirror home
+                       Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude|clean-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]
   mirror               Mirror skill commands
                        Usage: python -m memory mirror <load|deactivate|log|journeys> [args]
   conversation-logger  Conversation logging commands

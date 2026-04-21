@@ -200,11 +200,11 @@ extensions** while the extension model matures. These are not part of Mirror
 Mind core even if they are available as skills.
 
 Current example:
-- `mm:review-copy` — a Claude-side transitional reference skill while the
-  external install flow matures
 - `examples/extensions/review-copy/` — the first external-skill reference tree,
   using `skill.yaml` plus `SKILL.md` with runtime names `ext:review-copy` and
   `ext-review-copy`
+- `review-copy` is no longer shipped as a repo-local Claude or Pi skill; use
+  the external install + runtime surfacing flow
 
 ## Legacy migration
 
@@ -371,6 +371,10 @@ Claude runtime surfacing:
 - `python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
   copies installed Claude external skills from the runtime catalog into the
   target project's `.claude/skills/` surface
+- rerunning `expose-claude` prunes previously exposed external-skill paths from
+  the overlay catalog before writing the current surface
+- `python -m memory extensions clean-claude --target-root /path/to/project`
+  removes previously exposed Claude external-skill files from the project
 - this is explicit project-level surfacing, not automatic global mutation
 
 Catalog shape (v1):
@@ -416,6 +420,13 @@ python -m memory extensions expose-claude \
   --target-root /path/to/project
 ```
 
+To remove that project-local Claude external skill surface later:
+
+```bash
+python -m memory extensions clean-claude \
+  --target-root /path/to/project
+```
+
 Equivalent explicit step-by-step flow:
 
 ```bash
@@ -448,7 +459,9 @@ Resulting artifacts:
 ```
 
 This keeps the source extension user-owned under `~/.mirror/<user>/extensions/`
-while making runtime surfacing explicit and reproducible.
+while making runtime surfacing explicit and reproducible. `review-copy` is now
+expected to be invoked through `ext:review-copy` / `ext-review-copy`, not via a
+repo-local `mm:review-copy` or `mm-review-copy` skill.
 
 For a full end-to-end smoke test, run:
 

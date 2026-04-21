@@ -73,7 +73,7 @@ other long-form reference content.
 |---------|---------|----------------|
 | `/mm:mirror` | Loads identity, persona, journey, and attachments for Mirror Mode | `load [--persona P] [--journey J] [--query Q] [--org]`, `log "summary"`, `journeys` |
 | `/mm:consult` | Asks other LLMs through OpenRouter with Mirror context | `<family> [tier] "prompt"`, `credits` |
-| `/mm:review-copy` | Claude-side transitional reference skill for multi-LLM copy review; not a core framework capability | skill-driven workflow |
+| `ext:review-copy` | External Claude skill for multi-LLM copy review; install + expose it explicitly before use | skill-driven workflow |
 | `/mm:journeys` | Lists journeys with status | no arguments |
 | `/mm:journey` | Shows detailed journey identity, journey path, memories, and conversations | `[journey]`, `update <journey> <content>` |
 | `/mm:memories` | Lists or searches memories by type, layer, and journey | `--type T`, `--layer L`, `--journey J`, `--search "Q"`, `--limit N` |
@@ -299,6 +299,10 @@ Claude runtime surfacing:
 - `python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
   projects installed Claude external skills into the target project's
   `.claude/skills/` surface
+- rerunning `expose-claude` prunes previously exposed external-skill paths from
+  the overlay catalog before writing the current surface
+- `python -m memory extensions clean-claude --target-root /path/to/project`
+  removes previously exposed Claude external-skill files from the project
 - this is explicit and project-scoped
 
 Concrete `review-copy` migration flow:
@@ -325,6 +329,13 @@ surface:
 ```bash
 python -m memory extensions expose-claude \
   --mirror-home ~/.mirror/<user> \
+  --target-root /path/to/project
+```
+
+To remove that project-local Claude external skill surface later:
+
+```bash
+python -m memory extensions clean-claude \
   --target-root /path/to/project
 ```
 
@@ -355,9 +366,9 @@ Expected artifacts:
 - `~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md`
 - one `extensions.json` catalog per runtime target root
 
-The in-repo `mm:review-copy` skill remains a temporary Claude-side reference
-extension while migration guidance stabilizes. The repo-local Pi `mm-review-copy`
-skill has been removed in favor of the external install flow.
+`review-copy` is no longer shipped as a repo-local Claude or Pi skill. Use the
+external install flow, then surface it explicitly as `ext:review-copy` for
+Claude or `ext-review-copy` for Pi.
 
 Financial tooling lives in `~/dev/workspace/financial-tools`. The `treasurer`
 persona can interpret financial context from that tool, but Mirror Mind does

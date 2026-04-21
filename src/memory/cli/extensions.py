@@ -346,11 +346,53 @@ def install_extension(
     }
 
 
+def _load_claude_overlay_catalog(path: Path) -> list[dict[str, object]]:
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def cleanup_claude_runtime_skills(project_root: Path) -> dict[str, object]:
+    claude_skills_root = project_root / ".claude" / "skills"
+    overlay_catalog_path = claude_skills_root / "extensions.external.json"
+    removed: list[str] = []
+
+    for item in _load_claude_overlay_catalog(overlay_catalog_path):
+        if not isinstance(item, dict):
+            continue
+        target_skill_path = item.get("target_skill_path")
+        if not isinstance(target_skill_path, str):
+            continue
+        target_path = Path(target_skill_path)
+        if target_path.exists():
+            target_path.unlink()
+            removed.append(str(target_path))
+        parent = target_path.parent
+        if parent.exists() and not any(parent.iterdir()):
+            parent.rmdir()
+
+    if overlay_catalog_path.exists():
+        overlay_catalog_path.unlink()
+
+    return {
+        "project_root": str(project_root),
+        "claude_skills_root": str(claude_skills_root),
+        "overlay_catalog_path": str(overlay_catalog_path),
+        "removed": removed,
+    }
+
+
 def expose_claude_runtime_skills(mirror_home: Path, project_root: Path) -> dict[str, object]:
     catalog = load_runtime_catalog("claude", mirror_home)
     items = catalog.get("extensions", [])
     claude_skills_root = project_root / ".claude" / "skills"
     claude_skills_root.mkdir(parents=True, exist_ok=True)
+
+    cleanup = cleanup_claude_runtime_skills(project_root)
 
     exposed: list[dict[str, str]] = []
     for item in items:
@@ -381,6 +423,7 @@ def expose_claude_runtime_skills(mirror_home: Path, project_root: Path) -> dict[
         "project_root": str(project_root),
         "claude_skills_root": str(claude_skills_root),
         "overlay_catalog_path": str(overlay_catalog_path),
+        "removed": cleanup["removed"],
         "exposed": exposed,
     }
 
@@ -426,12 +469,20 @@ def uninstall_extension(
 
 
 def cmd_extensions(args: list[str]) -> None:
-    """python -m memory extensions [list|validate|sync|install|uninstall|expose-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
+    """python -m memory extensions [list|validate|sync|install|uninstall|expose-claude|clean-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
     extensions_root, mirror_home, runtime, target_root, positional = _parse_args(args)
     command = positional[0] if positional else "list"
-    if command not in {"list", "validate", "sync", "install", "uninstall", "expose-claude"}:
+    if command not in {
+        "list",
+        "validate",
+        "sync",
+        "install",
+        "uninstall",
+        "expose-claude",
+        "clean-claude",
+    }:
         print(
-            "Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
+            "Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude|clean-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
         )
         sys.exit(1)
 
@@ -506,8 +557,19 @@ def cmd_extensions(args: list[str]) -> None:
             sys.exit(1)
         print(f"Exposed Claude external skills into {result['claude_skills_root']}")
         print(f"  overlay catalog: {result['overlay_catalog_path']}")
+        for removed in result["removed"]:
+            print(f"  pruned {removed}")
         for item in result["exposed"]:
             print(f"  {item['command_name']} -> {item['target_skill_path']}")
+        return
+
+    if command == "clean-claude":
+        project_root = target_root or Path.cwd()
+        result = cleanup_claude_runtime_skills(project_root.expanduser())
+        print(f"Removed Claude external skills from {result['claude_skills_root']}")
+        print(f"  overlay catalog: {result['overlay_catalog_path']}")
+        for removed in result["removed"]:
+            print(f"  removed {removed}")
         return
 
     root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)

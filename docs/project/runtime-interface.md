@@ -165,12 +165,22 @@ python -m memory extensions expose-claude \
   --target-root /path/to/project
 ```
 
+- remove the projected Claude external skill surface later with:
+
+```bash
+python -m memory extensions clean-claude \
+  --target-root /path/to/project
+```
+
 This creates project-visible skill directories such as:
 
 ```text
 /path/to/project/.claude/skills/ext:review-copy/SKILL.md
 /path/to/project/.claude/skills/extensions.external.json
 ```
+
+Claude no longer relies on a repo-local `mm:review-copy` compatibility skill;
+`review-copy` should now be surfaced as an installed external Claude skill.
 
 ### Pi
 

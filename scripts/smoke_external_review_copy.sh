@@ -38,6 +38,14 @@ test -f "$PROJECT_ROOT/.claude/skills/ext:review-copy/SKILL.md"
 test -f "$PROJECT_ROOT/.claude/skills/extensions.external.json"
 
 echo
+echo "== Clean Claude project exposure =="
+python -m memory extensions clean-claude \
+  --target-root "$PROJECT_ROOT"
+
+test ! -f "$PROJECT_ROOT/.claude/skills/ext:review-copy/SKILL.md"
+test ! -f "$PROJECT_ROOT/.claude/skills/extensions.external.json"
+
+echo
 echo "Smoke test passed."
 echo "Mirror home:   $MIRROR_HOME"
 echo "Claude project: $PROJECT_ROOT"

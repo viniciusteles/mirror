@@ -86,9 +86,11 @@ is the first thing they'll hit if it's missing.
   `~/.mirror/<user>/runtime/skills/pi/` and
   `~/.mirror/<user>/runtime/skills/claude/`.
 - Pi now consumes installed external skills from the Pi runtime catalog via
-  `resources_discover`, and Claude has an explicit project-level surfacing
-  command: `python -m memory extensions expose-claude --mirror-home ... --target-root ...`.
-- The repo-local Pi `mm-review-copy` skill has been removed; Pi should use the
-  external install flow for `review-copy` now.
+  `resources_discover`, and Claude has explicit project-level surfacing and
+  cleanup commands:
+  `python -m memory extensions expose-claude --mirror-home ... --target-root ...`
+  and `python -m memory extensions clean-claude --target-root ...`.
+- Both repo-local `review-copy` skills have now been removed; `review-copy`
+  should use the external install flow for both Pi and Claude.
 - Should `uv run` be documented more prominently in CLAUDE.md for future
   engineering sessions? Currently only in `docs/getting-started.md`.

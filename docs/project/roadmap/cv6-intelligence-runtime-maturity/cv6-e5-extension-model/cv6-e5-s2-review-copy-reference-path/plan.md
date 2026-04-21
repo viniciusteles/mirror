@@ -45,11 +45,16 @@ Meaning:
 
 ### Phase 1 — Reclassify, do not move yet
 
-Short-term direction:
+Historical short-term direction:
 - keep `.claude/skills/mm:review-copy/SKILL.md`
 - keep `.pi/skills/mm-review-copy/SKILL.md`
 - document them as a **reference extension example**
 - make docs explicit that they are not a required part of core
+
+Status now:
+- both repo-local `review-copy` skill files have been removed
+- the reference example lives at `examples/extensions/review-copy/`
+- runtime-visible names are `ext:review-copy` and `ext-review-copy`
 
 ### Phase 2 — Define extension authoring/install expectations
 
@@ -75,9 +80,10 @@ which models are acceptable.
 
 The recommended reference path is:
 
-- **now:** keep `review-copy` in-repo, but explicitly reclassify it as a reference extension
-- **next:** document how a user-specific skill can orchestrate existing core commands (`memory consult`, file IO, report generation) without becoming core
-- **later:** move reference extensions into a dedicated extension/examples surface once the authoring/install model is clear
+- **completed:** `review-copy` was reclassified as a reference extension
+- **completed:** the reference example now lives in `examples/extensions/review-copy/`
+- **now:** install and surface it explicitly as `ext:review-copy` / `ext-review-copy`
+- **later:** keep improving the extension authoring/install/runtime model around this example
 
 This balances clarity and momentum.
 
