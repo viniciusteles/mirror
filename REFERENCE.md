@@ -249,7 +249,7 @@ Runtime names:
 - Claude Code: `ext:review-copy`
 - Pi: `ext-review-copy`
 
-List, validate, and inspect manifests with:
+List, validate, inspect, and sync manifests with:
 
 ```bash
 python -m memory list extensions --extensions-root examples/extensions
@@ -258,7 +258,13 @@ python -m memory extensions validate --extensions-root examples/extensions
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
 python -m memory inspect extension review-copy --extensions-root examples/extensions
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
+python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
 ```
+
+`sync` copies runtime-visible `SKILL.md` files into one explicit target root and
+writes an `extensions.json` catalog there. This keeps installation explicit and
+avoids implicit mutation of repo-local skill surfaces.
 
 The in-repo `mm:review-copy` / `mm-review-copy` skill remains a temporary
 reference extension while migration guidance stabilizes.

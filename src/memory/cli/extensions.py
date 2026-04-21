@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -146,10 +148,13 @@ def discover_extensions(extensions_root: Path) -> tuple[list[dict], list[tuple[s
     return manifests, errors
 
 
-def _parse_args(args: list[str]) -> tuple[Path | None, str | None, str | None, list[str]]:
+def _parse_args(
+    args: list[str],
+) -> tuple[Path | None, str | None, str | None, Path | None, list[str]]:
     extensions_root = None
     mirror_home = None
     runtime = None
+    target_root = None
     positional: list[str] = []
     i = 0
     while i < len(args):
@@ -162,10 +167,13 @@ def _parse_args(args: list[str]) -> tuple[Path | None, str | None, str | None, l
         elif args[i] == "--runtime" and i + 1 < len(args):
             runtime = args[i + 1]
             i += 2
+        elif args[i] == "--target-root" and i + 1 < len(args):
+            target_root = Path(args[i + 1]).expanduser()
+            i += 2
         else:
             positional.append(args[i])
             i += 1
-    return extensions_root, mirror_home, runtime, positional
+    return extensions_root, mirror_home, runtime, target_root, positional
 
 
 def filter_manifests_for_runtime(manifests: list[dict], runtime: str | None) -> list[dict]:
@@ -192,13 +200,47 @@ def print_extension_list(manifests: list[dict], errors: list[tuple[str, str]], r
             print(f"  {ext_id}: {message}")
 
 
+def sync_extensions_for_runtime(
+    manifests: list[dict], runtime: str, target_root: Path
+) -> list[dict[str, str]]:
+    target_root.mkdir(parents=True, exist_ok=True)
+    synced: list[dict[str, str]] = []
+
+    for manifest in manifests:
+        runtime_data = manifest.get("runtimes", {}).get(runtime)
+        if not runtime_data:
+            continue
+        skill_path = runtime_data.get("skill_path")
+        if not skill_path:
+            continue
+
+        command_name = runtime_data["command_name"]
+        target_dir = target_root / command_name
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target_skill_path = target_dir / "SKILL.md"
+        shutil.copyfile(skill_path, target_skill_path)
+        synced.append(
+            {
+                "id": manifest["id"],
+                "runtime": runtime,
+                "command_name": command_name,
+                "source_skill_path": skill_path,
+                "target_skill_path": str(target_skill_path),
+            }
+        )
+
+    catalog_path = target_root / "extensions.json"
+    catalog_path.write_text(json.dumps(synced, indent=2) + "\n", encoding="utf-8")
+    return synced
+
+
 def cmd_extensions(args: list[str]) -> None:
-    """python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME]"""
-    extensions_root, mirror_home, runtime, positional = _parse_args(args)
+    """python -m memory extensions [list|validate|sync] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
+    extensions_root, mirror_home, runtime, target_root, positional = _parse_args(args)
     command = positional[0] if positional else "list"
-    if command not in {"list", "validate"}:
+    if command not in {"list", "validate", "sync"}:
         print(
-            "Usage: python -m memory extensions [list|validate] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME]"
+            "Usage: python -m memory extensions [list|validate|sync] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
         )
         sys.exit(1)
 
@@ -220,4 +262,18 @@ def cmd_extensions(args: list[str]) -> None:
         for ext_id, message in errors:
             print(f"  {ext_id}: {message}")
         sys.exit(1)
-    print(f"Validated {len(manifests)} extension(s).")
+    if command == "validate":
+        print(f"Validated {len(manifests)} extension(s).")
+        return
+
+    if runtime is None:
+        print("sync requires --runtime")
+        sys.exit(1)
+    if target_root is None:
+        print("sync requires --target-root PATH")
+        sys.exit(1)
+
+    synced = sync_extensions_for_runtime(manifests, runtime, target_root)
+    print(f"Synced {len(synced)} extension(s) to {target_root}")
+    for item in synced:
+        print(f"  {item['command_name']} -> {item['target_skill_path']}")

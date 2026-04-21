@@ -332,7 +332,7 @@ Install shape for a real user home:
   SKILL.md
 ```
 
-You can list, validate, and inspect example or user-home manifests with:
+You can list, validate, inspect, and sync example or user-home manifests with:
 
 ```bash
 python -m memory list extensions --extensions-root examples/extensions
@@ -341,7 +341,15 @@ python -m memory extensions validate --extensions-root examples/extensions
 python -m memory extensions validate --mirror-home ~/.mirror/<user>
 python -m memory inspect extension review-copy --extensions-root examples/extensions
 python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
+python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
 ```
+
+`sync` materializes runtime-visible skill folders such as:
+- `/tmp/pi-skills/ext-review-copy/SKILL.md`
+- `/tmp/claude-skills/ext:review-copy/SKILL.md`
+
+and writes a small `extensions.json` catalog into the target root.
 
 Financial import/reporting tools live in `~/dev/workspace/financial-tools`. The
 `treasurer` persona can interpret financial context from that tool, but Mirror

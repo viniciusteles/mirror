@@ -10,6 +10,7 @@ from memory.cli.extensions import (
     discover_extensions,
     filter_manifests_for_runtime,
     load_extension_manifest,
+    sync_extensions_for_runtime,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -263,6 +264,61 @@ def test_filter_manifests_for_runtime_returns_matching_extensions_only(tmp_path)
     filtered = filter_manifests_for_runtime(manifests, "pi")
 
     assert [manifest["id"] for manifest in filtered] == ["review-copy"]
+
+
+def test_sync_extensions_for_runtime_materializes_skill_tree(tmp_path):
+    manifests = [load_extension_manifest(PROJECT_ROOT / "examples" / "extensions" / "review-copy")]
+    target_root = tmp_path / "pi-skills"
+
+    synced = sync_extensions_for_runtime(manifests, "pi", target_root)
+
+    assert len(synced) == 1
+    assert (target_root / "ext-review-copy" / "SKILL.md").exists()
+    assert (target_root / "extensions.json").exists()
+
+
+def test_cmd_extensions_sync_requires_runtime_and_target_root(tmp_path):
+    root = tmp_path / "extensions"
+    ext_dir = root / "review-copy"
+    _write(ext_dir / "SKILL.md", "# Review Copy\n")
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: review-copy
+        name: Review Copy
+        category: extension
+        kind: prompt-skill
+        summary: Multi-LLM copy review workflow
+        runtimes:
+          pi:
+            command_name: ext-review-copy
+            skill_file: SKILL.md
+        """,
+    )
+
+    with pytest.raises(SystemExit):
+        cmd_extensions(["sync", "--extensions-root", str(root)])
+
+
+def test_cmd_extensions_sync_writes_runtime_surface(tmp_path, capsys):
+    target_root = tmp_path / "pi-skills"
+
+    cmd_extensions(
+        [
+            "sync",
+            "--extensions-root",
+            str(PROJECT_ROOT / "examples" / "extensions"),
+            "--runtime",
+            "pi",
+            "--target-root",
+            str(target_root),
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert "Synced 1 extension(s)" in output
+    assert (target_root / "ext-review-copy" / "SKILL.md").exists()
+    assert (target_root / "extensions.json").exists()
 
 
 def test_reference_review_copy_example_manifest_is_valid():
