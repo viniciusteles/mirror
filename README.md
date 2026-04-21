@@ -200,9 +200,8 @@ extensions** while the extension model matures. These are not part of Mirror
 Mind core even if they are available as skills.
 
 Current example:
-- `mm:review-copy` / `mm-review-copy` — a specialized multi-LLM copy review
-  workflow kept in-repo as a reference extension, not as a core framework
-  capability
+- `mm:review-copy` — a Claude-side transitional reference skill while the
+  external install flow matures
 - `examples/extensions/review-copy/` — the first external-skill reference tree,
   using `skill.yaml` plus `SKILL.md` with runtime names `ext:review-copy` and
   `ext-review-copy`
@@ -348,6 +347,8 @@ python -m memory extensions install review-copy --extensions-root examples/exten
 python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user> --runtime pi
 python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user> --runtime pi
+python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
+./scripts/smoke_external_review_copy.sh
 ```
 
 `sync` materializes runtime-visible skill folders such as:
@@ -356,7 +357,7 @@ python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 
 and writes an `extensions.json` runtime catalog into the target root.
 
-Pi consumption prototype:
+Pi runtime consumption:
 - on `session_start`, `.pi/extensions/mirror-logger.ts` now reads the installed
   Pi runtime catalog when present
 - validates the runtime catalog envelope
@@ -365,6 +366,12 @@ Pi consumption prototype:
 - on `resources_discover`, it contributes installed external `SKILL.md` paths
   from the Pi runtime catalog so those skills become part of Pi's discovered
   skill surface
+
+Claude runtime surfacing:
+- `python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
+  copies installed Claude external skills from the runtime catalog into the
+  target project's `.claude/skills/` surface
+- this is explicit project-level surfacing, not automatic global mutation
 
 Catalog shape (v1):
 - `schema_version`
@@ -400,6 +407,15 @@ To remove the extension later, run:
 python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 ```
 
+To surface installed Claude external skills into a project-local Claude skill
+surface:
+
+```bash
+python -m memory extensions expose-claude \
+  --mirror-home ~/.mirror/<user> \
+  --target-root /path/to/project
+```
+
 Equivalent explicit step-by-step flow:
 
 ```bash
@@ -433,6 +449,12 @@ Resulting artifacts:
 
 This keeps the source extension user-owned under `~/.mirror/<user>/extensions/`
 while making runtime surfacing explicit and reproducible.
+
+For a full end-to-end smoke test, run:
+
+```bash
+./scripts/smoke_external_review_copy.sh
+```
 
 Financial import/reporting tools live in `~/dev/workspace/financial-tools`. The
 `treasurer` persona can interpret financial context from that tool, but Mirror

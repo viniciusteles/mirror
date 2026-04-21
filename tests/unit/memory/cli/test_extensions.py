@@ -9,6 +9,7 @@ import pytest
 from memory.cli.extensions import (
     cmd_extensions,
     discover_extensions,
+    expose_claude_runtime_skills,
     filter_manifests_for_runtime,
     install_extension,
     load_extension_manifest,
@@ -446,6 +447,45 @@ def test_cmd_extensions_uninstall_removes_installed_extension(tmp_path, capsys):
     output = capsys.readouterr().out
     assert "Uninstalled extension/review-copy" in output
     assert not (mirror_home / "extensions" / "review-copy").exists()
+
+
+def test_expose_claude_runtime_skills_copies_runtime_surface_into_project(tmp_path):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    project_root = tmp_path / "project"
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+
+    result = expose_claude_runtime_skills(mirror_home, project_root)
+
+    assert (project_root / ".claude" / "skills" / "ext:review-copy" / "SKILL.md").exists()
+    assert (project_root / ".claude" / "skills" / "extensions.external.json").exists()
+    assert result["exposed"]
+
+
+def test_cmd_extensions_expose_claude_requires_mirror_home():
+    with pytest.raises(SystemExit):
+        cmd_extensions(["expose-claude"])
+
+
+def test_cmd_extensions_expose_claude_writes_project_skill_surface(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    project_root = tmp_path / "project"
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+
+    cmd_extensions(
+        ["expose-claude", "--mirror-home", str(mirror_home), "--target-root", str(project_root)]
+    )
+
+    output = capsys.readouterr().out
+    assert "Exposed Claude external skills" in output
+    assert (project_root / ".claude" / "skills" / "ext:review-copy" / "SKILL.md").exists()
 
 
 def test_reference_review_copy_example_manifest_is_valid():

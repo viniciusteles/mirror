@@ -154,6 +154,24 @@ explicitly at the start of each Mirror Mode response.
 
 Hook files are registered in `.claude/settings.json`.
 
+Current external-skill surfacing path:
+- keep the installed source/runtime artifacts under `~/.mirror/<user>/...`
+- explicitly project installed Claude external skills into a project-local
+  `.claude/skills/` surface with:
+
+```bash
+python -m memory extensions expose-claude \
+  --mirror-home ~/.mirror/<user> \
+  --target-root /path/to/project
+```
+
+This creates project-visible skill directories such as:
+
+```text
+/path/to/project/.claude/skills/ext:review-copy/SKILL.md
+/path/to/project/.claude/skills/extensions.external.json
+```
+
 ### Pi
 
 | Event | Extension file | Pi trigger |

@@ -270,6 +270,29 @@ def _load_catalog(path: Path) -> dict[str, object]:
     return data if isinstance(data, dict) else {"schema_version": "1", "extensions": []}
 
 
+def load_runtime_catalog(runtime: str, mirror_home: Path) -> dict[str, object]:
+    runtime_root = default_runtime_skills_dir_for_home(mirror_home, runtime)
+    catalog_path = runtime_root / "extensions.json"
+    if not catalog_path.exists():
+        raise ExtensionValidationError(f"runtime catalog not found: {catalog_path}")
+
+    catalog = _load_catalog(catalog_path)
+    if catalog.get("schema_version") != "1":
+        raise ExtensionValidationError(
+            f"unsupported runtime catalog schema '{catalog.get('schema_version')}' in {catalog_path}"
+        )
+    if catalog.get("runtime") != runtime:
+        raise ExtensionValidationError(
+            f"runtime catalog {catalog_path} does not match runtime '{runtime}'"
+        )
+    extensions = catalog.get("extensions")
+    if not isinstance(extensions, list):
+        raise ExtensionValidationError(
+            f"invalid runtime catalog extensions payload in {catalog_path}"
+        )
+    return catalog
+
+
 def _write_catalog(path: Path, runtime: str, target_root: Path, items: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -323,6 +346,45 @@ def install_extension(
     }
 
 
+def expose_claude_runtime_skills(mirror_home: Path, project_root: Path) -> dict[str, object]:
+    catalog = load_runtime_catalog("claude", mirror_home)
+    items = catalog.get("extensions", [])
+    claude_skills_root = project_root / ".claude" / "skills"
+    claude_skills_root.mkdir(parents=True, exist_ok=True)
+
+    exposed: list[dict[str, str]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        command_name = item.get("command_name")
+        installed_skill_path = item.get("installed_skill_path")
+        if not isinstance(command_name, str) or not isinstance(installed_skill_path, str):
+            continue
+        source_path = Path(installed_skill_path)
+        if not source_path.exists():
+            continue
+        target_dir = claude_skills_root / command_name
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target_skill_path = target_dir / "SKILL.md"
+        shutil.copyfile(source_path, target_skill_path)
+        exposed.append(
+            {
+                "command_name": command_name,
+                "source_skill_path": str(source_path),
+                "target_skill_path": str(target_skill_path),
+            }
+        )
+
+    overlay_catalog_path = claude_skills_root / "extensions.external.json"
+    overlay_catalog_path.write_text(json.dumps(exposed, indent=2) + "\n", encoding="utf-8")
+    return {
+        "project_root": str(project_root),
+        "claude_skills_root": str(claude_skills_root),
+        "overlay_catalog_path": str(overlay_catalog_path),
+        "exposed": exposed,
+    }
+
+
 def uninstall_extension(
     extension_id: str,
     *,
@@ -364,12 +426,12 @@ def uninstall_extension(
 
 
 def cmd_extensions(args: list[str]) -> None:
-    """python -m memory extensions [list|validate|sync|install|uninstall] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
+    """python -m memory extensions [list|validate|sync|install|uninstall|expose-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
     extensions_root, mirror_home, runtime, target_root, positional = _parse_args(args)
     command = positional[0] if positional else "list"
-    if command not in {"list", "validate", "sync", "install", "uninstall"}:
+    if command not in {"list", "validate", "sync", "install", "uninstall", "expose-claude"}:
         print(
-            "Usage: python -m memory extensions [list|validate|sync|install|uninstall] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
+            "Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
         )
         sys.exit(1)
 
@@ -427,6 +489,25 @@ def cmd_extensions(args: list[str]) -> None:
             print(f"  runtime {runtime_name}:")
             for item in items:
                 print(f"    removed {item}")
+        return
+
+    if command == "expose-claude":
+        if mirror_home is None:
+            print("expose-claude requires --mirror-home PATH")
+            sys.exit(1)
+        project_root = target_root or Path.cwd()
+        try:
+            result = expose_claude_runtime_skills(
+                Path(mirror_home).expanduser(),
+                project_root.expanduser(),
+            )
+        except ExtensionValidationError as exc:
+            print(str(exc))
+            sys.exit(1)
+        print(f"Exposed Claude external skills into {result['claude_skills_root']}")
+        print(f"  overlay catalog: {result['overlay_catalog_path']}")
+        for item in result["exposed"]:
+            print(f"  {item['command_name']} -> {item['target_skill_path']}")
         return
 
     root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)

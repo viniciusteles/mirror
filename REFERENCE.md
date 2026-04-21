@@ -73,7 +73,7 @@ other long-form reference content.
 |---------|---------|----------------|
 | `/mm:mirror` | Loads identity, persona, journey, and attachments for Mirror Mode | `load [--persona P] [--journey J] [--query Q] [--org]`, `log "summary"`, `journeys` |
 | `/mm:consult` | Asks other LLMs through OpenRouter with Mirror context | `<family> [tier] "prompt"`, `credits` |
-| `/mm:review-copy` | Reference extension example for multi-LLM copy review; not a core framework capability | skill-driven workflow |
+| `/mm:review-copy` | Claude-side transitional reference skill for multi-LLM copy review; not a core framework capability | skill-driven workflow |
 | `/mm:journeys` | Lists journeys with status | no arguments |
 | `/mm:journey` | Shows detailed journey identity, journey path, memories, and conversations | `[journey]`, `update <journey> <content>` |
 | `/mm:memories` | Lists or searches memories by type, layer, and journey | `--type T`, `--layer L`, `--journey J`, `--search "Q"`, `--limit N` |
@@ -265,6 +265,8 @@ python -m memory extensions install review-copy --extensions-root examples/exten
 python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user> --runtime pi
 python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user> --runtime pi
+python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
+./scripts/smoke_external_review_copy.sh
 ```
 
 `sync` copies runtime-visible `SKILL.md` files into one explicit target root and
@@ -282,7 +284,7 @@ Each extension entry includes both logical metadata (`id`, `name`, `kind`,
 `summary`, `command_name`) and filesystem metadata (`source_extension_dir`,
 `manifest_path`, `source_skill_path`, `installed_skill_path`).
 
-Pi runtime prototype behavior:
+Pi runtime behavior:
 - `.pi/extensions/mirror-logger.ts` reads the installed Pi runtime catalog on
   `session_start`
 - validates the envelope (`schema_version`, `runtime`)
@@ -292,6 +294,12 @@ Pi runtime prototype behavior:
   the Pi runtime catalog
 - Pi therefore consumes the runtime surface, not the source manifest tree,
   when discovering installed external skills
+
+Claude runtime surfacing:
+- `python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
+  projects installed Claude external skills into the target project's
+  `.claude/skills/` surface
+- this is explicit and project-scoped
 
 Concrete `review-copy` migration flow:
 
@@ -309,6 +317,15 @@ To remove the extension later, run:
 
 ```bash
 python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+```
+
+To surface installed Claude external skills into a project-local Claude skill
+surface:
+
+```bash
+python -m memory extensions expose-claude \
+  --mirror-home ~/.mirror/<user> \
+  --target-root /path/to/project
 ```
 
 Equivalent explicit step-by-step flow:
@@ -338,8 +355,9 @@ Expected artifacts:
 - `~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md`
 - one `extensions.json` catalog per runtime target root
 
-The in-repo `mm:review-copy` / `mm-review-copy` skill remains a temporary
-reference extension while migration guidance stabilizes.
+The in-repo `mm:review-copy` skill remains a temporary Claude-side reference
+extension while migration guidance stabilizes. The repo-local Pi `mm-review-copy`
+skill has been removed in favor of the external install flow.
 
 Financial tooling lives in `~/dev/workspace/financial-tools`. The `treasurer`
 persona can interpret financial context from that tool, but Mirror Mind does
