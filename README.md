@@ -362,6 +362,9 @@ Pi consumption prototype:
 - validates the runtime catalog envelope
 - logs discovered external skill commands
 - shows a lightweight `ext N` status hint in the Pi UI
+- on `resources_discover`, it contributes installed external `SKILL.md` paths
+  from the Pi runtime catalog so those skills become part of Pi's discovered
+  skill surface
 
 Catalog shape (v1):
 - `schema_version`

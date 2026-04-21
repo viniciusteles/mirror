@@ -288,7 +288,10 @@ Pi runtime prototype behavior:
 - validates the envelope (`schema_version`, `runtime`)
 - logs discovered external skill commands
 - surfaces a lightweight external-skill count in the Pi UI
-- does not yet dynamically register or dispatch those commands
+- on `resources_discover`, contributes installed external `SKILL.md` paths from
+  the Pi runtime catalog
+- Pi therefore consumes the runtime surface, not the source manifest tree,
+  when discovering installed external skills
 
 Concrete `review-copy` migration flow:
 

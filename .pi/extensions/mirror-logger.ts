@@ -138,6 +138,26 @@ export default function (pi: ExtensionAPI) {
 		}
 	}
 
+	function getInstalledPiSkillPaths(): string[] {
+		const catalog = loadInstalledPiExternalSkills();
+		const items = catalog?.extensions ?? [];
+		const skillPaths = items
+			.map((item) => item.installed_skill_path)
+			.filter((path): path is string => typeof path === "string" && path.length > 0)
+			.filter((path) => existsSync(path));
+		return [...new Set(skillPaths)];
+	}
+
+	// --- dynamic resources → installed external Pi skills ---
+
+	pi.on("resources_discover", async () => {
+		const skillPaths = getInstalledPiSkillPaths();
+		if (skillPaths.length > 0) {
+			log("INFO", `resources_discover: loaded ${skillPaths.length} installed Pi external skill(s)`);
+		}
+		return { skillPaths };
+	});
+
 	// --- 1. session_start → unmute + close stale orphans + extract pending ---
 
 	pi.on("session_start", async (_event, ctx) => {

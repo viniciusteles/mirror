@@ -262,8 +262,10 @@ Current prototype status:
 - it validates `schema_version` and `runtime`
 - it logs discovered external skill commands
 - it surfaces a lightweight status hint in the Pi UI (`ext N`)
-- it still does **not** dynamically register commands; this is visibility and
-  readiness only, not full runtime loading yet
+- on `resources_discover`, it returns installed `SKILL.md` paths from the Pi
+  runtime catalog as dynamic `skillPaths`
+- this makes installed external Pi skills part of Pi's discovered skill surface
+  without re-reading source manifests at runtime
 
 ---
 
