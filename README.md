@@ -315,6 +315,40 @@ Typical extension boundaries:
 - reference extensions kept in-repo temporarily for documentation and migration
   purposes
 
+### Extension quick start
+
+For most users, the extension flow is:
+
+1. install into your Mirror home
+2. let Pi consume the runtime catalog automatically
+3. expose Claude skills explicitly into a project when needed
+
+Example with `review-copy`:
+
+```bash
+python -m memory extensions install \
+  review-copy \
+  --extensions-root examples/extensions \
+  --mirror-home ~/.mirror/<user>
+```
+
+Then:
+- Pi command: `ext-review-copy`
+- Claude command: `ext:review-copy` after:
+
+```bash
+python -m memory extensions expose-claude \
+  --mirror-home ~/.mirror/<user> \
+  --target-root /path/to/project
+```
+
+To remove the Claude project projection later:
+
+```bash
+python -m memory extensions clean-claude \
+  --target-root /path/to/project
+```
+
 First reference external-skill tree:
 
 ```text
@@ -331,23 +365,27 @@ Install shape for a real user home:
   SKILL.md
 ```
 
-You can list, validate, inspect, sync, install, and uninstall example or user-home manifests with:
+Useful extension commands:
 
 ```bash
+# discover / inspect
 python -m memory list extensions --extensions-root examples/extensions
-python -m memory extensions list --extensions-root examples/extensions --runtime pi
 python -m memory extensions validate --extensions-root examples/extensions
-python -m memory extensions validate --mirror-home ~/.mirror/<user>
 python -m memory inspect extension review-copy --extensions-root examples/extensions
-python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/<user>
+python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/<user>
+
+# install / uninstall
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+
+# explicit runtime or project surfacing
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
-python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
-python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user> --runtime pi
-python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
-python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user> --runtime pi
 python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
+python -m memory extensions clean-claude --target-root /path/to/project
+
+# full smoke test
 ./scripts/smoke_external_review_copy.sh
 ```
 

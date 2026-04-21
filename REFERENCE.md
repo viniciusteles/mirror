@@ -229,6 +229,14 @@ Mirror Mind may temporarily ship some **reference extensions** in-repo while the
 extension model matures. These examples are not core framework capabilities even
 when they are available as skills.
 
+### Quick operational model
+
+For a typical extension:
+- source files live under `~/.mirror/<user>/extensions/<id>/`
+- runtime materialization lives under `~/.mirror/<user>/runtime/skills/<runtime>/`
+- Pi consumes the Pi runtime catalog automatically
+- Claude requires explicit project-level surfacing via `expose-claude`
+
 Current reference path:
 
 ```text
@@ -249,23 +257,27 @@ Runtime names:
 - Claude Code: `ext:review-copy`
 - Pi: `ext-review-copy`
 
-List, validate, inspect, sync, install, and uninstall manifests with:
+Useful commands:
 
 ```bash
+# discover / inspect
 python -m memory list extensions --extensions-root examples/extensions
-python -m memory extensions list --extensions-root examples/extensions --runtime pi
 python -m memory extensions validate --extensions-root examples/extensions
-python -m memory extensions validate --mirror-home ~/.mirror/<user>
 python -m memory inspect extension review-copy --extensions-root examples/extensions
-python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/<user>
+python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/<user>
+
+# install / uninstall
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+
+# explicit runtime or project surfacing
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
-python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
-python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user> --runtime pi
-python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
-python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user> --runtime pi
 python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
+python -m memory extensions clean-claude --target-root /path/to/project
+
+# full smoke test
 ./scripts/smoke_external_review_copy.sh
 ```
 
@@ -305,7 +317,7 @@ Claude runtime surfacing:
   removes previously exposed Claude external-skill files from the project
 - this is explicit and project-scoped
 
-Concrete `review-copy` migration flow:
+Concrete `review-copy` flow:
 
 Preferred one-command install:
 
