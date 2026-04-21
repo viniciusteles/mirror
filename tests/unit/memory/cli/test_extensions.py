@@ -12,6 +12,7 @@ from memory.cli.extensions import (
     install_extension,
     load_extension_manifest,
     sync_extensions_for_runtime,
+    uninstall_extension,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -361,6 +362,75 @@ def test_cmd_extensions_install_writes_user_home_and_runtime_surfaces(tmp_path, 
     assert (mirror_home / "extensions" / "review-copy" / "skill.yaml").exists()
     assert (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy" / "SKILL.md").exists()
     assert (mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy" / "SKILL.md").exists()
+
+
+def test_install_extension_can_limit_runtime_sync(tmp_path):
+    mirror_home = tmp_path / ".mirror" / "pati"
+
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+        runtime="pi",
+    )
+
+    assert (mirror_home / "extensions" / "review-copy" / "skill.yaml").exists()
+    assert (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy" / "SKILL.md").exists()
+    assert not (
+        mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy" / "SKILL.md"
+    ).exists()
+
+
+def test_uninstall_extension_removes_source_tree_and_runtime_surfaces(tmp_path):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+
+    result = uninstall_extension("review-copy", mirror_home=mirror_home)
+
+    assert result["source_removed"] is True
+    assert not (mirror_home / "extensions" / "review-copy").exists()
+    assert not (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy").exists()
+    assert not (mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy").exists()
+
+
+def test_uninstall_extension_can_limit_runtime_removal(tmp_path):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+
+    result = uninstall_extension("review-copy", mirror_home=mirror_home, runtime="pi")
+
+    assert result["source_removed"] is False
+    assert (mirror_home / "extensions" / "review-copy" / "skill.yaml").exists()
+    assert not (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy").exists()
+    assert (mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy").exists()
+
+
+def test_cmd_extensions_uninstall_requires_mirror_home():
+    with pytest.raises(SystemExit):
+        cmd_extensions(["uninstall", "review-copy"])
+
+
+def test_cmd_extensions_uninstall_removes_installed_extension(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    install_extension(
+        "review-copy",
+        source_root=PROJECT_ROOT / "examples" / "extensions",
+        mirror_home=mirror_home,
+    )
+
+    cmd_extensions(["uninstall", "review-copy", "--mirror-home", str(mirror_home)])
+
+    output = capsys.readouterr().out
+    assert "Uninstalled extension/review-copy" in output
+    assert not (mirror_home / "extensions" / "review-copy").exists()
 
 
 def test_reference_review_copy_example_manifest_is_valid():

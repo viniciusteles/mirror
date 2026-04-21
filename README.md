@@ -332,7 +332,7 @@ Install shape for a real user home:
   SKILL.md
 ```
 
-You can list, validate, inspect, sync, and install example or user-home manifests with:
+You can list, validate, inspect, sync, install, and uninstall example or user-home manifests with:
 
 ```bash
 python -m memory list extensions --extensions-root examples/extensions
@@ -344,6 +344,9 @@ python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
 python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user> --runtime pi
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user> --runtime pi
 ```
 
 `sync` materializes runtime-visible skill folders such as:
@@ -365,6 +368,13 @@ python -m memory extensions install \
 
 This installs the source tree under `~/.mirror/<user>/extensions/` and syncs
 runtime-facing skill trees under `~/.mirror/<user>/runtime/skills/`.
+
+To install only one runtime surface, add `--runtime pi` or `--runtime claude`.
+To remove the extension later, run:
+
+```bash
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+```
 
 Equivalent explicit step-by-step flow:
 

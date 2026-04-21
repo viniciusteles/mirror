@@ -238,6 +238,26 @@ def sync_extensions_for_runtime(
     return synced
 
 
+def _load_catalog(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def _write_catalog(path: Path, items: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(items, indent=2) + "\n", encoding="utf-8")
+
+
+def _prune_catalog_for_extension(catalog_path: Path, extension_id: str) -> None:
+    items = [item for item in _load_catalog(catalog_path) if item.get("id") != extension_id]
+    _write_catalog(catalog_path, items)
+
+
 def install_extension(
     extension_id: str,
     *,
@@ -271,13 +291,51 @@ def install_extension(
     }
 
 
+def uninstall_extension(
+    extension_id: str,
+    *,
+    mirror_home: Path,
+    runtime: str | None = None,
+) -> dict[str, object]:
+    installed_dir = default_extensions_dir_for_home(mirror_home) / extension_id
+    if not installed_dir.exists():
+        raise ExtensionValidationError(f"installed extension not found: {installed_dir}")
+
+    manifest = load_extension_manifest(installed_dir)
+    runtimes = [runtime] if runtime is not None else sorted(manifest["runtimes"].keys())
+
+    removed: dict[str, list[str]] = {}
+    for runtime_name in runtimes:
+        runtime_data = manifest["runtimes"].get(runtime_name)
+        if not runtime_data:
+            removed[runtime_name] = []
+            continue
+        runtime_root = default_runtime_skills_dir_for_home(mirror_home, runtime_name)
+        command_name = runtime_data["command_name"]
+        target_dir = runtime_root / command_name
+        if target_dir.exists():
+            shutil.rmtree(target_dir)
+        _prune_catalog_for_extension(runtime_root / "extensions.json", extension_id)
+        removed[runtime_name] = [str(target_dir)]
+
+    if runtime is None and installed_dir.exists():
+        shutil.rmtree(installed_dir)
+
+    return {
+        "extension_id": extension_id,
+        "installed_dir": str(installed_dir),
+        "removed": removed,
+        "source_removed": runtime is None,
+    }
+
+
 def cmd_extensions(args: list[str]) -> None:
-    """python -m memory extensions [list|validate|sync|install] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
+    """python -m memory extensions [list|validate|sync|install|uninstall] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
     extensions_root, mirror_home, runtime, target_root, positional = _parse_args(args)
     command = positional[0] if positional else "list"
-    if command not in {"list", "validate", "sync", "install"}:
+    if command not in {"list", "validate", "sync", "install", "uninstall"}:
         print(
-            "Usage: python -m memory extensions [list|validate|sync|install] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
+            "Usage: python -m memory extensions [list|validate|sync|install|uninstall] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"
         )
         sys.exit(1)
 
@@ -307,6 +365,34 @@ def cmd_extensions(args: list[str]) -> None:
             print(f"  runtime {runtime_name}:")
             for item in items:
                 print(f"    {item['command_name']} -> {item['target_skill_path']}")
+        return
+
+    if command == "uninstall":
+        if len(positional) != 2:
+            print(
+                "Usage: python -m memory extensions uninstall <id> [--mirror-home PATH] [--runtime NAME]"
+            )
+            sys.exit(1)
+        if mirror_home is None:
+            print("uninstall requires --mirror-home PATH")
+            sys.exit(1)
+        try:
+            result = uninstall_extension(
+                positional[1],
+                mirror_home=Path(mirror_home).expanduser(),
+                runtime=runtime,
+            )
+        except ExtensionValidationError as exc:
+            print(str(exc))
+            sys.exit(1)
+        print(f"Uninstalled extension/{result['extension_id']}")
+        print(f"  installed: {result['installed_dir']}")
+        if result["source_removed"]:
+            print("  source tree: removed")
+        for runtime_name, items in result["removed"].items():
+            print(f"  runtime {runtime_name}:")
+            for item in items:
+                print(f"    removed {item}")
         return
 
     root = resolve_extensions_root(extensions_root, mirror_home=mirror_home)

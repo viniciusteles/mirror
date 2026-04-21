@@ -249,7 +249,7 @@ Runtime names:
 - Claude Code: `ext:review-copy`
 - Pi: `ext-review-copy`
 
-List, validate, inspect, sync, and install manifests with:
+List, validate, inspect, sync, install, and uninstall manifests with:
 
 ```bash
 python -m memory list extensions --extensions-root examples/extensions
@@ -261,6 +261,9 @@ python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
 python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
 python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
+python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user> --runtime pi
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user> --runtime pi
 ```
 
 `sync` copies runtime-visible `SKILL.md` files into one explicit target root and
@@ -276,6 +279,13 @@ python -m memory extensions install \
   review-copy \
   --extensions-root examples/extensions \
   --mirror-home ~/.mirror/<user>
+```
+
+To install only one runtime surface, add `--runtime pi` or `--runtime claude`.
+To remove the extension later, run:
+
+```bash
+python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 ```
 
 Equivalent explicit step-by-step flow:
