@@ -266,6 +266,33 @@ python -m memory extensions sync --extensions-root examples/extensions --runtime
 writes an `extensions.json` catalog there. This keeps installation explicit and
 avoids implicit mutation of repo-local skill surfaces.
 
+Concrete `review-copy` migration flow:
+
+```bash
+mkdir -p ~/.mirror/<user>/extensions
+cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
+
+python -m memory extensions validate --mirror-home ~/.mirror/<user>
+python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+
+python -m memory extensions sync \
+  --mirror-home ~/.mirror/<user> \
+  --runtime pi \
+  --target-root ~/.mirror/<user>/runtime/skills/pi
+
+python -m memory extensions sync \
+  --mirror-home ~/.mirror/<user> \
+  --runtime claude \
+  --target-root ~/.mirror/<user>/runtime/skills/claude
+```
+
+Expected artifacts:
+- `~/.mirror/<user>/extensions/review-copy/skill.yaml`
+- `~/.mirror/<user>/extensions/review-copy/SKILL.md`
+- `~/.mirror/<user>/runtime/skills/pi/ext-review-copy/SKILL.md`
+- `~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md`
+- one `extensions.json` catalog per runtime target root
+
 The in-repo `mm:review-copy` / `mm-review-copy` skill remains a temporary
 reference extension while migration guidance stabilizes.
 

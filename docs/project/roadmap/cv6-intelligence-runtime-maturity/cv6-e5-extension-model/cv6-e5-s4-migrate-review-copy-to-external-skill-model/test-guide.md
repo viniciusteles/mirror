@@ -4,10 +4,12 @@
 
 ## Scope
 
-This story is planning/documentation only. No runtime migration is in scope yet.
+This story now includes a concrete reference migration path for `review-copy`:
+example source tree, user-home installation shape, validation/inspection
+commands, and explicit runtime sync commands.
 
-Verification is about confirming that there is now a credible migration target
-for the first real external skill.
+Verification is about confirming that the migration path is now concrete,
+repeatable, and consistent with the extension contract.
 
 ---
 
@@ -28,6 +30,11 @@ Confirm the docs clearly define:
 
 4. **Contract discipline**
    - stable core commands instead of private internal imports
+
+5. **Concrete installation flow**
+   - copy into `~/.mirror/<user>/extensions/review-copy/`
+   - validate and inspect from the user home
+   - sync into explicit runtime target roots for Pi and Claude
 
 ---
 
@@ -57,7 +64,19 @@ rg -n "review-copy|ext:review-copy|ext-review-copy|extensions/review-copy|skill.
 Then run:
 
 ```bash
+python -m memory extensions validate --extensions-root examples/extensions
+python -m memory inspect extension review-copy --extensions-root examples/extensions
+python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/review-copy-pi
+python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/review-copy-claude
+
 git diff --check
 ```
 
-No runtime verification suite is required because no code behavior changes are in scope.
+Confirm the expected files exist after sync:
+
+```bash
+test -f /tmp/review-copy-pi/ext-review-copy/SKILL.md
+test -f /tmp/review-copy-pi/extensions.json
+test -f /tmp/review-copy-claude/ext:review-copy/SKILL.md
+test -f /tmp/review-copy-claude/extensions.json
+```

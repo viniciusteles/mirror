@@ -8,13 +8,37 @@ user-invocable: true
 
 > Reference external skill example.
 >
-> Install by copying this directory to:
+> Install source tree:
 >
 > `~/.mirror/<user>/extensions/review-copy/`
 >
 > Runtime-visible commands:
 > - Claude Code: `ext:review-copy`
 > - Pi: `ext-review-copy`
+>
+> Concrete migration flow:
+>
+> ```bash
+> mkdir -p ~/.mirror/<user>/extensions
+> cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
+>
+> python -m memory extensions validate --mirror-home ~/.mirror/<user>
+> python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+>
+> python -m memory extensions sync \
+>   --mirror-home ~/.mirror/<user> \
+>   --runtime pi \
+>   --target-root ~/.mirror/<user>/runtime/skills/pi
+>
+> python -m memory extensions sync \
+>   --mirror-home ~/.mirror/<user> \
+>   --runtime claude \
+>   --target-root ~/.mirror/<user>/runtime/skills/claude
+> ```
+>
+> Resulting runtime skill files:
+> - `~/.mirror/<user>/runtime/skills/pi/ext-review-copy/SKILL.md`
+> - `~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md`
 
 Sends a copy file to multiple models through OpenRouter and generates an HTML
 report with side-by-side reviews, synthesis, and a recommended next step.

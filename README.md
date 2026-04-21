@@ -351,6 +351,50 @@ python -m memory extensions sync --extensions-root examples/extensions --runtime
 
 and writes a small `extensions.json` catalog into the target root.
 
+### Concrete `review-copy` migration flow
+
+Install the example into a real user home:
+
+```bash
+mkdir -p ~/.mirror/<user>/extensions
+cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
+```
+
+Validate and inspect it:
+
+```bash
+python -m memory extensions validate --mirror-home ~/.mirror/<user>
+python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+```
+
+Materialize runtime-facing skill trees:
+
+```bash
+python -m memory extensions sync \
+  --mirror-home ~/.mirror/<user> \
+  --runtime pi \
+  --target-root ~/.mirror/<user>/runtime/skills/pi
+
+python -m memory extensions sync \
+  --mirror-home ~/.mirror/<user> \
+  --runtime claude \
+  --target-root ~/.mirror/<user>/runtime/skills/claude
+```
+
+Resulting artifacts:
+
+```text
+~/.mirror/<user>/extensions/review-copy/skill.yaml
+~/.mirror/<user>/extensions/review-copy/SKILL.md
+~/.mirror/<user>/runtime/skills/pi/ext-review-copy/SKILL.md
+~/.mirror/<user>/runtime/skills/pi/extensions.json
+~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md
+~/.mirror/<user>/runtime/skills/claude/extensions.json
+```
+
+This keeps the source extension user-owned under `~/.mirror/<user>/extensions/`
+while making runtime surfacing explicit and reproducible.
+
 Financial import/reporting tools live in `~/dev/workspace/financial-tools`. The
 `treasurer` persona can interpret financial context from that tool, but Mirror
 Mind does not import bank statements or own financial tables.

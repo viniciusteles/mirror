@@ -80,5 +80,10 @@ is the first thing they'll hit if it's missing.
 - The first concrete reference tree now exists at
   `examples/extensions/review-copy/` with `skill.yaml` + `SKILL.md` and names
   `ext:review-copy` / `ext-review-copy`.
+- The `review-copy` migration path is now documented end-to-end: copy into
+  `~/.mirror/<user>/extensions/review-copy/`, validate/inspect it, and sync it
+  into explicit runtime target roots such as
+  `~/.mirror/<user>/runtime/skills/pi/` and
+  `~/.mirror/<user>/runtime/skills/claude/`.
 - Should `uv run` be documented more prominently in CLAUDE.md for future
   engineering sessions? Currently only in `docs/getting-started.md`.
