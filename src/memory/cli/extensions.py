@@ -6,6 +6,7 @@ import json
 import re
 import shutil
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -204,6 +205,33 @@ def print_extension_list(manifests: list[dict], errors: list[tuple[str, str]], r
             print(f"  {ext_id}: {message}")
 
 
+def _catalog_entry_for_manifest(manifest: dict, runtime: str, target_skill_path: Path) -> dict:
+    runtime_data = manifest["runtimes"][runtime]
+    return {
+        "id": manifest["id"],
+        "name": manifest["name"],
+        "category": manifest["category"],
+        "kind": manifest["kind"],
+        "summary": manifest["summary"],
+        "runtime": runtime,
+        "command_name": runtime_data["command_name"],
+        "source_extension_dir": manifest["root"],
+        "manifest_path": manifest["manifest_path"],
+        "source_skill_path": runtime_data.get("skill_path", ""),
+        "installed_skill_path": str(target_skill_path),
+    }
+
+
+def _catalog_document(runtime: str, target_root: Path, items: list[dict]) -> dict[str, object]:
+    return {
+        "schema_version": "1",
+        "runtime": runtime,
+        "target_root": str(target_root),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "extensions": items,
+    }
+
+
 def sync_extensions_for_runtime(
     manifests: list[dict], runtime: str, target_root: Path
 ) -> list[dict[str, str]]:
@@ -223,39 +251,43 @@ def sync_extensions_for_runtime(
         target_dir.mkdir(parents=True, exist_ok=True)
         target_skill_path = target_dir / "SKILL.md"
         shutil.copyfile(skill_path, target_skill_path)
-        synced.append(
-            {
-                "id": manifest["id"],
-                "runtime": runtime,
-                "command_name": command_name,
-                "source_skill_path": skill_path,
-                "target_skill_path": str(target_skill_path),
-            }
-        )
+        synced.append(_catalog_entry_for_manifest(manifest, runtime, target_skill_path))
 
     catalog_path = target_root / "extensions.json"
-    catalog_path.write_text(json.dumps(synced, indent=2) + "\n", encoding="utf-8")
+    _write_catalog(catalog_path, runtime, target_root, synced)
     return synced
 
 
-def _load_catalog(path: Path) -> list[dict]:
+def _load_catalog(path: Path) -> dict[str, object]:
     if not path.exists():
-        return []
+        return {"schema_version": "1", "extensions": []}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
-        return []
-    return data if isinstance(data, list) else []
+        return {"schema_version": "1", "extensions": []}
+    if isinstance(data, list):
+        return {"schema_version": "0", "extensions": data}
+    return data if isinstance(data, dict) else {"schema_version": "1", "extensions": []}
 
 
-def _write_catalog(path: Path, items: list[dict]) -> None:
+def _write_catalog(path: Path, runtime: str, target_root: Path, items: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(items, indent=2) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(_catalog_document(runtime, target_root, items), indent=2) + "\n",
+        encoding="utf-8",
+    )
 
 
-def _prune_catalog_for_extension(catalog_path: Path, extension_id: str) -> None:
-    items = [item for item in _load_catalog(catalog_path) if item.get("id") != extension_id]
-    _write_catalog(catalog_path, items)
+def _prune_catalog_for_extension(
+    catalog_path: Path, extension_id: str, runtime: str, target_root: Path
+) -> None:
+    catalog = _load_catalog(catalog_path)
+    items = [
+        item
+        for item in catalog.get("extensions", [])
+        if isinstance(item, dict) and item.get("id") != extension_id
+    ]
+    _write_catalog(catalog_path, runtime, target_root, items)
 
 
 def install_extension(
@@ -315,7 +347,9 @@ def uninstall_extension(
         target_dir = runtime_root / command_name
         if target_dir.exists():
             shutil.rmtree(target_dir)
-        _prune_catalog_for_extension(runtime_root / "extensions.json", extension_id)
+        _prune_catalog_for_extension(
+            runtime_root / "extensions.json", extension_id, runtime_name, runtime_root
+        )
         removed[runtime_name] = [str(target_dir)]
 
     if runtime is None and installed_dir.exists():
@@ -364,7 +398,7 @@ def cmd_extensions(args: list[str]) -> None:
         for runtime_name, items in result["synced"].items():
             print(f"  runtime {runtime_name}:")
             for item in items:
-                print(f"    {item['command_name']} -> {item['target_skill_path']}")
+                print(f"    {item['command_name']} -> {item['installed_skill_path']}")
         return
 
     if command == "uninstall":
@@ -427,4 +461,4 @@ def cmd_extensions(args: list[str]) -> None:
     synced = sync_extensions_for_runtime(manifests, runtime, target_root)
     print(f"Synced {len(synced)} extension(s) to {target_root}")
     for item in synced:
-        print(f"  {item['command_name']} -> {item['target_skill_path']}")
+        print(f"  {item['command_name']} -> {item['installed_skill_path']}")

@@ -270,6 +270,17 @@ python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 writes an `extensions.json` catalog there. This keeps installation explicit and
 avoids implicit mutation of repo-local skill surfaces.
 
+`extensions.json` v1 contains:
+- `schema_version`
+- `runtime`
+- `target_root`
+- `generated_at`
+- `extensions[]`
+
+Each extension entry includes both logical metadata (`id`, `name`, `kind`,
+`summary`, `command_name`) and filesystem metadata (`source_extension_dir`,
+`manifest_path`, `source_skill_path`, `installed_skill_path`).
+
 Concrete `review-copy` migration flow:
 
 Preferred one-command install:

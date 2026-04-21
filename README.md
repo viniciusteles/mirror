@@ -353,7 +353,20 @@ python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 - `/tmp/pi-skills/ext-review-copy/SKILL.md`
 - `/tmp/claude-skills/ext:review-copy/SKILL.md`
 
-and writes a small `extensions.json` catalog into the target root.
+and writes an `extensions.json` runtime catalog into the target root.
+
+Catalog shape (v1):
+- `schema_version`
+- `runtime`
+- `target_root`
+- `generated_at`
+- `extensions[]`
+
+Each extension entry records:
+- `id`, `name`, `category`, `kind`, `summary`
+- `runtime`, `command_name`
+- `source_extension_dir`, `manifest_path`, `source_skill_path`
+- `installed_skill_path`
 
 ### Concrete `review-copy` migration flow
 

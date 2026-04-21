@@ -1,5 +1,6 @@
 """Tests for external skill extension CLI helpers."""
 
+import json
 from pathlib import Path
 from textwrap import dedent
 
@@ -278,6 +279,15 @@ def test_sync_extensions_for_runtime_materializes_skill_tree(tmp_path):
     assert (target_root / "ext-review-copy" / "SKILL.md").exists()
     assert (target_root / "extensions.json").exists()
 
+    catalog = json.loads((target_root / "extensions.json").read_text(encoding="utf-8"))
+    assert catalog["schema_version"] == "1"
+    assert catalog["runtime"] == "pi"
+    assert catalog["target_root"] == str(target_root)
+    assert len(catalog["extensions"]) == 1
+    assert catalog["extensions"][0]["id"] == "review-copy"
+    assert catalog["extensions"][0]["command_name"] == "ext-review-copy"
+    assert catalog["extensions"][0]["installed_skill_path"].endswith("SKILL.md")
+
 
 def test_cmd_extensions_sync_requires_runtime_and_target_root(tmp_path):
     root = tmp_path / "extensions"
@@ -411,6 +421,11 @@ def test_uninstall_extension_can_limit_runtime_removal(tmp_path):
     assert (mirror_home / "extensions" / "review-copy" / "skill.yaml").exists()
     assert not (mirror_home / "runtime" / "skills" / "pi" / "ext-review-copy").exists()
     assert (mirror_home / "runtime" / "skills" / "claude" / "ext:review-copy").exists()
+
+    catalog = json.loads(
+        (mirror_home / "runtime" / "skills" / "pi" / "extensions.json").read_text(encoding="utf-8")
+    )
+    assert catalog["extensions"] == []
 
 
 def test_cmd_extensions_uninstall_requires_mirror_home():

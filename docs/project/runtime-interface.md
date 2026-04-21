@@ -166,6 +166,75 @@ Hook files are registered in `.claude/settings.json`.
 
 ---
 
+## External Skill Runtime Surface Contract
+
+External skills are installed into a user-owned source tree under:
+
+```text
+~/.mirror/<user>/extensions/<id>/
+```
+
+Runtime-facing materialization happens separately under:
+
+```text
+~/.mirror/<user>/runtime/skills/<runtime>/
+```
+
+For prompt-skills, the materialized shape is:
+
+```text
+~/.mirror/<user>/runtime/skills/pi/ext-review-copy/SKILL.md
+~/.mirror/<user>/runtime/skills/pi/extensions.json
+```
+
+or, for Claude:
+
+```text
+~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md
+~/.mirror/<user>/runtime/skills/claude/extensions.json
+```
+
+### `extensions.json` v1
+
+Each runtime root contains an explicit catalog with this shape:
+
+```json
+{
+  "schema_version": "1",
+  "runtime": "pi",
+  "target_root": "~/.mirror/<user>/runtime/skills/pi",
+  "generated_at": "2026-04-21T18:00:00+00:00",
+  "extensions": [
+    {
+      "id": "review-copy",
+      "name": "Review Copy",
+      "category": "extension",
+      "kind": "prompt-skill",
+      "summary": "Multi-LLM copy review workflow that generates a structured HTML report",
+      "runtime": "pi",
+      "command_name": "ext-review-copy",
+      "source_extension_dir": "~/.mirror/<user>/extensions/review-copy",
+      "manifest_path": "~/.mirror/<user>/extensions/review-copy/skill.yaml",
+      "source_skill_path": "~/.mirror/<user>/extensions/review-copy/SKILL.md",
+      "installed_skill_path": "~/.mirror/<user>/runtime/skills/pi/ext-review-copy/SKILL.md"
+    }
+  ]
+}
+```
+
+### Consumption rule
+
+Runtimes should treat `runtime/skills/<runtime>/` plus `extensions.json` as the
+canonical installed external skill surface. They should not inspect
+`~/.mirror/<user>/extensions/` directly during execution.
+
+This keeps:
+- authoring/source files separate from runtime materialization
+- runtime loading deterministic
+- installation and removal explicit
+
+---
+
 ## CLI Reference
 
 All commands assume the `memory` package is installed and accessible via
