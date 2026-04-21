@@ -65,6 +65,36 @@ Current progress against that definition:
 
 ---
 
+## Remaining CV6 Work
+
+The main remaining work is now concentrated in onboarding and operational
+readiness for a genuinely new user.
+
+### 1. Tighten newcomer verification
+- confirm the current getting-started flow is sufficient for a first-time user
+- decide whether explicit smoke/verification commands should be added for the
+  full bootstrap → seed → verify path
+- identify any steps that still rely too much on implicit project knowledge
+
+### 2. Decide whether CV6.E4 needs more tooling
+- determine if documentation alone is enough for onboarding
+- if not, define the smallest missing support surface
+- keep that support aligned with the user-home/runtime model rather than adding
+  repo-local shortcuts
+
+### 3. Validate extension onboarding as part of the user journey
+- confirm that the extension flow is understandable to a new user
+- verify the distinction between source extensions, runtime materialization, Pi
+  discovery, and Claude project surfacing
+- document any recurring confusion points if they appear in real usage
+
+### 4. Reassess CV6 completion after onboarding review
+- once the onboarding path feels explicit and verifiable end to end, re-check
+  the CV6 done condition
+- if no additional maturity gaps remain, move CV6 from In Progress to Done
+
+---
+
 ## Sequencing
 
 ```text
