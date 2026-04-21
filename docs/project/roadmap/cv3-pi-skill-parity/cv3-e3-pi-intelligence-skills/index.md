@@ -2,7 +2,7 @@
 
 # CV3.E3 — Pi Intelligence Skills
 
-**Epic:** `mm:consult` and `mm:review-copy` available on Pi  
+**Epic:** `mm:consult` and, historically, `mm:review-copy` available on Pi
 **Status:** ✅ Done  
 **Can run parallel with:** CV3.E2 once CV3.E1 is done
 
@@ -18,22 +18,23 @@ their responses for comparison. Logic lives in `.claude/skills/mm:consult/run.py
 and `src/memory/intelligence/llm_router.py`.
 
 **mm:review-copy** — sends copy to multiple LLMs, collects structured reviews,
-and generates an HTML report. Currently SKILL.md only on Claude Code — the
-agent constructs the review workflow itself. On Pi, the same model-driven
-approach applies.
+and generates an HTML report. At the time of CV3, it was shipped as a Pi skill
+for parity with Claude's model-driven workflow.
 
 From the later CV6 perspective, this capability is best understood as a
-**reference extension example**, not a permanent core framework feature.
+**reference extension example**, not a permanent core framework feature. The
+repo-local Pi skill has since been removed and replaced by the external
+`ext-review-copy` path.
 
 ---
 
 ## Done Condition
 
 - `mm-consult` Pi skill exists, dispatches to `python -m memory consult`
-- `mm-review-copy` Pi skill exists with a SKILL.md describing the workflow
-- the skill can later be reclassified as a reference extension without changing
+- historically, `mm-review-copy` existed with a SKILL.md describing the workflow
+- the skill could later be reclassified as a reference extension without changing
   the fact that CV3 delivered Pi parity for it at the time
-- Both skills produce correct output on Pi
+- Both skills produced correct output on Pi at delivery time
 - Existing tests pass
 
 ---

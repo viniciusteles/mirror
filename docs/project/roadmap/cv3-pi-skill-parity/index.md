@@ -29,7 +29,7 @@ agent runtime — Builder Mode on Pi is redundant. `mm:build` is not ported.
 |------|------|---------------------|--------|
 | [CV3.E1](cv3-e1-cli-completeness/index.md) | CLI Completeness | Every skill operation is reachable via `python -m memory` | ✅ |
 | [CV3.E2](cv3-e2-pi-skill-wrappers/index.md) | Pi Skill Wrappers | 15 skills available on Pi | ✅ |
-| [CV3.E3](cv3-e3-pi-intelligence-skills/index.md) | Pi Intelligence Skills | `mm:consult` and the later reference-extension example `mm:review-copy` available on Pi | ✅ |
+| [CV3.E3](cv3-e3-pi-intelligence-skills/index.md) | Pi Intelligence Skills | `mm:consult` and, historically, `mm:review-copy` were made available on Pi | ✅ |
 | [CV3.E4](cv3-e4-skill-architecture-cleanup/index.md) | Skill Architecture Cleanup | All skills call `python -m memory` directly — no run.py | ✅ |
 
 ---
@@ -54,7 +54,7 @@ agent runtime — Builder Mode on Pi is redundant. `mm:build` is not ported.
 | mm:week | — | ✅ | ✅ done (CV3.E2) | `python -m memory week` |
 | mm:save | — | ✅ | ✅ done (CV3.E2) | Pi limitation: no JSONL transcript |
 | mm:consult | — | ✅ | ✅ done (CV3.E3) | `python -m memory consult`; logic in `cli/consult.py` |
-| mm:review-copy | — | — | ✅ done (CV3.E3) | model-driven; SKILL.md only; later reclassified in CV6 as a reference extension example |
+| mm:review-copy | — | — | ✅ done (CV3.E3) | historical Pi parity milestone; later migrated out of the repo and replaced by the external `ext-review-copy` extension path |
 | mm:build | — | ✅ | excluded | hybrid: `python -m memory build load` + Claude reads docs natively |
 
 ---

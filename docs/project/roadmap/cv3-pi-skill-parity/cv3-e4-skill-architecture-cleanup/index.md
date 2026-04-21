@@ -63,8 +63,8 @@ S1 and S2 can run in parallel. S3 requires new Python work and should be planned
 | mm:backup | Claude | `python3 -m memory.cli.backup` → `python -m memory backup` |
 | mm:mute | Claude | `python3 -m memory.cli.conversation_logger` → `python -m memory conversation-logger` |
 | mm:new | Claude | old-style logger + `mm:mirror/run.py deactivate` → clean CLI calls |
-| mm:review-copy | Claude | calls `mm:consult/run.py` → `python -m memory consult` *(later treated in CV6 as a reference extension example)* |
-| mm-review-copy | Pi | calls `mm-consult/run.py` → `python -m memory consult` *(later treated in CV6 as a reference extension example)* |
+| mm:review-copy | Claude | historical cleanup target; later migrated out of the repo and replaced by the external `ext:review-copy` path |
+| mm-review-copy | Pi | historical cleanup target; later migrated out of the repo and replaced by the external `ext-review-copy` path |
 
 ### S2 — Delete run.py (CLI already exists)
 

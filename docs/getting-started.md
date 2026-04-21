@@ -156,6 +156,112 @@ Just talk. The ego routes to the right persona based on context. For explicit Mi
 
 ---
 
+## 8. Optional: install an extension
+
+Mirror Mind core and extensions are separate.
+
+- **Core skills** ship with the repo/runtime.
+- **Extensions** are installed into your user-owned Mirror home.
+- Runtimes consume the installed runtime surface, not the source extension tree directly.
+
+### Extension locations
+
+Source extension tree:
+
+```text
+~/.mirror/<user>/extensions/<id>/
+```
+
+Runtime materialization:
+
+```text
+~/.mirror/<user>/runtime/skills/pi/
+~/.mirror/<user>/runtime/skills/claude/
+```
+
+### First example: `review-copy`
+
+A reference extension example ships here:
+
+```text
+examples/extensions/review-copy/
+```
+
+Its runtime-visible commands are:
+- Claude Code: `ext:review-copy`
+- Pi: `ext-review-copy`
+
+### Install it
+
+```bash
+python -m memory extensions install \
+  review-copy \
+  --extensions-root examples/extensions \
+  --mirror-home ~/.mirror/your-name
+```
+
+That does three things:
+1. copies the source extension into `~/.mirror/your-name/extensions/review-copy/`
+2. syncs the Pi runtime surface
+3. syncs the Claude runtime surface
+
+### Use it on Pi
+
+Pi reads installed external skills from:
+
+```text
+~/.mirror/<user>/runtime/skills/pi/extensions.json
+```
+
+After install, Pi should discover `ext-review-copy` automatically from the runtime catalog.
+
+### Use it on Claude Code
+
+Claude needs an explicit project-local skill projection step:
+
+```bash
+python -m memory extensions expose-claude \
+  --mirror-home ~/.mirror/your-name \
+  --target-root /path/to/your/project
+```
+
+This creates a project-visible skill surface like:
+
+```text
+/path/to/your/project/.claude/skills/ext:review-copy/SKILL.md
+/path/to/your/project/.claude/skills/extensions.external.json
+```
+
+After that, use the skill in Claude as:
+
+```text
+/ext:review-copy <file> <model1> [model2] ...
+```
+
+### Remove the Claude projection later
+
+```bash
+python -m memory extensions clean-claude \
+  --target-root /path/to/your/project
+```
+
+### Inspect and validate extensions
+
+```bash
+python -m memory extensions validate --extensions-root examples/extensions
+python -m memory inspect extension review-copy --extensions-root examples/extensions
+python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-name
+python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
+```
+
+### Full smoke test
+
+```bash
+./scripts/smoke_external_review_copy.sh
+```
+
+---
+
 ## Verification
 
 Confirm the setup is working:
@@ -165,7 +271,16 @@ uv run python -m memory list journeys   # shows seeded journeys
 uv run python -m memory list personas   # shows seeded personas
 ```
 
-Expected: your journeys and personas appear in the output.
+Optional extension verification:
+
+```bash
+python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-name
+python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
+```
+
+Expected: your journeys and personas appear in the output. If you installed
+`review-copy`, the runtime catalog output should also show `ext-review-copy`
+and `ext:review-copy`.
 
 ---
 

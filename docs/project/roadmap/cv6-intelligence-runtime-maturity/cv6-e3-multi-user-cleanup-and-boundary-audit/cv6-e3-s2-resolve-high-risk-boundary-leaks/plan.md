@@ -9,8 +9,7 @@ technical coupling, but ambiguity about what certain repo artifacts mean.
 
 The highest-risk items identified there are:
 - the now-removed repo-local `engineer` meta persona
-- `.pi/skills/mm-review-copy/SKILL.md`
-- `.claude/skills/mm:review-copy/SKILL.md`
+- the now-removed repo-local `review-copy` skill files
 
 This story defines the first concrete resolution path for those items without
 forcing premature moves that would outrun the extension-model contract.
@@ -38,22 +37,24 @@ In this case, removal is clearer than continued classification overhead.
 
 ### 2. `review-copy` skills
 
-#### Current issue
-`review-copy` is currently in the same in-repo skill surface as more central
-Mirror Mind capabilities, but it is best understood as a user-specific extension
-candidate.
+#### Historical issue
+`review-copy` used to live in the same in-repo skill surface as more central
+Mirror Mind capabilities, even though it was better understood as a
+user-specific extension candidate.
 
-#### Proposed resolution
-Do **not** move it out immediately. Instead:
-- keep the existing skill files in place temporarily
-- reclassify them in docs as a **reference extension example**
-- make it explicit that `review-copy` is not a core framework capability
-- use CV6.E5.S2 to define its reference migration path
+#### Resolution status
+This path is now complete:
+- the existing repo-local skill files were first reclassified in docs as a
+  **reference extension example**
+- the extension model was defined around a real example
+- the repo-local skill files were then removed
+- `review-copy` now lives as an external example under
+  `examples/extensions/review-copy/`
+- the runtime-visible commands are `ext:review-copy` and `ext-review-copy`
 
-#### Why this is the right first move
-Moving the files before the extension model is documented would create churn
-without improving clarity. Reclassification first gives the model something real
-to point at.
+#### Why this became the right move
+Reclassification gave the extension model something real to point at; removal
+finished the boundary cleanup once the install/runtime path existed.
 
 ### 3. Pi runtime integration artifacts
 
@@ -76,7 +77,7 @@ This story should establish the following explicit wording direction:
 
 ### In docs and roadmap language
 - removed repo-local `engineer` meta persona = resolved boundary-leak example
-- `review-copy` = reference extension example (transitional, in-repo)
+- `review-copy` = external reference extension example
 - `.pi/extensions/mirror-logger.ts` = core runtime integration artifact
 - `financial-tools` / `xdigest` = external extensions/tools
 
@@ -103,7 +104,8 @@ New users should learn:
 - resolve ambiguity first through explicit reclassification
 - avoid moving files until the extension reference path is defined
 - keep repo-local personalized persona artifacts out of the repo unless they have a compelling, clearly documented reason to exist
-- keep `review-copy` temporarily in-repo as the first **reference extension**
+- keep `review-copy` out of the repo-local runtime skill surfaces now that the
+  external path exists
 - preserve Pi runtime support files as core runtime integrations, not extension examples
 
 ---
@@ -115,8 +117,8 @@ This story should produce:
 - a documentation direction for how those items are labeled
 - the handoff into CV6.E5.S2 for `review-copy` as the first reference extension
 
-Implementation may include doc updates and reclassification language, but not a
-full extension migration yet.
+Implementation began as doc updates and reclassification language, and has now
+progressed through the full `review-copy` extension migration.
 
 ---
 

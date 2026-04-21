@@ -39,20 +39,22 @@ Resolution status:
 - this remains a useful example of the kind of artifact CV6.E3 should identify
   early and either remove or classify explicitly
 
-### 2. `.pi/skills/mm-review-copy/SKILL.md`
-### 3. `.claude/skills/mm:review-copy/SKILL.md`
+### 2. Former `.pi/skills/mm-review-copy/SKILL.md`
+### 3. Former `.claude/skills/mm:review-copy/SKILL.md`
 
-Current role:
+Historical role:
 - user-specific multi-LLM copy review workflow
 - implemented as agent-orchestrated SKILL.md-only behavior in both runtimes
 
-Boundary risk:
+Boundary risk at the time:
 - useful capability, but not obviously core to Mirror Mind identity/memory/runtime
-- currently shipped as if it were part of the same core skill surface as more
+- it was shipped as if it were part of the same core skill surface as more
   framework-central commands
 
-Recommended classification:
-- **extension candidate** and likely the first reference migration example for CV6.E5
+Resolution status:
+- this was the right extension candidate to use as the first migration example
+- both repo-local skill files have now been removed
+- the reference example now lives under `examples/extensions/review-copy/`
 
 ### 4. External financial tooling references
 
