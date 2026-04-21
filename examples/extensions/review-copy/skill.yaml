@@ -1,0 +1,12 @@
+id: review-copy
+name: Review Copy
+category: extension
+kind: prompt-skill
+summary: Multi-LLM copy review workflow that generates a structured HTML report
+runtimes:
+  claude:
+    command_name: ext:review-copy
+    skill_file: SKILL.md
+  pi:
+    command_name: ext-review-copy
+    skill_file: SKILL.md

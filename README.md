@@ -203,6 +203,9 @@ Current example:
 - `mm:review-copy` / `mm-review-copy` — a specialized multi-LLM copy review
   workflow kept in-repo as a reference extension, not as a core framework
   capability
+- `examples/extensions/review-copy/` — the first external-skill reference tree,
+  using `skill.yaml` plus `SKILL.md` with runtime names `ext:review-copy` and
+  `ext-review-copy`
 
 ## Legacy migration
 
@@ -312,6 +315,29 @@ Typical extension boundaries:
 - custom/user-installed skills that orchestrate stable core commands
 - reference extensions kept in-repo temporarily for documentation and migration
   purposes
+
+First reference external-skill tree:
+
+```text
+examples/extensions/review-copy/
+  skill.yaml
+  SKILL.md
+```
+
+Install shape for a real user home:
+
+```text
+~/.mirror/<user>/extensions/review-copy/
+  skill.yaml
+  SKILL.md
+```
+
+You can validate example or user-home manifests with:
+
+```bash
+python -m memory extensions validate --extensions-root examples/extensions
+python -m memory extensions validate --mirror-home ~/.mirror/<user>
+```
 
 Financial import/reporting tools live in `~/dev/workspace/financial-tools`. The
 `treasurer` persona can interpret financial context from that tool, but Mirror

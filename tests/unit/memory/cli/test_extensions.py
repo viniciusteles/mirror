@@ -1,10 +1,13 @@
 """Tests for external skill extension CLI helpers."""
 
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
 
 from memory.cli.extensions import cmd_extensions, discover_extensions, load_extension_manifest
+
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _write(path, content: str) -> None:
@@ -180,3 +183,11 @@ def test_cmd_extensions_uses_mirror_home_default_extensions_dir(tmp_path, capsys
     output = capsys.readouterr().out
     assert f"Extensions root: {mirror_home / 'extensions'}" in output
     assert "review-copy [prompt-skill]" in output
+
+
+def test_reference_review_copy_example_manifest_is_valid():
+    manifest = load_extension_manifest(PROJECT_ROOT / "examples" / "extensions" / "review-copy")
+
+    assert manifest["id"] == "review-copy"
+    assert manifest["runtimes"]["claude"]["command_name"] == "ext:review-copy"
+    assert manifest["runtimes"]["pi"]["command_name"] == "ext-review-copy"

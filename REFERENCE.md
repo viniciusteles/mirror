@@ -227,8 +227,37 @@ flows.
 
 Mirror Mind may temporarily ship some **reference extensions** in-repo while the
 extension model matures. These examples are not core framework capabilities even
-when they are available as skills. `mm:review-copy` is the current reference
-extension example.
+when they are available as skills.
+
+Current reference path:
+
+```text
+examples/extensions/review-copy/
+  skill.yaml
+  SKILL.md
+```
+
+Installed user-home shape:
+
+```text
+~/.mirror/<user>/extensions/review-copy/
+  skill.yaml
+  SKILL.md
+```
+
+Runtime names:
+- Claude Code: `ext:review-copy`
+- Pi: `ext-review-copy`
+
+Validate manifests with:
+
+```bash
+python -m memory extensions validate --extensions-root examples/extensions
+python -m memory extensions validate --mirror-home ~/.mirror/<user>
+```
+
+The in-repo `mm:review-copy` / `mm-review-copy` skill remains a temporary
+reference extension while migration guidance stabilizes.
 
 Financial tooling lives in `~/dev/workspace/financial-tools`. The `treasurer`
 persona can interpret financial context from that tool, but Mirror Mind does

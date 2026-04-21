@@ -77,5 +77,8 @@ is the first thing they'll hit if it's missing.
   `~/.mirror/<user>/extensions/`, declare themselves through a validated
   `skill.yaml`, and be surfaced with explicit `ext:` / `ext-` namespacing
   rather than as core skills.
+- The first concrete reference tree now exists at
+  `examples/extensions/review-copy/` with `skill.yaml` + `SKILL.md` and names
+  `ext:review-copy` / `ext-review-copy`.
 - Should `uv run` be documented more prominently in CLAUDE.md for future
   engineering sessions? Currently only in `docs/getting-started.md`.

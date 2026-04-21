@@ -8,7 +8,9 @@ user-invocable: true
 
 > Note: this skill is currently treated as a **reference extension example**,
 > not as a core Mirror Mind framework capability. It remains in-repo
-> temporarily while the extension model matures.
+> temporarily while the extension model matures. The first external-skill
+> reference tree now lives at `examples/extensions/review-copy/` and maps to
+> `ext:review-copy` for Claude Code.
 
 Sends a copy file to a set of models through OpenRouter and generates an HTML
 document with structured reviews, synthesis, and a recommended path.
