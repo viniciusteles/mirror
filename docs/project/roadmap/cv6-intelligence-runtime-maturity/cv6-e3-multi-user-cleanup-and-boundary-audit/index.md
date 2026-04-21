@@ -3,7 +3,7 @@
 # CV6.E3 — Multi-User Cleanup and Repo Boundary Audit
 
 **Epic:** Remaining personal/framework/runtime boundary leaks are identified and cleaned up  
-**Status:** Planned
+**Status:** ✅ Done
 
 ---
 
@@ -34,10 +34,13 @@ confusing or partially personal model.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV6.E3.S1 | Audit remaining repo/runtime/user-boundary leaks | Planned — see `cv6-e3-s1-audit-boundary-leaks/plan.md` |
-| CV6.E3.S2 | Resolve or reclassify the highest-risk boundary leaks | Planned — see `cv6-e3-s2-resolve-high-risk-boundary-leaks/plan.md` |
+| CV6.E3.S1 | Audit remaining repo/runtime/user-boundary leaks | ✅ Done — see `cv6-e3-s1-audit-boundary-leaks/plan.md` |
+| CV6.E3.S2 | Resolve or reclassify the highest-risk boundary leaks | ✅ Done — see `cv6-e3-s2-resolve-high-risk-boundary-leaks/plan.md` |
 
-Stories get `plan.md` and `test-guide.md` before implementation begins.
+Completed in practice through removal of repo-local boundary leaks such as the
+old `engineer` persona artifact and the repo-local `review-copy` skills,
+plus updated docs clarifying the ownership boundary between core, user-home,
+and external extension material.
 
 ---
 

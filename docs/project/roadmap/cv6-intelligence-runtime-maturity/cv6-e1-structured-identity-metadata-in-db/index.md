@@ -3,7 +3,7 @@
 # CV6.E1 — Structured Identity Metadata in the Database
 
 **Epic:** Runtime-relevant persona metadata is stored in the database rather than discarded at seed time  
-**Status:** Planned
+**Status:** ✅ Done
 **Prerequisite for:** CV6.E2
 
 ---
@@ -41,10 +41,11 @@ The core principle is explicit:
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV6.E1.S1 | Define the runtime persona metadata contract | Planned |
-| CV6.E1.S2 | Implement database persistence and inspection for persona metadata | Planned |
+| CV6.E1.S1 | Define the runtime persona metadata contract | ✅ Done |
+| CV6.E1.S2 | Implement database persistence and inspection for persona metadata | ✅ Done |
 
-Stories get `plan.md` and `test-guide.md` before implementation begins.
+Completed in practice through database-backed persona metadata persistence,
+seed-time metadata preservation, and inspection CLI support.
 
 ---
 

@@ -3,7 +3,7 @@
 # CV6.E5 — Extension Model for User-Specific Capabilities
 
 **Epic:** Users can add specialized capabilities without baking them into Mirror Mind core  
-**Status:** Planned
+**Status:** ✅ Done
 
 ---
 
@@ -30,6 +30,7 @@ external tools, rather than arbitrary in-process plugin loading.
 - supported extension integration styles are documented
 - at least one existing user-specific capability has a clear migration/reference path
 - docs explain how a new user can add a specialized capability without modifying framework core unnecessarily
+- runtimes consume an explicit installed/runtime surface rather than source manifests directly
 
 ---
 
@@ -37,13 +38,16 @@ external tools, rather than arbitrary in-process plugin loading.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV6.E5.S1 | Define the extension boundary and capability model | Planned — see `cv6-e5-s1-extension-boundary-and-capability-model/plan.md` |
-| CV6.E5.S2 | Establish the first extension migration/reference path | Planned — see `cv6-e5-s2-review-copy-reference-path/plan.md` |
-| CV6.E5.S3 | Define the external skill registry and manifest contract | Planned — see `cv6-e5-s3-external-skill-registry-and-manifest-contract/plan.md` |
-| CV6.E5.S3A | Define the `skill.yaml` v1 contract | Planned — see `cv6-e5-s3a-skill-yaml-v1-contract/plan.md` |
-| CV6.E5.S4 | Migrate `review-copy` to the external skill model | Planned — see `cv6-e5-s4-migrate-review-copy-to-external-skill-model/plan.md` |
+| CV6.E5.S1 | Define the extension boundary and capability model | ✅ Done — see `cv6-e5-s1-extension-boundary-and-capability-model/plan.md` |
+| CV6.E5.S2 | Establish the first extension migration/reference path | ✅ Done — see `cv6-e5-s2-review-copy-reference-path/plan.md` |
+| CV6.E5.S3 | Define the external skill registry and manifest contract | ✅ Done — see `cv6-e5-s3-external-skill-registry-and-manifest-contract/plan.md` |
+| CV6.E5.S3A | Define the `skill.yaml` v1 contract | ✅ Done — see `cv6-e5-s3a-skill-yaml-v1-contract/plan.md` |
+| CV6.E5.S4 | Migrate `review-copy` to the external skill model | ✅ Done — see `cv6-e5-s4-migrate-review-copy-to-external-skill-model/plan.md` |
 
-Stories get `plan.md` and `test-guide.md` before implementation begins.
+Completed in practice through manifest validation, extension discovery,
+inspection, sync/install/uninstall commands, runtime catalogs, Pi runtime
+consumption, Claude project exposure/cleanup, and the full migration of
+`review-copy` to the external skill model.
 
 ---
 

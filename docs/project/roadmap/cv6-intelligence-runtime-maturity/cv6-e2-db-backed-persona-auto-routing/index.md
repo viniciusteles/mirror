@@ -3,7 +3,7 @@
 # CV6.E2 — Persona Auto-Routing from Database Metadata
 
 **Epic:** Mirror Mode can resolve personas from database-backed routing metadata instead of relying only on explicit or sticky persona state  
-**Status:** Planned
+**Status:** ✅ Done
 **Prerequisite for:** CV6.E3, CV6.E4
 
 ---
@@ -35,10 +35,12 @@ likely persona from the user's query without reading seed YAML files.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV6.E2.S1 | Define the persona auto-routing contract and scoring rules | Planned |
-| CV6.E2.S2 | Implement DB-backed persona detection in Mirror Mode | Planned |
+| CV6.E2.S1 | Define the persona auto-routing contract and scoring rules | ✅ Done |
+| CV6.E2.S2 | Implement DB-backed persona detection in Mirror Mode | ✅ Done |
 
-Stories get `plan.md` and `test-guide.md` before implementation begins.
+Completed in practice through deterministic keyword-based detection,
+explicit persona-resolution precedence, CLI inspection/debugging, and test
+coverage for Mirror Mode routing behavior.
 
 ---
 

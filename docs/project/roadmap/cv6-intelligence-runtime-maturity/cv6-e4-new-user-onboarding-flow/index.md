@@ -3,7 +3,7 @@
 # CV6.E4 — New User Onboarding Flow
 
 **Epic:** A new user can bootstrap, customize, seed, verify, and start using Mirror Mind without touching personal repo-owned artifacts  
-**Status:** Planned
+**Status:** In Progress
 
 ---
 
@@ -15,6 +15,16 @@ identity templates, customize user-owned identity, seed the database, verify the
 result, and start using the system with confidence.
 
 This epic turns that path into a documented and testable workflow.
+
+Progress so far:
+- `docs/getting-started.md` now covers install, bootstrap, identity editing,
+  seeding, verification, and the extension flow
+- onboarding docs now point users at `~/.mirror/<user>/identity/` and the
+  database/runtime model instead of repo-local personal artifacts
+- extension usage is documented as part of the newcomer path
+
+Remaining work is mainly about deciding whether more explicit verification or
+workflow hardening is still needed beyond the current docs.
 
 ---
 
@@ -31,10 +41,12 @@ This epic turns that path into a documented and testable workflow.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV6.E4.S1 | Define the end-to-end onboarding contract for a new user | Planned |
-| CV6.E4.S2 | Close the highest-friction gaps in the onboarding flow | Planned |
+| CV6.E4.S1 | Define the end-to-end onboarding contract for a new user | In Progress |
+| CV6.E4.S2 | Close the highest-friction gaps in the onboarding flow | In Progress |
 
-Stories get `plan.md` and `test-guide.md` before implementation begins.
+This epic is partially implemented through the current getting-started and
+reference documentation, but remains open until the onboarding path is judged
+complete and verifiable enough for new users.
 
 ---
 

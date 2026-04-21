@@ -2,7 +2,7 @@
 
 # CV6 — Multi-User Onboarding, Identity Runtime Maturity, and Extensibility
 
-**Status:** Planned
+**Status:** In Progress
 **Goal:** Make Mirror Mind truly ready for other users by moving runtime-relevant identity behavior into a complete database-backed model, cleaning remaining personal/repo coupling, making onboarding explicit, and defining an extension model for user-specific capabilities that do not belong in core.
 
 ---
@@ -11,19 +11,20 @@
 
 CV4 separated the framework from user-owned identity at the file and database
 level. CV5 made the runtime control plane safe for simultaneous sessions. But
-Mirror Mind still has important gaps before it is genuinely ready to onboard
+Mirror Mind still had important gaps before it was genuinely ready to onboard
 other people:
 
-- persona routing is not yet database-native
-- runtime-relevant persona metadata such as `routing_keywords` is lost during seeding
-- some boundaries between personal artifacts, framework assets, and runtime truth are still blurry
-- onboarding remains underdefined for a new user starting from scratch
-- user-specific capabilities still risk being embedded in the core repo instead of living as extensions
+- persona routing was not database-native
+- runtime-relevant persona metadata such as `routing_keywords` was lost during seeding
+- some boundaries between personal artifacts, framework assets, and runtime truth were still blurry
+- onboarding was underdefined for a new user starting from scratch
+- user-specific capabilities still risked being embedded in the core repo instead of living as extensions
 
-CV6 closes those gaps. It turns the database into the runtime source of truth
-not only for persona prompt content, but also for the metadata needed to route
-and reason about personas. It also defines where user-specific capabilities
-belong and how they integrate without polluting the framework.
+CV6 is actively closing those gaps. The database is now the runtime source of
+truth for persona routing metadata, persona detection is implemented and
+inspectable, the main repo-boundary leaks around `review-copy` have been
+resolved, and the extension model now has a real end-to-end reference path.
+The biggest remaining area is onboarding polish and broader runtime maturity.
 
 This CV is about framework maturity:
 - identity metadata should be complete enough in the database to drive runtime behavior
@@ -37,11 +38,11 @@ This CV is about framework maturity:
 
 | Code | Epic | User-visible outcome | Status |
 |------|------|----------------------|--------|
-| [CV6.E1](cv6-e1-structured-identity-metadata-in-db/index.md) | Structured Identity Metadata in the Database | Runtime-relevant persona metadata is stored in the database rather than discarded at seed time | Planned |
-| [CV6.E2](cv6-e2-db-backed-persona-auto-routing/index.md) | Persona Auto-Routing from Database Metadata | Mirror Mode can resolve personas from database-backed routing metadata instead of relying only on explicit or sticky persona state | Planned |
-| [CV6.E3](cv6-e3-multi-user-cleanup-and-boundary-audit/index.md) | Multi-User Cleanup and Repo Boundary Audit | Remaining personal/framework/runtime boundary leaks are identified and cleaned up | Planned |
-| [CV6.E4](cv6-e4-new-user-onboarding-flow/index.md) | New User Onboarding Flow | A new user can bootstrap, customize, seed, verify, and start using Mirror Mind without touching personal repo-owned artifacts | Planned |
-| [CV6.E5](cv6-e5-extension-model/index.md) | Extension Model for User-Specific Capabilities | Users can add specialized capabilities without baking them into Mirror Mind core | Planned |
+| [CV6.E1](cv6-e1-structured-identity-metadata-in-db/index.md) | Structured Identity Metadata in the Database | Runtime-relevant persona metadata is stored in the database rather than discarded at seed time | ✅ Done |
+| [CV6.E2](cv6-e2-db-backed-persona-auto-routing/index.md) | Persona Auto-Routing from Database Metadata | Mirror Mode can resolve personas from database-backed routing metadata instead of relying only on explicit or sticky persona state | ✅ Done |
+| [CV6.E3](cv6-e3-multi-user-cleanup-and-boundary-audit/index.md) | Multi-User Cleanup and Repo Boundary Audit | Remaining personal/framework/runtime boundary leaks are identified and cleaned up | ✅ Done |
+| [CV6.E4](cv6-e4-new-user-onboarding-flow/index.md) | New User Onboarding Flow | A new user can bootstrap, customize, seed, verify, and start using Mirror Mind without touching personal repo-owned artifacts | In Progress |
+| [CV6.E5](cv6-e5-extension-model/index.md) | Extension Model for User-Specific Capabilities | Users can add specialized capabilities without baking them into Mirror Mind core | ✅ Done |
 
 ---
 
@@ -56,6 +57,12 @@ CV6 is done when:
 - at least one user-specific capability has a documented extension path that does not require absorbing it into core
 - docs clearly distinguish among core framework features, user-owned identity, and external/user-installed extensions
 
+Current progress against that definition:
+- done: DB-backed persona metadata persistence, routing, and inspection
+- done: highest-risk repo boundary cleanup for `review-copy` and repo-local persona leakage
+- done: extension model lifecycle through validate/inspect/sync/install/uninstall plus Pi runtime consumption and Claude expose/clean flows
+- in progress: onboarding documentation and end-to-end newcomer verification
+
 ---
 
 ## Sequencing
@@ -68,10 +75,10 @@ E1 (structured identity metadata in DB)
         └── E5 (extension model for user-specific capabilities)
 ```
 
-E1 comes first because persona routing and identity inspection need a stable
-runtime metadata contract. E2 builds on that contract. E3, E4, and E5 then use
-that clearer model to tighten framework boundaries, improve onboarding, and
-create a safe home for user-specific capabilities outside core.
+E1 came first because persona routing and identity inspection needed a stable
+runtime metadata contract. E2 built on that contract. E3 and E5 are now also
+substantially complete. E4 remains the main open area, focused on tightening
+onboarding and newcomer verification.
 
 ---
 
