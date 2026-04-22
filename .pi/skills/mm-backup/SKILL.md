@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm-backup`, run:
 
 ```bash
-python -m memory backup
+uv run python -m memory backup
 ```
 
 Tell the user: "Memory database backed up."

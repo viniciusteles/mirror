@@ -57,7 +57,7 @@ section of [REFERENCE.md](../REFERENCE.md#configuration).
 Run:
 
 ```bash
-python -m memory init your-name
+uv run python -m memory init your-name
 ```
 
 This copies the repository templates into:
@@ -72,12 +72,12 @@ If you already have a Portuguese-era database such as `~/.espelho/memoria.db`,
 migrate it explicitly before normal use:
 
 ```bash
-python -m memory migrate-legacy validate \
+uv run python -m memory migrate-legacy validate \
   --source ~/.espelho/memoria.db \
   --target-home ~/.mirror/your-name \
   --report /tmp/mirror-migration-validate.json
 
-python -m memory migrate-legacy run \
+uv run python -m memory migrate-legacy run \
   --source ~/.espelho/memoria.db \
   --target-home ~/.mirror/your-name \
   --report /tmp/mirror-migration-run.json
@@ -119,17 +119,15 @@ Repository templates now live under `templates/identity/`. Live identity belongs
 
 ## 5. Seed the memory database
 
+Use the CLI as the primary onboarding path:
+
 ```bash
-claude
-```
-
-Inside Claude Code:
-
-```
-/mm:seed
+uv run python -m memory seed
 ```
 
 This loads YAML files from the active user home into the database. The mirror reads from the database at runtime; the user-home YAMLs are the seed source.
+
+If you are already inside Claude Code, `/mm:seed` is an equivalent interactive entry point.
 
 ---
 
@@ -194,7 +192,7 @@ Its runtime-visible commands are:
 ### Install it
 
 ```bash
-python -m memory extensions install \
+uv run python -m memory extensions install \
   review-copy \
   --extensions-root examples/extensions \
   --mirror-home ~/.mirror/your-name
@@ -220,7 +218,7 @@ After install, Pi should discover `ext-review-copy` automatically from the runti
 Claude needs an explicit project-local skill projection step:
 
 ```bash
-python -m memory extensions expose-claude \
+uv run python -m memory extensions expose-claude \
   --mirror-home ~/.mirror/your-name \
   --target-root /path/to/your/project
 ```
@@ -241,17 +239,17 @@ After that, use the skill in Claude as:
 ### Remove the Claude projection later
 
 ```bash
-python -m memory extensions clean-claude \
+uv run python -m memory extensions clean-claude \
   --target-root /path/to/your/project
 ```
 
 ### Inspect and validate extensions
 
 ```bash
-python -m memory extensions validate --extensions-root examples/extensions
-python -m memory inspect extension review-copy --extensions-root examples/extensions
-python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-name
-python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
+uv run python -m memory extensions validate --extensions-root examples/extensions
+uv run python -m memory inspect extension review-copy --extensions-root examples/extensions
+uv run python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-name
+uv run python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
 ```
 
 ### Full smoke test
@@ -264,23 +262,41 @@ python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-nam
 
 ## Verification
 
-Confirm the setup is working:
+Confirm the onboarding flow worked end to end:
 
 ```bash
-uv run python -m memory list journeys   # shows seeded journeys
-uv run python -m memory list personas   # shows seeded personas
+uv run python -m memory list personas --verbose
+uv run python -m memory list journeys
+uv run python -m memory detect-persona "I want help writing an article"
+uv run python -m memory inspect persona writer   # replace writer with one of your persona ids
 ```
+
+What to check:
+- `list personas --verbose` shows your seeded personas and their `routing_keywords`
+- `list journeys` shows your seeded journeys
+- `detect-persona` returns sensible persona matches for a natural-language query
+- `inspect persona ...` shows the persona metadata stored in the database, not just the YAML source
 
 Optional extension verification:
 
 ```bash
-python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-name
-python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
+uv run python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-name
+uv run python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
 ```
 
-Expected: your journeys and personas appear in the output. If you installed
+Expected: your personas, routing metadata, and journeys appear in the output. If you installed
 `review-copy`, the runtime catalog output should also show `ext-review-copy`
 and `ext:review-copy`.
+
+### Onboarding success checklist
+
+You should now have all of the following:
+- `~/.mirror/<user>/identity/` exists and contains your edited identity YAML files
+- `uv run python -m memory seed` completes without errors
+- your personas appear in `uv run python -m memory list personas --verbose`
+- your journeys appear in `uv run python -m memory list journeys`
+- persona routing responds sensibly in `uv run python -m memory detect-persona "..."`
+- Claude Code or Pi can now use the seeded database-backed runtime state
 
 ---
 

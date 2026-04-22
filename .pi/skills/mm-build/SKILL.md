@@ -21,7 +21,7 @@ Activates Builder Mode for a specific journey. Loads identity context and projec
 ## 1. Load Context (DB)
 
 ```bash
-python -m memory build load <slug>
+uv run python -m memory build load <slug>
 ```
 
 The command:
@@ -78,7 +78,7 @@ Every project associated with a journey should have:
 If the journey does not yet have an associated project:
 
 ```bash
-python -m memory journey set-path <slug> /path/to/project
+uv run python -m memory journey set-path <slug> /path/to/project
 ```
 
 ## 6. Finalize Session
@@ -86,5 +86,5 @@ python -m memory journey set-path <slug> /path/to/project
 When Vinícius says "End the session":
 
 ```bash
-python -m memory mirror log "SESSION_SUMMARY"
+uv run python -m memory mirror log "SESSION_SUMMARY"
 ```

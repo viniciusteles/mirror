@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm-recall <conversation_id> [--limit N]`:
 
 ```bash
-python -m memory recall <conversation_id> [--limit N]
+uv run python -m memory recall <conversation_id> [--limit N]
 ```
 
 The conversation ID can be a prefix (first 8 characters).

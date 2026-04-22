@@ -122,12 +122,12 @@ Rejected explicitly:
 #### Commands
 
 ```bash
-python -m memory migrate-legacy validate \
+uv run python -m memory migrate-legacy validate \
   --source ~/.espelho/memoria.db \
   --target-home ~/.mirror/<user> \
   --report /tmp/mirror-migration-validate.json
 
-python -m memory migrate-legacy run \
+uv run python -m memory migrate-legacy run \
   --source ~/.espelho/memoria.db \
   --target-home ~/.mirror/<user> \
   --report /tmp/mirror-migration-run.json
@@ -261,21 +261,21 @@ Useful commands:
 
 ```bash
 # discover / inspect
-python -m memory list extensions --extensions-root examples/extensions
-python -m memory extensions validate --extensions-root examples/extensions
-python -m memory inspect extension review-copy --extensions-root examples/extensions
-python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/<user>
-python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/<user>
+uv run python -m memory list extensions --extensions-root examples/extensions
+uv run python -m memory extensions validate --extensions-root examples/extensions
+uv run python -m memory inspect extension review-copy --extensions-root examples/extensions
+uv run python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/<user>
+uv run python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/<user>
 
 # install / uninstall
-python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
-python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+uv run python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
+uv run python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 
 # explicit runtime or project surfacing
-python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
-python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
-python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
-python -m memory extensions clean-claude --target-root /path/to/project
+uv run python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
+uv run python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
+uv run python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
+uv run python -m memory extensions clean-claude --target-root /path/to/project
 
 # full smoke test
 ./scripts/smoke_external_review_copy.sh
@@ -308,12 +308,12 @@ Pi runtime behavior:
   when discovering installed external skills
 
 Claude runtime surfacing:
-- `python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
+- `uv run python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
   projects installed Claude external skills into the target project's
   `.claude/skills/` surface
 - rerunning `expose-claude` prunes previously exposed external-skill paths from
   the overlay catalog before writing the current surface
-- `python -m memory extensions clean-claude --target-root /path/to/project`
+- `uv run python -m memory extensions clean-claude --target-root /path/to/project`
   removes previously exposed Claude external-skill files from the project
 - this is explicit and project-scoped
 
@@ -322,7 +322,7 @@ Concrete `review-copy` flow:
 Preferred one-command install:
 
 ```bash
-python -m memory extensions install \
+uv run python -m memory extensions install \
   review-copy \
   --extensions-root examples/extensions \
   --mirror-home ~/.mirror/<user>
@@ -332,14 +332,14 @@ To install only one runtime surface, add `--runtime pi` or `--runtime claude`.
 To remove the extension later, run:
 
 ```bash
-python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
+uv run python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
 ```
 
 To surface installed Claude external skills into a project-local Claude skill
 surface:
 
 ```bash
-python -m memory extensions expose-claude \
+uv run python -m memory extensions expose-claude \
   --mirror-home ~/.mirror/<user> \
   --target-root /path/to/project
 ```
@@ -347,7 +347,7 @@ python -m memory extensions expose-claude \
 To remove that project-local Claude external skill surface later:
 
 ```bash
-python -m memory extensions clean-claude \
+uv run python -m memory extensions clean-claude \
   --target-root /path/to/project
 ```
 
@@ -357,15 +357,15 @@ Equivalent explicit step-by-step flow:
 mkdir -p ~/.mirror/<user>/extensions
 cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
 
-python -m memory extensions validate --mirror-home ~/.mirror/<user>
-python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
+uv run python -m memory extensions validate --mirror-home ~/.mirror/<user>
+uv run python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
 
-python -m memory extensions sync \
+uv run python -m memory extensions sync \
   --mirror-home ~/.mirror/<user> \
   --runtime pi \
   --target-root ~/.mirror/<user>/runtime/skills/pi
 
-python -m memory extensions sync \
+uv run python -m memory extensions sync \
   --mirror-home ~/.mirror/<user> \
   --runtime claude \
   --target-root ~/.mirror/<user>/runtime/skills/claude
@@ -472,15 +472,15 @@ for runtime content.
 
 ## Transcript Export
 
-`python -m memory save` is now aligned with the user-home/export model.
+`uv run python -m memory save` is now aligned with the user-home/export model.
 
 Examples:
 
 ```bash
-python -m memory save my-session
-python -m memory save --full my-session
-python -m memory save --session-id $CLAUDE_SESSION_ID my-session
-python -m memory save --mirror-home ~/.mirror/<user> my-session
+uv run python -m memory save my-session
+uv run python -m memory save --full my-session
+uv run python -m memory save --session-id $CLAUDE_SESSION_ID my-session
+uv run python -m memory save --mirror-home ~/.mirror/<user> my-session
 ```
 
 Output resolution priority:

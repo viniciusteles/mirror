@@ -9,7 +9,7 @@ user-invocable: true
 Runs a backup of the configured production database.
 
 ```bash
-python -m memory backup
+uv run python -m memory backup
 ```
 
 This command:

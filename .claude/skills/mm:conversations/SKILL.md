@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm:conversations`, run:
 
 ```bash
-python -m memory conversations [--limit N] [--journey ID] [--persona ID]
+uv run python -m memory conversations [--limit N] [--journey ID] [--persona ID]
 ```
 
 If `$ARGUMENTS` contains a filter such as a journey slug, use it as `--journey`.

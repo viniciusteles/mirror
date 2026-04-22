@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm-journeys`:
 
 ```bash
-python -m memory journeys
+uv run python -m memory journeys
 ```
 
 The script prints a compact list of all journeys. Present the output without modification.

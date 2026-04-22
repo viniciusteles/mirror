@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm-memories [--type TYPE] [--layer LAYER] [--journey SLUG] [--search "text"] [--limit N]`:
 
 ```bash
-python -m memory memories [args]
+uv run python -m memory memories [args]
 ```
 
 Present the output to the user without modification.

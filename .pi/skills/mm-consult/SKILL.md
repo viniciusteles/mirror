@@ -27,13 +27,13 @@ Sends prompts with Mirror identity context to other models through OpenRouter.
 Analyze the message to determine persona and journey using Mirror routing.
 
 ```bash
-python -m memory consult FAMILY TIER "QUESTION" \
+uv run python -m memory consult FAMILY TIER "QUESTION" \
   [--persona PERSONA] [--journey JOURNEY] [--org]
 ```
 
 **Examples:**
-- `/mm-consult gemini lite "how should I price the course?"` → `python -m memory consult gemini lite "how should I price the course?" --persona marketer`
-- `/mm-consult deepseek "analyze this tension"` → `python -m memory consult deepseek "analyze this tension" --persona therapist`
+- `/mm-consult gemini lite "how should I price the course?"` → `uv run python -m memory consult gemini lite "how should I price the course?" --persona marketer`
+- `/mm-consult deepseek "analyze this tension"` → `uv run python -m memory consult deepseek "analyze this tension" --persona therapist`
 
 The script prints the response, cost, and balance. Always show the complete response to the user without summarizing or omitting it.
 
@@ -42,7 +42,7 @@ The script prints the response, cost, and balance. Always show the complete resp
 When the user omits the question, synthesize Mirror Mode content (reflection, strategy, content — not Builder Mode code or architecture) into a self-contained prompt, then call:
 
 ```bash
-python -m memory consult FAMILY TIER "SYNTHESIZED_PROMPT" \
+uv run python -m memory consult FAMILY TIER "SYNTHESIZED_PROMPT" \
   [--persona PERSONA] [--journey JOURNEY] [--org]
 ```
 
@@ -51,7 +51,7 @@ The synthesized prompt must be self-contained — the external LLM has no access
 ## Credits
 
 ```bash
-python -m memory consult credits
+uv run python -m memory consult credits
 ```
 
 Shows OpenRouter usage and remaining balance.

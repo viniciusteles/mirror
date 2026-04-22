@@ -27,13 +27,13 @@ Sends prompts with Mirror identity context to other models through OpenRouter.
 Analyze the message to determine persona and journey using the same Mirror routing.
 
 ```bash
-python -m memory consult FAMILY TIER "QUESTION" \
+uv run python -m memory consult FAMILY TIER "QUESTION" \
   [--persona PERSONA] [--journey JOURNEY] [--org]
 ```
 
 **Examples:**
-- `/mm:consult gemini lite "how should I price the course?"` -> `python -m memory consult gemini lite "how should I price the course?" --persona marketer`
-- `/mm:consult deepseek "analyze this tension"` -> `python -m memory consult deepseek "analyze this tension" --persona therapist`
+- `/mm:consult gemini lite "how should I price the course?"` -> `uv run python -m memory consult gemini lite "how should I price the course?" --persona marketer`
+- `/mm:consult deepseek "analyze this tension"` -> `uv run python -m memory consult deepseek "analyze this tension" --persona therapist`
 
 The script prints the response, cost, and balance. Always show the complete response to the user without summarizing or omitting it. Any Claude comments come after the full response.
 
@@ -46,7 +46,7 @@ When the user omits the question, they want a second opinion on the current conv
 3. Send it as an ask:
 
 ```bash
-python -m memory consult FAMILY TIER "SYNTHESIZED_PROMPT" \
+uv run python -m memory consult FAMILY TIER "SYNTHESIZED_PROMPT" \
   [--persona PERSONA] [--journey JOURNEY] [--org]
 ```
 
@@ -64,7 +64,7 @@ Suggest 3 alternative article topics for software leaders, keeping depth without
 ## Credits
 
 ```bash
-python -m memory consult credits
+uv run python -m memory consult credits
 ```
 
 Shows OpenRouter usage and remaining balance.

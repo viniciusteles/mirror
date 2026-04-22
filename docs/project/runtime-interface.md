@@ -7,9 +7,10 @@ two runtimes exist: Claude Code (hooks) and Pi (TypeScript extension). This
 document defines what every runtime must implement to integrate correctly with
 the Python `memory` core.
 
-The Python CLI (`python -m memory ...`) is the stable interface. Runtimes are
-thin dispatchers — they translate lifecycle events into CLI commands and do
-nothing else. A new runtime built solely from this document will work.
+The Python CLI (`python -m memory ...`) is the stable interface. Inside this
+repo, run it as `uv run python -m memory ...`. Runtimes are thin dispatchers —
+they translate lifecycle events into CLI commands and do nothing else. A new
+runtime built solely from this document will work.
 
 ---
 
@@ -20,11 +21,11 @@ required CLI command, and any arguments the runtime must supply.
 
 | Event | Required CLI command | Arguments supplied by runtime |
 |-------|---------------------|-------------------------------|
-| Session start | `python -m memory conversation-logger session-start` | none |
-| User prompt | `python -m memory conversation-logger log-user <session_id> <prompt> --interface <name>` | `session_id`, `prompt text`, `interface name` |
+| Session start | `uv run python -m memory conversation-logger session-start` | none |
+| User prompt | `uv run python -m memory conversation-logger log-user <session_id> <prompt> --interface <name>` | `session_id`, `prompt text`, `interface name` |
 | Assistant response | see note below | — |
-| Session end | `python -m memory conversation-logger session-end` or `session-end-pi <id>` | see note below |
-| Backup | `python -m memory backup --silent` | none |
+| Session end | `uv run python -m memory conversation-logger session-end` or `session-end-pi <id>` | see note below |
+| Backup | `uv run python -m memory backup --silent` | none |
 
 Backup runs at session end immediately after the session-end command.
 
@@ -39,7 +40,7 @@ conversations (idle > 30 min), and extracts memories from any conversations
 that ended without extraction.
 
 ```
-python -m memory conversation-logger session-start
+uv run python -m memory conversation-logger session-start
 ```
 
 No arguments. Prints a summary string (may be empty).
@@ -51,7 +52,7 @@ No arguments. Prints a summary string (may be empty).
 Runs before each model turn. Persists the user message to the database.
 
 ```
-python -m memory conversation-logger log-user <session_id> <prompt> --interface <name>
+uv run python -m memory conversation-logger log-user <session_id> <prompt> --interface <name>
 ```
 
 - `session_id` — opaque identifier for the current agent session, supplied by
@@ -72,7 +73,7 @@ explicitly as they arrive.
 **Pi** — logs each assistant turn explicitly at `agent_end`:
 
 ```
-python -m memory conversation-logger log-assistant <session_id> <content> --interface pi
+uv run python -m memory conversation-logger log-assistant <session_id> <content> --interface pi
 ```
 
 Collect all assistant messages from the turn, concatenate, and log once.
@@ -96,7 +97,7 @@ Extracts memories immediately and backfills assistant messages from the
 transcript.
 
 ```
-python -m memory conversation-logger session-end
+uv run python -m memory conversation-logger session-end
 ```
 
 Input: JSON on stdin — `{"session_id": "<id>", "transcript_path": "<path>"}`.
@@ -106,7 +107,7 @@ Claude Code's `Stop` hook provides this via stdin automatically.
 `session-start`.
 
 ```
-python -m memory conversation-logger session-end-pi <session_id>
+uv run python -m memory conversation-logger session-end-pi <session_id>
 ```
 
 A new runtime should use `session-end-pi` unless it can supply a transcript
@@ -120,7 +121,7 @@ Mirror Mode runtimes inject identity context before the model responds. This
 is optional — a runtime that does not support Mirror Mode skips this entirely.
 
 ```
-python -m memory mirror load --context-only --query "<user prompt>" [--persona <id>] [--journey <id>] [--org] [--session-id <id>]
+uv run python -m memory mirror load --context-only --query "<user prompt>" [--persona <id>] [--journey <id>] [--org] [--session-id <id>]
 ```
 
 - `--context-only` — loads identity without starting a new database session
@@ -160,7 +161,7 @@ Current external-skill surfacing path:
   `.claude/skills/` surface with:
 
 ```bash
-python -m memory extensions expose-claude \
+uv run python -m memory extensions expose-claude \
   --mirror-home ~/.mirror/<user> \
   --target-root /path/to/project
 ```
@@ -168,7 +169,7 @@ python -m memory extensions expose-claude \
 - remove the projected Claude external skill surface later with:
 
 ```bash
-python -m memory extensions clean-claude \
+uv run python -m memory extensions clean-claude \
   --target-root /path/to/project
 ```
 
@@ -300,16 +301,17 @@ Current prototype status:
 ## CLI Reference
 
 All commands assume the `memory` package is installed and accessible via
-`python -m memory`.
+`python -m memory`. Inside this repo, prefer `uv run python -m memory ...` so
+commands run inside the locked project environment.
 
 ```
-python -m memory conversation-logger session-start
-python -m memory conversation-logger log-user <session_id> <prompt> --interface <name>
-python -m memory conversation-logger log-assistant <session_id> <content> --interface <name>
-python -m memory conversation-logger session-end          # reads JSON from stdin
-python -m memory conversation-logger session-end-pi <id>  # explicit session id, deferred extraction
-python -m memory mirror load --context-only --query <q> [--persona <p>] [--journey <j>] [--org] [--session-id <id>]
-python -m memory backup --silent
+uv run python -m memory conversation-logger session-start
+uv run python -m memory conversation-logger log-user <session_id> <prompt> --interface <name>
+uv run python -m memory conversation-logger log-assistant <session_id> <content> --interface <name>
+uv run python -m memory conversation-logger session-end          # reads JSON from stdin
+uv run python -m memory conversation-logger session-end-pi <id>  # explicit session id, deferred extraction
+uv run python -m memory mirror load --context-only --query <q> [--persona <p>] [--journey <j>] [--org] [--session-id <id>]
+uv run python -m memory backup --silent
 ```
 
 ---

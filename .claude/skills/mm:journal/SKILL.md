@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm:journal`, run:
 
 ```bash
-python -m memory journal [--journey SLUG] "ENTRY_TEXT"
+uv run python -m memory journal [--journey SLUG] "ENTRY_TEXT"
 ```
 
 The entry text comes from `$ARGUMENTS`. If the user did not provide text, ask what they want to record.

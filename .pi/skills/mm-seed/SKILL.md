@@ -9,8 +9,8 @@ user-invocable: true
 When receiving `/mm-seed`:
 
 ```bash
-python -m memory seed --env production
+uv run python -m memory seed --env production
 ```
 
-Use after changing repository identity YAML files to synchronize the database.
+Use after changing user-home identity YAML files to synchronize the database.
 Tell the user the result.

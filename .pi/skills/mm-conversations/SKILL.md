@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm-conversations [--limit N] [--journey SLUG] [--persona NAME]`:
 
 ```bash
-python -m memory conversations [args]
+uv run python -m memory conversations [args]
 ```
 
 Present the output to the user without modification.

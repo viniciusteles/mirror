@@ -151,8 +151,8 @@ For Portuguese-era databases such as `~/.espelho/memoria.db`, use the explicit
 legacy migration workflow:
 
 ```text
-python -m memory migrate-legacy validate --source ~/.espelho/memoria.db --target-home ~/.mirror/<user> [--report PATH]
-python -m memory migrate-legacy run --source ~/.espelho/memoria.db --target-home ~/.mirror/<user> [--report PATH]
+uv run python -m memory migrate-legacy validate --source ~/.espelho/memoria.db --target-home ~/.mirror/<user> [--report PATH]
+uv run python -m memory migrate-legacy run --source ~/.espelho/memoria.db --target-home ~/.mirror/<user> [--report PATH]
 ```
 
 Safety contract:
@@ -258,6 +258,9 @@ Treat post-push CI verification as part of done, not as optional follow-up.
 
 ## Development Conventions
 
+- Use `uv run` for project Python commands and tests inside this repo.
+  Avoid raw `python -m ...`, `pytest`, or other system-Python entry points,
+  because they can bypass the locked project environment.
 - YAML files follow the local schema: `name`, `model`, `inherit`,
   `routing`, `briefing`, and `system_prompt`.
 - Personas inherit from `ego` or `self` depending on depth.

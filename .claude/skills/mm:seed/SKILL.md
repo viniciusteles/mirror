@@ -9,7 +9,7 @@ user-invocable: true
 Loads identity YAML files (`self`, `ego`, `user`, `organization`, personas, journeys) into the memory database.
 
 ```bash
-python -m memory seed --env production
+uv run python -m memory seed --env production
 ```
 
-Use after changing repository identity YAML files to synchronize the database.
+Use after changing user-home identity YAML files to synchronize the database.

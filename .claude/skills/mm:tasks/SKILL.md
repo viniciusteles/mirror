@@ -9,7 +9,7 @@ user-invocable: true
 When receiving `/mm:tasks`, run:
 
 ```bash
-python -m memory tasks [SUBCOMMAND] [ARGS]
+uv run python -m memory tasks [SUBCOMMAND] [ARGS]
 ```
 
 ## Subcommands

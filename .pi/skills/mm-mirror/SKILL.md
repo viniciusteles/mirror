@@ -12,7 +12,7 @@ to activate it; this skill defines how.
 ---
 
 > ⛔ **HARD CONSTRAINT**
-> Never produce a Mirror Mode response without first running `python -m memory mirror load`.
+> Never produce a Mirror Mode response without first running `uv run python -m memory mirror load`.
 > No exceptions. Load first. Always.
 
 ---
@@ -30,7 +30,7 @@ to activate it; this skill defines how.
 This is always the first action, before any visible output to the user.
 
 ```bash
-python -m memory mirror load \
+uv run python -m memory mirror load \
   --query "full text of the user's prompt" \
   [--persona PERSONA_ID] \
   [--journey JOURNEY_ID] \
