@@ -25,9 +25,26 @@ The architecture is Jungian by design: Self, Ego, Personas, Shadow. Not as decor
 
 This is not a chatbot. It's a mirror — conscious, accumulative, and yours.
 
+## Origins and credits
+
+Mirror Mind is a continuation of the original mirror work created by **Alisson Vale** in
+[alissonvale/mirror-poc](https://github.com/alissonvale/mirror-poc/).
+
+This repository builds on that original idea and implementation. The work here extends it in several important directions: making the system usable for people who do not speak Portuguese, adding a Pi-based multi-model runtime, and hardening the framework for multi-user and multi-session use. The original mirror concept and the first `mirror-poc` implementation are Alisson's, and this repository should be understood as a continuation and expansion of that foundation.
+
+The move toward **Pi** as a runtime was inspired by **Henrique Bastos** and his early work in
+[henriquebastos/mirror-mind](https://github.com/henriquebastos/mirror-mind).
+That work showed a strong path toward a more model-flexible runtime, and it directly influenced the adoption of Pi here.
+
+Historically, **Claude Code was the initial harness** used in Alisson's original implementation. Over time, this continuation adopted Pi as the preferred runtime because it makes the mirror less tied to one model/provider and better aligned with a multi-model future.
+
 ## How it works
 
-The project uses [Claude Code](https://docs.anthropic.com/en/docs/claude-code) as the primary interface. Mirror Mind now separates repository templates from live user identity:
+Mirror Mind now supports two runtimes:
+- **Pi** — the preferred interface today, because it makes the mirror multi-model and less tied to a single provider/runtime
+- **Claude Code** — the original interface used by Alisson's first implementation, still supported as an alternative
+
+Mirror Mind separates repository templates from live user identity:
 
 ```text
 templates/identity/           → Generic bootstrap templates shipped in the repo
@@ -52,7 +69,8 @@ Personas are not separate entities — they are specialized lenses the ego activ
 
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- [Pi](https://github.com/badlogic/pi-mono) installed if you want the preferred multi-model runtime
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed if you want the original alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (package manager)
 
@@ -143,17 +161,17 @@ A journey is any project, arc, or area of your life where things are happening a
 
 ### 5. Populate the memory bank
 
+Use the CLI as the runtime-neutral path:
+
 ```bash
-claude
-```
-
-Then inside Claude Code:
-
-```
-/mm:seed
+uv run python -m memory seed
 ```
 
 This loads identity from the active user home into the memory database. The mirror reads from the database at runtime; the user-home YAMLs are the seed source.
+
+If you are already inside a runtime, you can also seed there:
+- Pi: `/mm-seed`
+- Claude Code: `/mm:seed`
 
 ### 6. Configure routing in CLAUDE.md
 
@@ -169,11 +187,35 @@ Edit `CLAUDE.md` to map your personas to domains:
 
 ### 7. Start using
 
+**Preferred: Pi**
+
+Open Pi in this project and use commands such as:
+
+```text
+/mm-mirror
+/mm-journeys
+/mm-journey <slug>
+/mm-consult ...
 ```
+
+Pi is the preferred runtime because it makes Mirror Mind effectively multi-model.
+
+**Alternative: Claude Code**
+
+```bash
 claude
 ```
 
-Just talk. The mirror will route to the right persona automatically based on your message. If routing fails, use `/mm:mirror` explicitly.
+Then use commands such as:
+
+```text
+/mm:mirror
+/mm:journeys
+/mm:journey <slug>
+/mm:consult ...
+```
+
+Claude Code is still fully supported, but it is now the secondary runtime rather than the primary one.
 
 ## Commands
 

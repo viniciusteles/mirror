@@ -9,6 +9,42 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-22 — credits clarified and Pi repositioned as the preferred runtime
+
+Updated `README.md` and `docs/getting-started.md` to make the project's lineage
+explicit. The docs now clearly credit **Alisson Vale** and link to the original
+`alissonvale/mirror-poc` repository as the source of the mirror concept and the
+first implementation. They also credit **Henrique Bastos** and link to
+`henriquebastos/mirror-mind` for the Pi direction that influenced the move
+toward a more model-flexible runtime.
+
+The user-facing positioning was also adjusted: Claude Code is now described as
+the original harness and still-supported alternative, while Pi is presented as
+the preferred runtime because it better supports a multi-model future. README
+and getting-started instructions now introduce Pi first and Claude second.
+
+---
+
+### 2026-04-22 — onboarding and runtime command docs aligned with uv
+
+Standardized current-facing docs and skill instructions around `uv run` as the
+repo command boundary. Updated `docs/getting-started.md`, `README.md`,
+`REFERENCE.md`, `CLAUDE.md`, `docs/project/runtime-interface.md`, Claude/Pi
+skill docs, and local Claude settings so project Python commands and tests run
+through the locked uv environment instead of system Python.
+
+Onboarding was also tightened: `docs/getting-started.md` now uses CLI-first
+seeding (`uv run python -m memory seed`), adds stronger verification commands
+for personas, journeys, persona metadata, and routing, and includes a compact
+success checklist for new users. Seed guidance in runtime skills was corrected
+to point at user-home identity files rather than repository-owned identity
+artifacts.
+
+Committed as `c11acde` (`Standardize uv-run docs and tighten onboarding verification`).
+CI green on the push.
+
+---
+
 ### 2026-04-20 — sqlite3 connection fd leak fixed in MemoryClient
 
 **Symptom.** After the thread-safety fix, `test_concurrent_memory_client_open_on_fresh_db_is_safe` still failed intermittently with `sqlite3.OperationalError: unable to open database file`, reliably on Vinícius's machine, never on the agent's. Same line (`sqlite3.connect`) every time. A retry-with-backoff guard made failures take 6 s instead of 0 s — the symptom was persistent, not a filesystem flicker.

@@ -2,9 +2,22 @@
 
 # Getting Started
 
+## Lineage and credits
+
+Mirror Mind in this repository is a continuation of the original mirror work created by **Alisson Vale** in
+[alissonvale/mirror-poc](https://github.com/alissonvale/mirror-poc/).
+This version extends that foundation to support English-speaking users, Pi-based multi-model use, and stronger multi-user and multi-session runtime behavior.
+
+The adoption of **Pi** was inspired by **Henrique Bastos** and his work in
+[henriquebastos/mirror-mind](https://github.com/henriquebastos/mirror-mind),
+which helped show the path toward a more model-flexible runtime.
+
+Historically, **Claude Code was the initial harness** used in Alisson's original implementation. This continuation keeps Claude support, but Pi is now the preferred runtime because it enables a more multi-model setup.
+
 ## Prerequisites
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- [Pi](https://github.com/badlogic/pi-mono) installed if you want the preferred multi-model runtime
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed if you want the original alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager
 - An OpenAI API key (embeddings)
@@ -127,7 +140,9 @@ uv run python -m memory seed
 
 This loads YAML files from the active user home into the database. The mirror reads from the database at runtime; the user-home YAMLs are the seed source.
 
-If you are already inside Claude Code, `/mm:seed` is an equivalent interactive entry point.
+If you are already inside a runtime, the equivalent interactive entry points are:
+- Pi: `/mm-seed`
+- Claude Code: `/mm:seed`
 
 ---
 
@@ -146,11 +161,35 @@ Open `CLAUDE.md` and map your personas to domains:
 
 ## 7. Start the mirror
 
+### Preferred: Pi
+
+Open Pi in this project and use the mirror through commands such as:
+
+```text
+/mm-mirror
+/mm-journeys
+/mm-journey <journey-slug>
+/mm-consult ...
+```
+
+Pi is the preferred runtime because it lets Mirror Mind work across models more naturally.
+
+### Alternative: Claude Code
+
 ```bash
 claude
 ```
 
-Just talk. The ego routes to the right persona based on context. For explicit Mirror Mode, use `/mm:mirror`. For Builder Mode on a specific journey, use `/mm:build <journey-slug>`.
+Then use commands such as:
+
+```text
+/mm:mirror
+/mm:journeys
+/mm:journey <journey-slug>
+/mm:consult ...
+```
+
+Claude Code remains fully supported, but it is now the secondary runtime rather than the primary one.
 
 ---
 
