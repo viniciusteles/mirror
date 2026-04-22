@@ -10,7 +10,7 @@ Must pass before and after.
 
 ## Smoke test
 ```bash
-python -m memory journal "Testing the new CLI command" --journey mirror-poc
+python -m memory journal "Testing the new CLI command" --journey mirror
 ```
 Expected: prints `📓 Journal entry recorded` with title, layer, tags, ID. Exit 0.
 

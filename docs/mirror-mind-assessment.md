@@ -199,7 +199,7 @@ greenfield server version.
 
 For this repo, the strategic direction is different:
 
-- `mirror-poc` is the mature local memory/identity runtime
+- `mirror` is the mature local memory/identity runtime
 - Pi adoption should make it model/runtime agnostic without rewriting the core
 - client-server can remain a future track or a parallel project
 - `mirror-pi` is a reference implementation, not the source of truth

@@ -16,8 +16,8 @@ Subcommands: `list` (default), `add`, `done`, `doing`, `block`, `delete`, `impor
 
 **Examples:**
 ```bash
-uv run python -m memory tasks --journey mirror-poc
-uv run python -m memory tasks add "Write plan doc" --journey mirror-poc
+uv run python -m memory tasks --journey mirror
+uv run python -m memory tasks add "Write plan doc" --journey mirror
 uv run python -m memory tasks done <task-id>
 ```
 

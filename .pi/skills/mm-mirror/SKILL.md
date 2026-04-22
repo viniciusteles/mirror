@@ -47,7 +47,7 @@ uncertain, omit them and let auto-detection decide.
 
 **Examples:**
 - Generic query: `--query "I need to define the next article topic"`
-- Known journey: `--journey mirror-poc --query "how should I approach the next epic"`
+- Known journey: `--journey mirror --query "how should I approach the next epic"`
 - With persona: `--persona writer --query "review this article draft"`
 - With organization: `--org --query "course launch strategy"`
 

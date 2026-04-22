@@ -5,7 +5,7 @@
 ## Smoke tests
 ```bash
 python -m memory memories --limit 5
-python -m memory memories --journey mirror-poc --limit 3
+python -m memory memories --journey mirror --limit 3
 python -m memory memories --search "session lifecycle" --limit 5
 ```
 

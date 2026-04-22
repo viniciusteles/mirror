@@ -193,7 +193,7 @@ Move mirror storage language to English.
 Target changes:
 
 - `DEFAULT_ESPELHO_DIR` -> `DEFAULT_MIRROR_DIR`
-- default directory `~/.espelho` -> `~/.mirror-poc`
+- default directory `~/.espelho` -> `~/.mirror`
 - keep `MEMORY_DIR`, `MEMORY_PROD_DIR`, `DB_PATH`, and `DB_BACKUP_PATH` because
   they are already English
 - keep legacy database copy behavior for `memoria*.db` until compatibility
@@ -201,8 +201,8 @@ Target changes:
 
 Compatibility behavior during the migration:
 
-- New installs use `~/.mirror-poc`.
-- If `~/.mirror-poc` does not exist and `~/.espelho` exists, use or migrate
+- New installs use `~/.mirror`.
+- If `~/.mirror` does not exist and `~/.espelho` exists, use or migrate
   from `~/.espelho`.
 - If both exist, prefer the explicit environment configuration if present.
 - If both exist without explicit configuration, do not merge silently. The code
@@ -363,7 +363,7 @@ Completed:
   `journey`/`journey_id`.
 - Identity layer and YAML migration from `travessia`/`caminho` to
   `journey`/`journey_path`.
-- Default local storage rename from `.espelho` to `.mirror-poc`.
+- Default local storage rename from `.espelho` to `.mirror`.
 - Internal journey path terminology cleanup in the active implementation.
 - CLI and Claude skill workflow update to English-only `journey` vocabulary.
 - Public docs and handoff updated to English domain language.
@@ -373,11 +373,11 @@ Completed:
   home:
   - seeded identity into a test database
   - listed journeys through `python -m memory list journeys`
-  - loaded mirror context with `--journey mirror-poc`
+  - loaded mirror context with `--journey mirror`
   - wrote mirror state with `journey` and no `travessia`
-  - added/listed a task scoped to `journey="mirror-poc"`
-  - added/searched a memory scoped to `journey="mirror-poc"`
-  - confirmed `.mirror-poc` was created and `.espelho` was not
+  - added/listed a task scoped to `journey="mirror"`
+  - added/searched a memory scoped to `journey="mirror"`
+  - confirmed `.mirror` was created and `.espelho` was not
 
 Next:
 

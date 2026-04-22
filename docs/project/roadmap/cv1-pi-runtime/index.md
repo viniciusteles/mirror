@@ -3,13 +3,13 @@
 # CV1 — Pi Runtime ✅
 
 **Status:** Done  
-**Goal:** Make `mirror-poc` dual-interface — Claude Code plus Pi — without rewriting the core.
+**Goal:** Make `mirror` dual-interface — Claude Code plus Pi — without rewriting the core.
 
 ---
 
 ## What This Is
 
-Pi (`badlogic/pi-mono`) is a local AI coding agent runtime built on TypeScript.
+Pi (`badlogic/pi-mono/tree/main/packages/agent`) is a local AI coding agent runtime built on TypeScript.
 It is model-agnostic and does not require Claude Code. CV1 makes the mirror run
 on Pi by adding a Pi interface layer while keeping the Python `memory` core
 unchanged.

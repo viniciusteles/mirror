@@ -4,9 +4,9 @@
 
 ## Smoke tests
 ```bash
-python -m memory tasks --journey mirror-poc
-python -m memory tasks add "Test task" --journey mirror-poc
-python -m memory tasks --all --journey mirror-poc
+python -m memory tasks --journey mirror
+python -m memory tasks add "Test task" --journey mirror
+python -m memory tasks --all --journey mirror
 ```
 
 ## Full suite

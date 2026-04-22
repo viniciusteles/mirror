@@ -15,7 +15,7 @@ Expected: all existing tests pass plus 4 new tests.
 ## 2. Mirror commands via unified CLI
 
 ```bash
-python -m memory mirror load --journey mirror-poc --context-only
+python -m memory mirror load --journey mirror --context-only
 ```
 
 Expected: identity context printed to stdout. Same output as calling the Claude skill directly.

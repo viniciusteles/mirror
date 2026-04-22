@@ -11,7 +11,7 @@
 ## Motivation
 
 The `mirror-pi` journey exists because Claude Code is not always the right
-runtime. Pi (`badlogic/pi-mono`) is a model-agnostic local agent that does not
+runtime. Pi (`badlogic/pi-mono/tree/main/packages/agent`) is a model-agnostic local agent that does not
 require Claude Code. Making Mirror Mind run on Pi means the mirror is available
 regardless of which AI runtime the user chooses.
 
@@ -69,7 +69,7 @@ and current database.
 
 ## Decisions Made
 
-1. **Don't port wholesale.** `mirror-poc` is the source of truth. `mirror-pi` is
+1. **Don't port wholesale.** `mirror` is the source of truth. `mirror-pi` is
    a reference for interface patterns.
 
 2. **Extract shared skill modules first** (`src/memory/skills/`). Pi wrappers
@@ -79,7 +79,7 @@ and current database.
    Claude commands: `mm:mirror`, `mm:journey`, etc. Both call the same Python core.
 
 4. **Port the mirror-logger extension against the English runtime.** Replace
-   `~/.espelho` → `~/.mirror-poc`, `memoria` → `memory`, `travessia` → `journey`.
+   `~/.espelho` → `~/.mirror`, `memoria` → `memory`, `travessia` → `journey`.
 
 ---
 

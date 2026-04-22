@@ -4,9 +4,9 @@
 
 ## Smoke tests
 ```bash
-python -m memory journey status mirror-poc
-python -m memory journey update mirror-poc "New path content"
-echo "Stdin content" | python -m memory journey update mirror-poc -
+python -m memory journey status mirror
+python -m memory journey update mirror "New path content"
+echo "Stdin content" | python -m memory journey update mirror -
 ```
 
 ## Full suite

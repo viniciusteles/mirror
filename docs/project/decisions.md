@@ -37,19 +37,19 @@ spike — particularly the `.pi/extensions/mirror-logger.ts` pattern and the Pi
 session lifecycle handling — but it should not be ported wholesale.
 
 The right move: adapt the Pi interface ideas against the current English
-`memory` core. `mirror-poc` becomes dual-interface; `mirror-pi` is a reference,
+`memory` core. `mirror` becomes dual-interface; `mirror-pi` is a reference,
 not the source.
 
 ---
 
-### `mirror-poc` stays local-first; client-server is a future/parallel track
+### `mirror` stays local-first; client-server is a future/parallel track
 
 **Date:** 2026-04-17
 
 Alisson's `mirror-mind` is a greenfield server version with bearer token auth
 and a web interface. That is a valid and separate direction.
 
-`mirror-poc` is the mature local runtime. Making it model/runtime agnostic
+`mirror` is the mature local runtime. Making it model/runtime agnostic
 (Pi support, CV1) does not require adding a server. Client-server remains a
 future track or a parallel project — not a CV1 concern.
 

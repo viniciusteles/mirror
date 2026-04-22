@@ -98,8 +98,8 @@ Portuguese command aliases have been removed. Use English options such as
 **Default location (production):** `~/.mirror/<user>/memory.db`
 
 Set via `MIRROR_HOME=~/.mirror/<user>` or `MIRROR_USER=<user>`. Dev and test
-environments default to `~/.mirror-poc/memory_dev.db` and
-`~/.mirror-poc/memory_test.db` unless overridden with `DB_PATH`.
+environments default to `~/.mirror/memory_dev.db` and
+`~/.mirror/memory_test.db` unless overridden with `DB_PATH`.
 
 Existing installs under legacy locations must be moved with an explicit
 operational plan or pointed at with environment configuration.
@@ -557,7 +557,7 @@ override the default layout.
 
 | Variable | Default | Role |
 |----------|---------|------|
-| `MEMORY_DIR` | `MIRROR_HOME` (prod) or `~/.mirror-poc` | Runtime working dir for `mute` and `.bootstrap.lock`. |
+| `MEMORY_DIR` | `MIRROR_HOME` (prod) or `~/.mirror` | Runtime working dir for `mute` and `.bootstrap.lock`. |
 | `MEMORY_PROD_DIR` | `MEMORY_DIR` | Production-only override. |
 | `DB_PATH` | `<MIRROR_HOME>/memory.db` | Full SQLite path. |
 | `DB_BACKUP_PATH` | `<DB_PATH parent>/backups` | Legacy alias for `BACKUP_DIR`. |

@@ -5,7 +5,7 @@
 ## Smoke tests
 ```bash
 python -m memory conversations --limit 5
-python -m memory conversations --journey mirror-poc --limit 3
+python -m memory conversations --journey mirror --limit 3
 ```
 
 ## Full suite

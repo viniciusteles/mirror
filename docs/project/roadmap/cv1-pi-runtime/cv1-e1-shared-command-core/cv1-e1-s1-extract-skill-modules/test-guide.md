@@ -15,7 +15,7 @@ Expected: 9 tests pass.
 ## 2. Existing skill still works
 
 ```bash
-python3 .claude/skills/mm:mirror/run.py load --journey mirror-poc --context-only
+python3 .claude/skills/mm:mirror/run.py load --journey mirror --context-only
 ```
 
 Expected: identity context printed to stdout. No errors.
@@ -51,15 +51,15 @@ Expected: all pass, no new failures.
 ## 4. State file integrity
 
 ```bash
-python3 .claude/skills/mm:mirror/run.py load --journey mirror-poc --context-only
-cat ~/.mirror-poc/mirror_state.json
+python3 .claude/skills/mm:mirror/run.py load --journey mirror --context-only
+cat ~/.mirror/mirror_state.json
 ```
 
-Expected: JSON with `"active": true` and `"journey": "mirror-poc"`.
+Expected: JSON with `"active": true` and `"journey": "mirror"`.
 
 ```bash
 python3 .claude/skills/mm:mirror/run.py deactivate
-cat ~/.mirror-poc/mirror_state.json
+cat ~/.mirror/mirror_state.json
 ```
 
 Expected: JSON with `"active": false`.

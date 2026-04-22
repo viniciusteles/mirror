@@ -2,22 +2,22 @@
 
 Date: 2026-04-17
 
-This assessment compares the current `mirror-poc` repository with the Pi-adapted
+This assessment compares the current `mirror` repository with the Pi-adapted
 version at `~/dev/workspace/mirror-pi`. The goal is to understand how to adapt
-the current English `mirror-poc` runtime to run on Pi without depending on
+the current English `mirror` runtime to run on Pi without depending on
 Claude Code specifically.
 
 ## Summary
 
 The adaptation path is clear, but `mirror-pi` should not be ported wholesale
-into `mirror-poc`.
+into `mirror`.
 
 `mirror-pi` is useful as a working spike, but it is pre-English-migration and
 still uses `memoria`, `travessia`, `.espelho`, and related Portuguese runtime
 language. The right move is to port the Pi interface ideas, not the old memory
 core.
 
-The current `mirror-poc` already has the better core:
+The current `mirror` already has the better core:
 
 - English `memory` package
 - English schema/runtime vocabulary
@@ -26,7 +26,7 @@ The current `mirror-poc` already has the better core:
 - current `.claude/skills/mm:*`
 - tested migration boundaries
 
-The plan should be to make `mirror-poc` dual-interface: Claude Code plus Pi.
+The plan should be to make `mirror` dual-interface: Claude Code plus Pi.
 
 ## What Mirror Pi Adds
 
@@ -113,7 +113,7 @@ memoria tasks ...
 memoria conversation-logger session-start
 ```
 
-`mirror-poc` currently only has a small `python -m memory seed/list`
+`mirror` currently only has a small `python -m memory seed/list`
 dispatcher, while most skill logic is invoked through
 `.claude/skills/.../run.py`.
 
@@ -148,7 +148,7 @@ to current naming:
 - `--interface pi` for `log-user` and `log-assistant`
 - metadata fields like `pi_session_file` and `backfill_source`
 
-Current `mirror-poc` already has conversation logging, but it is Claude-oriented.
+Current `mirror` already has conversation logging, but it is Claude-oriented.
 Pi needs lifecycle events because Pi sessions and transcripts live under
 `~/.pi/agent/sessions/...`, not `~/.claude/projects/...`.
 
@@ -157,7 +157,7 @@ Pi needs lifecycle events because Pi sessions and transcripts live under
 Port `mirror-pi/.pi/extensions/mirror-logger.ts`, but change:
 
 ```text
-~/.espelho           -> ~/.mirror-poc or MEMORY_DIR
+~/.espelho           -> ~/.mirror or MEMORY_DIR
 memoria              -> memory
 travessia            -> journey
 Memoria pronta       -> Memory ready
@@ -188,19 +188,19 @@ Pi.
 Claude:
 
 ```text
-python3 .claude/skills/mm:mirror/run.py load --journey mirror-poc
+python3 .claude/skills/mm:mirror/run.py load --journey mirror
 ```
 
 Pi:
 
 ```text
-python3 .pi/skills/mm-mirror/run.py load --journey mirror-poc
+python3 .pi/skills/mm-mirror/run.py load --journey mirror
 ```
 
 or after unified CLI:
 
 ```text
-python3 -m memory mirror load --journey mirror-poc
+python3 -m memory mirror load --journey mirror
 ```
 
 The Pi skill docs in `mirror-pi` are still Portuguese-domain and should not be
@@ -237,7 +237,7 @@ MIRROR_USER_DIR
 users/me/
 ```
 
-`mirror-poc` currently seeds from in-repo `identity/`.
+`mirror` currently seeds from in-repo `identity/`.
 
 That is a product/design decision, not required for Pi runtime support. Do not
 mix it into the first Pi adaptation. First get Pi running against current

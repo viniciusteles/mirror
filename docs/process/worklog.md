@@ -23,6 +23,11 @@ the original harness and still-supported alternative, while Pi is presented as
 the preferred runtime because it better supports a multi-model future. README
 and getting-started instructions now introduce Pi first and Claude second.
 
+Follow-up corrections aligned the public repository naming with
+`viniciusteles/mirror` (no current-project `mirror-poc` references in docs) and
+normalized Pi links to the agent package URL:
+`https://github.com/badlogic/pi-mono/tree/main/packages/agent`.
+
 ---
 
 ### 2026-04-22 — onboarding and runtime command docs aligned with uv
@@ -228,10 +233,10 @@ Reference: [CV1.E2 Pi Skill Surface](../project/roadmap/cv1-pi-runtime/cv1-e2-pi
 
 End-to-end smoke test against isolated DB (`MEMORY_DIR=/tmp/cv1-e4`). Pi session
 ran `/mm-mirror`, extension logged all turns via `mirror-logger.ts`, `session-start`
-triggered extraction, 1 memory extracted from `journal=mirror-poc` conversation.
+triggered extraction, 1 memory extracted from `journal=mirror` conversation.
 Production DB untouched (confirmed by checksum). 0 ERROR lines in mirror-logger.log.
 
-Fixed bug: `mirror-logger.ts` hardcoded `~/.mirror-poc/` instead of reading
+Fixed bug: `mirror-logger.ts` hardcoded `~/.mirror/` instead of reading
 `MEMORY_DIR` from environment — corrected with `_resolveMemoryDir()`.
 
 CV1 done condition met: dual-interface (Claude Code + Pi), shared Python core,

@@ -32,7 +32,7 @@ The migration proceeded in layers, from the most fundamental to the most surface
 3. **Portuguese primary aliases removed** from `MemoryClient`
 4. **Database artifacts renamed** from `memoria*` to `memory*`
 5. **Legacy `memoria` package removed** from `src/`
-6. **Database path renamed** from `~/.espelho/` to `~/.mirror-poc/`
+6. **Database path renamed** from `~/.espelho/` to `~/.mirror/`
 7. **Portuguese CLI aliases removed**
 8. **Runtime legacy data compatibility removed** (config, seed, services, extraction)
 9. **Identity YAMLs translated** to English content

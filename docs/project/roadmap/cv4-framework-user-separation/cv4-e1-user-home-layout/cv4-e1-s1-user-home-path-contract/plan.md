@@ -8,7 +8,7 @@ Before code changes, we need one explicit contract for where Mirror Mind looks
 for user-owned state.
 
 Today the project has multiple path assumptions in motion:
-- runtime DB under `~/.mirror-poc/`
+- runtime DB under `~/.mirror/`
 - identity seeded from repo-owned `identity/`
 - backup/export behavior defined elsewhere and not yet aligned to CV4
 - transcript artifacts accidentally landing under `src/`

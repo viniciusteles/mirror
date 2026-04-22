@@ -69,7 +69,7 @@ Personas are not separate entities — they are specialized lenses the ego activ
 
 ## Prerequisites
 
-- [Pi](https://github.com/badlogic/pi-mono) installed if you want the preferred multi-model runtime
+- [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/agent) installed if you want the preferred multi-model runtime
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed if you want the original alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (package manager)
@@ -78,8 +78,8 @@ Personas are not separate entities — they are specialized lenses the ego activ
 
 ```bash
 # Clone the repository
-git clone https://github.com/viniciusteles/mirror-poc.git
-cd mirror-poc
+git clone https://github.com/viniciusteles/mirror.git
+cd mirror
 
 # Install Python dependencies
 uv sync

@@ -35,11 +35,11 @@ Across all layers:
 | Layer | Change |
 |-------|--------|
 | Python package | `memoria` → `memory` |
-| Database directory | `~/.espelho/` → `~/.mirror-poc/` |
+| Database directory | `~/.espelho/` → `~/.mirror/` |
 | Database filenames | `memoria*.db` → `memory*.db` |
 | Service names | `TravessiaService` → `JourneyService`, etc. |
 | CLI commands | Portuguese aliases removed |
-| Runtime config | `.espelho` discovery removed, `mirror-poc` direct |
+| Runtime config | `.espelho` discovery removed, `mirror` direct |
 | Identity layers | `travessia`/`caminho` → `journey`/`journey_path` |
 | Mirror state | `travessia` key → `journey` key |
 | Extraction | Portuguese LLM response normalization removed |
