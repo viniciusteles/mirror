@@ -38,7 +38,7 @@ def _bool_from_env(name: str, default: bool = False) -> bool:
 
 
 def _default_memory_dir(home: Path) -> Path:
-    return home / ".mirror-poc"
+    return home / ".mirror"
 
 
 def _default_user_homes_dir(home: Path) -> Path:
@@ -100,7 +100,7 @@ def default_transcript_export_dir_for_home(home: Path) -> Path:
 # Directories by environment.
 _HOME = Path.home()
 DEFAULT_USER_HOMES_DIR = _default_user_homes_dir(_HOME)
-DEFAULT_MIRROR_DIR = _HOME / ".mirror-poc"
+DEFAULT_MIRROR_DIR = _HOME / ".mirror"
 DEFAULT_MEMORY_DIR = _default_memory_dir(_HOME)
 
 try:

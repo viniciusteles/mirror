@@ -24,10 +24,10 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 // Respect MEMORY_DIR so Pi session files land in the same directory Python reads.
-// Fallback to ~/.mirror-poc if unset.
+// Fallback to ~/.mirror if unset.
 function _resolveMemoryDir(): string {
 	const raw = process.env.MEMORY_DIR;
-	if (!raw) return join(homedir(), ".mirror-poc");
+	if (!raw) return join(homedir(), ".mirror");
 	return raw.startsWith("~") ? join(homedir(), raw.slice(2)) : raw;
 }
 

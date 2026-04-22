@@ -159,7 +159,7 @@ def resolve_production_db_path() -> Path:
     if configured_prod_dir or configured_memory_dir:
         base_dir = Path(configured_prod_dir or configured_memory_dir or "").expanduser()
     else:
-        mirror_dir = Path("~/.mirror-poc").expanduser()
+        mirror_dir = Path("~/.mirror").expanduser()
         legacy_dir = Path("~/.espelho").expanduser()
         base_dir = mirror_dir if mirror_dir.exists() or not legacy_dir.exists() else legacy_dir
 

@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mirror-poc"
+name = "mirror"
 version = "0.2.0"
 description = "Memory and identity system for Mirror Mind"
 requires-python = ">=3.10"

@@ -430,7 +430,7 @@ wheels = [
 ]
 
 [[package]]
-name = "mirror-poc"
+name = "mirror"
 version = "0.2.0"
 source = { editable = "." }
 dependencies = [
