@@ -177,7 +177,7 @@ def test_resolve_production_db_path_uses_mirror_dir_for_new_installs(monkeypatch
     monkeypatch.delenv("MEMORY_DIR", raising=False)
     monkeypatch.setenv("HOME", str(tmp_path))
 
-    assert resolve_production_db_path() == tmp_path / ".mirror-poc" / "memory.db"
+    assert resolve_production_db_path() == tmp_path / ".mirror" / "memory.db"
 
 
 def test_resolve_production_db_path_uses_existing_legacy_espelho_dir(monkeypatch, tmp_path):
@@ -192,7 +192,7 @@ def test_resolve_production_db_path_uses_existing_legacy_espelho_dir(monkeypatch
 
 
 def test_resolve_production_db_path_prefers_existing_mirror_dir(monkeypatch, tmp_path):
-    mirror_dir = tmp_path / ".mirror-poc"
+    mirror_dir = tmp_path / ".mirror"
     legacy_dir = tmp_path / ".espelho"
     mirror_dir.mkdir()
     legacy_dir.mkdir()

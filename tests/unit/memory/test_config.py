@@ -172,11 +172,11 @@ def test_memory_dir_defaults_from_mirror_home_in_production(tmp_path):
 
 def test_default_memory_dir_uses_mirror_dir_for_new_installs(tmp_path):
     with _config_with_env() as cfg:
-        assert cfg._default_memory_dir(tmp_path) == tmp_path / ".mirror-poc"
+        assert cfg._default_memory_dir(tmp_path) == tmp_path / ".mirror"
 
 
 def test_default_memory_dir_ignores_existing_legacy_espelho_dir(tmp_path):
-    mirror_dir = tmp_path / ".mirror-poc"
+    mirror_dir = tmp_path / ".mirror"
     legacy_dir = tmp_path / ".espelho"
     legacy_dir.mkdir()
 
@@ -186,7 +186,7 @@ def test_default_memory_dir_ignores_existing_legacy_espelho_dir(tmp_path):
 
 def test_default_directory_constants_are_english_only():
     with _config_with_env() as cfg:
-        assert cfg.DEFAULT_MIRROR_DIR.name == ".mirror-poc"
+        assert cfg.DEFAULT_MIRROR_DIR.name == ".mirror"
         assert cfg.DEFAULT_USER_HOMES_DIR.name == ".mirror"
         assert not hasattr(cfg, "LEGACY_ESPELHO_DIR")
         assert not hasattr(cfg, "DEFAULT_ESPELHO_DIR")
