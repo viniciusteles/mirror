@@ -26,7 +26,7 @@ and getting-started instructions now introduce Pi first and Claude second.
 Follow-up corrections aligned the public repository naming with
 `viniciusteles/mirror` (no current-project `mirror-poc` references in docs) and
 normalized Pi links to the agent package URL:
-`https://github.com/badlogic/pi-mono/tree/main/packages/agent`.
+`https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent`.
 
 ---
 

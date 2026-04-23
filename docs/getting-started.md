@@ -16,7 +16,7 @@ Historically, **Claude Code was the initial harness** used in Alisson's original
 
 ## Prerequisites
 
-- [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/agent) installed if you want the preferred multi-model runtime
+- [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) installed if you want the preferred multi-model runtime
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed if you want the original alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager

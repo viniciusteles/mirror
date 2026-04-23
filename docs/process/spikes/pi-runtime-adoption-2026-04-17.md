@@ -11,7 +11,7 @@
 ## Motivation
 
 The `mirror-pi` journey exists because Claude Code is not always the right
-runtime. Pi (`badlogic/pi-mono/tree/main/packages/agent`) is a model-agnostic local agent that does not
+runtime. Pi (`badlogic/pi-mono/tree/main/packages/coding-agent`) is a model-agnostic local agent that does not
 require Claude Code. Making Mirror Mind run on Pi means the mirror is available
 regardless of which AI runtime the user chooses.
 
