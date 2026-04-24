@@ -217,7 +217,7 @@ export default function (pi: ExtensionAPI) {
 		const sessionId = ctx.sessionManager.getSessionFile() ?? null;
 		if (!sessionId) return;
 
-		const messages = (event as Record<string, unknown>).messages;
+		const messages = (event as unknown as Record<string, unknown>).messages;
 		if (!Array.isArray(messages) || messages.length === 0) return;
 
 		const assistantTexts: string[] = [];
