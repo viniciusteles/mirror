@@ -130,9 +130,9 @@ class TestMemoryOperations:
             title="Insight de produto",
             content="Usuários querem simplicidade.",
             memory_type="insight",
-            journey="uncle-vinny",
+            journey="test-journey",
         )
-        assert mem.journey == "uncle-vinny"
+        assert mem.journey == "test-journey"
 
     def test_search_returns_list(self, client):
         client.add_memory(title="A", content="Texto relevante", memory_type="insight")
@@ -156,9 +156,9 @@ class TestMemoryOperations:
             title="Insight de produto",
             content="Usuários querem simplicidade.",
             memory_type="insight",
-            journey="uncle-vinny",
+            journey="test-journey",
         )
-        by_journey = client.get_by_journey("uncle-vinny")
+        by_journey = client.get_by_journey("test-journey")
         assert any(m.id == mem.id for m in by_journey)
 
     def test_search_accepts_journey(self, client):
@@ -166,9 +166,9 @@ class TestMemoryOperations:
             title="Insight scoped",
             content="Scoped content.",
             memory_type="insight",
-            journey="uncle-vinny",
+            journey="test-journey",
         )
-        results = client.search("scoped", journey="uncle-vinny")
+        results = client.search("scoped", journey="test-journey")
         assert isinstance(results, list)
 
 

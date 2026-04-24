@@ -5,7 +5,7 @@ from memory.config import default_db_path_for_home
 
 
 def test_status_uses_explicit_mirror_home_for_mute_state(mocker, tmp_path, capsys):
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     explicit_home = tmp_path / ".mirror" / "pati"
     (explicit_home / "mute").parent.mkdir(parents=True, exist_ok=True)
     (explicit_home / "mute").write_text("")
@@ -21,7 +21,7 @@ def test_status_uses_explicit_mirror_home_for_mute_state(mocker, tmp_path, capsy
 
 
 def test_log_user_explicit_mirror_home_overrides_environment_selection(mocker, tmp_path):
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     explicit_home = tmp_path / ".mirror" / "pati"
     mocker.patch.dict("os.environ", {"MIRROR_HOME": str(env_home)}, clear=False)
 
@@ -37,7 +37,7 @@ def test_log_user_explicit_mirror_home_overrides_environment_selection(mocker, t
 
 
 def test_session_end_pi_explicit_mirror_home_uses_explicit_runtime_session(mocker, tmp_path):
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     explicit_home = tmp_path / ".mirror" / "pati"
     mocker.patch.dict("os.environ", {"MIRROR_HOME": str(env_home)}, clear=False)
 

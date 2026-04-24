@@ -76,7 +76,7 @@ def test_client_uses_db_path_for_current_memory_env(mocker, tmp_path):
 
 
 def test_client_uses_mirror_home_db_path_by_default_in_production(mocker, tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
     get_connection = mocker.patch("memory.client.get_connection", return_value=MagicMock())
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)):

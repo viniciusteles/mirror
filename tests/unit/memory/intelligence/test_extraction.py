@@ -60,8 +60,8 @@ class TestFormatTranscript:
 
     def test_user_label_uses_provided_name(self):
         msgs = [Message(conversation_id="c1", role="user", content="Question")]
-        result = format_transcript(msgs, user_name="Vinicius")
-        assert result == "**Vinicius:** Question"
+        result = format_transcript(msgs, user_name="Alice")
+        assert result == "**Alice:** Question"
 
     def test_assistant_becomes_mirror(self):
         msgs = [Message(conversation_id="c1", role="assistant", content="Answer")]

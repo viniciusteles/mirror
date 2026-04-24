@@ -20,7 +20,7 @@ def test_tasks_list_reads_from_explicit_mirror_home(tmp_path, capsys):
 
 
 def test_tasks_add_explicit_mirror_home_overrides_environment_selection(mocker, tmp_path, capsys):
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     explicit_home = tmp_path / ".mirror" / "pati"
     mocker.patch.dict("os.environ", {"MIRROR_HOME": str(env_home)}, clear=False)
 

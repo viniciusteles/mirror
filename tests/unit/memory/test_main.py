@@ -71,7 +71,7 @@ def test_migrate_legacy_dispatches():
                 "--source",
                 "legacy.db",
                 "--target-home",
-                "~/.mirror/vinicius",
+                "~/.mirror/testuser",
             ]
         )
 

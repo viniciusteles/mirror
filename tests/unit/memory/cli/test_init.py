@@ -15,10 +15,10 @@ def test_init_user_home_copies_templates_into_identity_root(tmp_path):
     _write_template(templates_root / "self" / "config.yaml", "config: value\n")
     _write_template(templates_root / "personas" / "_template.yaml", "persona_id: sample\n")
 
-    destination_root = tmp_path / ".mirror" / "vinicius"
+    destination_root = tmp_path / ".mirror" / "testuser"
 
     created_identity_root = init_user_home(
-        "vinicius", templates_identity_root=templates_root, user_home=destination_root
+        "testuser", templates_identity_root=templates_root, user_home=destination_root
     )
 
     assert created_identity_root == destination_root / "identity"
@@ -34,10 +34,10 @@ def test_init_user_home_creates_parent_directories(tmp_path):
     templates_root = tmp_path / "templates" / "identity"
     _write_template(templates_root / "self" / "config.yaml", "config: value\n")
 
-    destination_root = tmp_path / ".mirror" / "vinicius"
+    destination_root = tmp_path / ".mirror" / "testuser"
     assert not destination_root.exists()
 
-    init_user_home("vinicius", templates_identity_root=templates_root, user_home=destination_root)
+    init_user_home("testuser", templates_identity_root=templates_root, user_home=destination_root)
 
     assert destination_root.exists()
     assert (destination_root / "identity").exists()
@@ -47,13 +47,13 @@ def test_init_user_home_fails_when_identity_root_is_non_empty(tmp_path):
     templates_root = tmp_path / "templates" / "identity"
     _write_template(templates_root / "self" / "config.yaml", "config: value\n")
 
-    destination_root = tmp_path / ".mirror" / "vinicius"
+    destination_root = tmp_path / ".mirror" / "testuser"
     existing_identity_root = destination_root / "identity"
     _write_template(existing_identity_root / "self" / "soul.yaml", "existing: value\n")
 
     try:
         init_user_home(
-            "vinicius", templates_identity_root=templates_root, user_home=destination_root
+            "testuser", templates_identity_root=templates_root, user_home=destination_root
         )
         raise AssertionError("Expected init_user_home() to fail for non-empty identity root")
     except FileExistsError as exc:
@@ -66,11 +66,11 @@ def test_init_user_home_fails_when_identity_root_is_non_empty(tmp_path):
 
 def test_init_user_home_fails_when_templates_are_missing(tmp_path):
     missing_templates_root = tmp_path / "templates" / "identity"
-    destination_root = tmp_path / ".mirror" / "vinicius"
+    destination_root = tmp_path / ".mirror" / "testuser"
 
     try:
         init_user_home(
-            "vinicius", templates_identity_root=missing_templates_root, user_home=destination_root
+            "testuser", templates_identity_root=missing_templates_root, user_home=destination_root
         )
         raise AssertionError("Expected init_user_home() to fail when templates are missing")
     except FileNotFoundError as exc:

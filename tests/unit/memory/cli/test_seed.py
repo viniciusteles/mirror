@@ -125,7 +125,7 @@ name: Mirror POC
 
 
 def test_seed_reads_from_user_home_identity_root(mocker, tmp_path, capsys):
-    identity_root = tmp_path / ".mirror" / "vinicius" / "identity"
+    identity_root = tmp_path / ".mirror" / "testuser" / "identity"
     _write_core_identity(identity_root)
     _write_yaml(
         identity_root / "personas" / "engineer.yaml",
@@ -247,7 +247,7 @@ def test_seed_reads_from_explicit_mirror_home_identity_root(mocker, tmp_path, ca
 
 
 def test_seed_explicit_mirror_home_overrides_environment_selection(mocker, tmp_path):
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     env_identity_root = env_home / "identity"
     _write_core_identity(env_identity_root)
     explicit_home = tmp_path / ".mirror" / "pati"

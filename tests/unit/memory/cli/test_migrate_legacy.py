@@ -241,7 +241,7 @@ def test_inspect_source_db_returns_preflight_details_for_legacy_source(tmp_path)
 def test_validate_migration_returns_report_for_valid_source_and_target(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     report = validate_migration(source_db, target_home)
 
@@ -264,7 +264,7 @@ def test_validate_migration_returns_report_for_valid_source_and_target(tmp_path)
 def test_write_report_serializes_validation_report_as_json(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
     report_path = tmp_path / "reports" / "validate.json"
 
     report = validate_migration(source_db, target_home)
@@ -286,7 +286,7 @@ def test_write_report_serializes_validation_report_as_json(tmp_path):
 def test_format_report_includes_preflight_summary_and_translation_plan(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     report = validate_migration(source_db, target_home)
     formatted = _format_report(report)
@@ -305,7 +305,7 @@ def test_format_report_includes_preflight_summary_and_translation_plan(tmp_path)
 def test_validate_migration_allows_existing_target_home_without_memory_db(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
     (target_home / "identity").mkdir(parents=True)
 
     report = validate_migration(source_db, target_home)
@@ -317,7 +317,7 @@ def test_validate_migration_allows_existing_target_home_without_memory_db(tmp_pa
 
 def test_validate_migration_fails_when_source_is_missing(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     with pytest.raises(FileNotFoundError) as exc_info:
         validate_migration(source_db, target_home)
@@ -329,7 +329,7 @@ def test_validate_migration_fails_when_source_is_not_a_sqlite_db(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     source_db.parent.mkdir(parents=True, exist_ok=True)
     source_db.write_text("not a sqlite database", encoding="utf-8")
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     with pytest.raises(ValueError) as exc_info:
         validate_migration(source_db, target_home)
@@ -340,7 +340,7 @@ def test_validate_migration_fails_when_source_is_not_a_sqlite_db(tmp_path):
 def test_validate_migration_fails_when_source_is_current_english_db(tmp_path):
     source_db = tmp_path / "legacy" / "memory.db"
     _write_english_current_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     with pytest.raises(ValueError) as exc_info:
         validate_migration(source_db, target_home)
@@ -351,7 +351,7 @@ def test_validate_migration_fails_when_source_is_current_english_db(tmp_path):
 def test_validate_migration_fails_when_source_is_mixed_state_db(tmp_path):
     source_db = tmp_path / "legacy" / "mixed.db"
     _write_mixed_state_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     with pytest.raises(ValueError) as exc_info:
         validate_migration(source_db, target_home)
@@ -362,7 +362,7 @@ def test_validate_migration_fails_when_source_is_mixed_state_db(tmp_path):
 def test_validate_migration_fails_when_source_shape_is_unknown(tmp_path):
     source_db = tmp_path / "legacy" / "unknown.db"
     _write_sqlite_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     with pytest.raises(ValueError) as exc_info:
         validate_migration(source_db, target_home)
@@ -373,7 +373,7 @@ def test_validate_migration_fails_when_source_shape_is_unknown(tmp_path):
 def test_validate_migration_fails_when_target_home_is_a_file(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
     target_home.parent.mkdir(parents=True, exist_ok=True)
     target_home.write_text("not a directory", encoding="utf-8")
 
@@ -386,7 +386,7 @@ def test_validate_migration_fails_when_target_home_is_a_file(tmp_path):
 def test_validate_migration_fails_when_target_db_already_exists(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
     target_db = target_home / "memory.db"
     _write_sqlite_db(target_db)
 
@@ -399,7 +399,7 @@ def test_validate_migration_fails_when_target_db_already_exists(tmp_path):
 def test_write_report_serializes_run_report_as_json(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
     report_path = tmp_path / "reports" / "run.json"
 
     report = run_migration(source_db, target_home)
@@ -419,7 +419,7 @@ def test_write_report_serializes_run_report_as_json(tmp_path):
 def test_run_migration_copies_source_to_target_and_migrates_schema(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     result = run_migration(source_db, target_home)
 
@@ -441,7 +441,7 @@ def test_run_migration_copies_source_to_target_and_migrates_schema(tmp_path):
 def test_run_migration_preserves_the_legacy_source_unchanged(tmp_path):
     source_db = tmp_path / "legacy" / "memoria.db"
     _write_portuguese_legacy_db(source_db)
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     run_migration(source_db, target_home)
 
@@ -457,7 +457,7 @@ def test_run_migration_copies_sqlite_sidecars_when_present(tmp_path):
     source_shm = source_db.with_name("memoria.db-shm")
     source_wal.write_bytes(b"wal")
     source_shm.write_bytes(b"shm")
-    target_home = tmp_path / ".mirror" / "vinicius"
+    target_home = tmp_path / ".mirror" / "testuser"
 
     result = run_migration(source_db, target_home)
 

@@ -36,7 +36,7 @@ def test_backup_includes_sqlite_wal_and_shm_files_when_present(tmp_path):
 
 
 def test_backup_reports_user_scope_when_mirror_home_is_provided(tmp_path, capsys):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
     db_path = mirror_home / "memory.db"
     db_path.parent.mkdir(parents=True, exist_ok=True)
     db_path.write_text("db content")
@@ -72,7 +72,7 @@ def test_backup_derives_db_and_backup_paths_from_explicit_mirror_home(tmp_path, 
 
 def test_backup_explicit_mirror_home_overrides_config_defaults(tmp_path, monkeypatch):
     monkeypatch.delenv("BACKUP_DIR", raising=False)
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     env_db_path = env_home / "memory.db"
     env_db_path.parent.mkdir(parents=True, exist_ok=True)
     env_db_path.write_text("env db content")
@@ -120,7 +120,7 @@ def test_backup_returns_none_when_database_does_not_exist(tmp_path):
 
 
 def test_backup_returns_none_when_explicit_mirror_home_has_no_database(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     result = backup(silent=True, mirror_home=mirror_home)
 

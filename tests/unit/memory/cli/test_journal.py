@@ -32,7 +32,7 @@ def test_journal_writes_to_explicit_mirror_home(mocker, tmp_path, capsys):
 
 def test_journal_explicit_mirror_home_overrides_environment_selection(mocker, tmp_path, capsys):
     _mock_journal_classification(mocker)
-    env_home = tmp_path / ".mirror" / "vinicius"
+    env_home = tmp_path / ".mirror" / "testuser"
     explicit_home = tmp_path / ".mirror" / "pati"
 
     mocker.patch.dict("os.environ", {"MIRROR_HOME": str(env_home)}, clear=False)

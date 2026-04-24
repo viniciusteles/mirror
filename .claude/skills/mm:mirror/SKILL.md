@@ -48,7 +48,7 @@ Pass `--journey` and `--persona` explicitly when they are known with confidence.
 
 **Examples:**
 - Generic query, with auto-detection: `--query "I need to define the next article topic"`
-- Known journey: `--journey uncle-vinny --query "how should I price the mentoring offer"`
+- Known journey: `--journey my-journey --query "what should I focus on this week"`
 - With persona: `--persona writer --query "review this article draft"`
 - With organization: `--org --query "course launch strategy"`
 

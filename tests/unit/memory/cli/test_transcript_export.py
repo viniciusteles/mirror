@@ -13,7 +13,7 @@ _SAMPLE_JSONL = """
 def test_export_last_turn_uses_explicit_mirror_home_transcript_dir(tmp_path):
     jsonl_path = tmp_path / "session.jsonl"
     jsonl_path.write_text(_SAMPLE_JSONL + "\n", encoding="utf-8")
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     out_path = export_last_turn(str(jsonl_path), mirror_home=mirror_home)
 
@@ -37,7 +37,7 @@ def test_export_transcript_uses_explicit_mirror_home_transcript_dir(tmp_path):
 def test_export_last_turn_uses_explicit_output_dir_over_mirror_home(tmp_path):
     jsonl_path = tmp_path / "session.jsonl"
     jsonl_path.write_text(_SAMPLE_JSONL + "\n", encoding="utf-8")
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
     output_dir = tmp_path / "custom-exports"
 
     out_path = export_last_turn(

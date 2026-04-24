@@ -5,7 +5,7 @@ from memory.cli.conversation_logger import get_or_create_conversation
 
 
 def test_concurrent_session_creation_preserves_all_bindings(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
     mirror_home.mkdir(parents=True)
 
     # Warm the database once so the concurrency test exercises session creation,

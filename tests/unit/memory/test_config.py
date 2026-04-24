@@ -45,28 +45,28 @@ def _config_with_env(**env):
 
 
 def test_resolve_mirror_home_prefers_mirror_home(tmp_path):
-    mirror_home = tmp_path / "users" / "vinicius"
+    mirror_home = tmp_path / "users" / "testuser"
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)) as cfg:
         assert cfg.resolve_mirror_home() == mirror_home
 
 
 def test_resolve_mirror_home_derives_from_mirror_user():
-    with _config_with_env(MIRROR_USER="vinicius") as cfg:
-        assert cfg.resolve_mirror_home() == Path.home() / ".mirror" / "vinicius"
+    with _config_with_env(MIRROR_USER="testuser") as cfg:
+        assert cfg.resolve_mirror_home() == Path.home() / ".mirror" / "testuser"
 
 
 def test_resolve_mirror_home_accepts_matching_home_and_user(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
-    with _config_with_env(MIRROR_HOME=str(mirror_home), MIRROR_USER="vinicius") as cfg:
+    with _config_with_env(MIRROR_HOME=str(mirror_home), MIRROR_USER="testuser") as cfg:
         assert cfg.resolve_mirror_home() == mirror_home
 
 
 def test_resolve_mirror_home_rejects_conflicting_home_and_user(tmp_path):
     mirror_home = tmp_path / ".mirror" / "pati"
 
-    with _config_with_env(MIRROR_HOME=str(mirror_home), MIRROR_USER="vinicius") as cfg:
+    with _config_with_env(MIRROR_HOME=str(mirror_home), MIRROR_USER="testuser") as cfg:
         try:
             cfg.resolve_mirror_home()
             raise AssertionError("Expected resolve_mirror_home() to fail on conflict")
@@ -109,7 +109,7 @@ def test_default_transcript_export_dir_for_home_uses_exports_transcripts(tmp_pat
 
 
 def test_export_dir_defaults_from_mirror_home(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)) as cfg:
         assert cfg.EXPORT_DIR == mirror_home / "exports"
@@ -123,7 +123,7 @@ def test_export_dir_can_be_configured_from_environment(tmp_path):
 
 
 def test_transcript_export_dir_defaults_from_mirror_home(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)) as cfg:
         assert cfg.TRANSCRIPT_EXPORT_DIR == mirror_home / "exports" / "transcripts"
@@ -144,7 +144,7 @@ def test_transcript_export_dir_can_be_configured_from_environment(tmp_path):
 
 
 def test_backup_dir_defaults_from_mirror_home(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)) as cfg:
         assert cfg.BACKUP_DIR == mirror_home / "backups"
@@ -163,7 +163,7 @@ def test_mute_flag_path_is_derived_from_memory_dir():
 
 
 def test_memory_dir_defaults_from_mirror_home_in_production(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)) as cfg:
         assert cfg.MEMORY_DIR == mirror_home
@@ -245,15 +245,15 @@ def test_db_path_defaults_to_current_environment_path():
 
 
 def test_db_path_defaults_from_mirror_home_in_production(tmp_path):
-    mirror_home = tmp_path / ".mirror" / "vinicius"
+    mirror_home = tmp_path / ".mirror" / "testuser"
 
     with _config_with_env(MIRROR_HOME=str(mirror_home)) as cfg:
         assert cfg.DB_PATH == mirror_home / "memory.db"
 
 
 def test_db_path_defaults_from_mirror_user_in_production(tmp_path):
-    with _config_with_env(MIRROR_USER="vinicius") as cfg:
-        assert cfg.DB_PATH == Path.home() / ".mirror" / "vinicius" / "memory.db"
+    with _config_with_env(MIRROR_USER="testuser") as cfg:
+        assert cfg.DB_PATH == Path.home() / ".mirror" / "testuser" / "memory.db"
 
 
 def test_db_path_can_be_configured_from_environment(tmp_path):

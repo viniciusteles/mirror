@@ -14,7 +14,7 @@ Activates Builder Mode for a specific journey. Loads identity context and projec
 /mm:build <journey-slug>
 ```
 
-**Example:** `/mm:build uncle-vinny`
+**Example:** `/mm:build my-journey`
 
 ---
 
@@ -83,7 +83,7 @@ uv run python -m memory journey set-path <slug> /path/to/project
 
 ## 6. Finalize Session
 
-When Vinícius says "End the session":
+When the user says "End the session":
 
 ```bash
 uv run python -m memory mirror log "SESSION_SUMMARY"
