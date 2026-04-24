@@ -7,7 +7,10 @@ USAGE = """Usage: python -m memory <command> [args]
 Commands:
   init                 Initialize a user home from identity templates
                        Usage: python -m memory init <user>
-  seed                 Seed identity YAML files into the database
+  seed                 Seed identity YAML files into the database (bootstrap only — skips existing entries)
+                       Use --force to overwrite existing entries from YAML files
+  identity             Read and update identity directly in the database
+                       Usage: python -m memory identity <list|get|set|edit> [args]
   list                 List personas, journeys, extensions, or all
                        Usage: python -m memory list [personas|journeys|extensions|all] [--mirror-home PATH] [--verbose] [--extensions-root PATH] [--runtime NAME]
   inspect              Inspect one persona, extension, or runtime catalog
@@ -67,6 +70,11 @@ def main() -> None:
         from memory.cli.seed import main as _seed_main
 
         _seed_main()
+
+    elif command == "identity":
+        from memory.cli.identity_cmd import main as _identity_main
+
+        _identity_main(sys.argv[2:])
 
     elif command == "list":
         from memory.cli.inspect import cmd_list

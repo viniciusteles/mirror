@@ -129,18 +129,27 @@ def seed(
     identity_root: Path | None = None,
     *,
     mirror_home: str | Path | None = None,
+    force: bool = False,
+    _db_path: Path | None = None,
 ) -> dict:
-    """Seed identity data into the database."""
+    """Seed identity data into the database.
+
+    By default, existing entries are skipped — the database is the source of
+    truth after the first seed. Pass force=True to overwrite existing entries
+    from the YAML files (e.g. to reset identity from scratch).
+    """
     identity_root = resolve_identity_root(identity_root, mirror_home=mirror_home)
     mirror_home = (
         Path(mirror_home).expanduser() if mirror_home is not None else identity_root.parent
     )
 
-    mem = MemoryClient(env=env)
+    mem = MemoryClient(env=env) if _db_path is None else MemoryClient(db_path=_db_path)
     results = {"created": 0, "updated": 0, "errors": []}
 
     print(f"Mirror home: {mirror_home}")
     print(f"Identity root: {identity_root}")
+
+    results["skipped"] = 0
 
     # 1. Seed core identity (self, ego, user, organization).
     for (layer, key), (yaml_path, field) in IDENTITY_MAP.items():
@@ -151,8 +160,14 @@ def seed(
                 continue
 
             existing = mem.store.get_identity(layer, key)
-            mem.set_identity(layer, key, content, version)
+            if existing and not force:
+                results["skipped"] += 1
+                print(
+                    f"  → {layer}/{key} (skipped — use 'memory identity edit {layer} {key}' to update)"
+                )
+                continue
 
+            mem.set_identity(layer, key, content, version)
             if existing:
                 results["updated"] += 1
                 print(f"  ↻ {layer}/{key} (updated)")
@@ -177,8 +192,14 @@ def seed(
                     continue
 
                 existing = mem.store.get_identity("persona", persona_id)
-                mem.set_identity("persona", persona_id, content, version, metadata)
+                if existing and not force:
+                    results["skipped"] += 1
+                    print(
+                        f"  → persona/{persona_id} (skipped — use 'memory identity edit persona {persona_id}' to update)"
+                    )
+                    continue
 
+                mem.set_identity("persona", persona_id, content, version, metadata)
                 if existing:
                     results["updated"] += 1
                     print(f"  ↻ persona/{persona_id} (updated)")
@@ -197,8 +218,14 @@ def seed(
                 continue
 
             existing = mem.store.get_identity("journey", journey_id)
-            mem.set_identity("journey", journey_id, content, version)
+            if existing and not force:
+                results["skipped"] += 1
+                print(
+                    f"  → journey/{journey_id} (skipped — use 'memory identity edit journey {journey_id}' to update)"
+                )
+                continue
 
+            mem.set_identity("journey", journey_id, content, version)
             if existing:
                 results["updated"] += 1
                 print(f"  ↻ journey/{journey_id} (updated)")
@@ -222,13 +249,23 @@ def main():
         default=None,
         help="Explicit user home to seed from; overrides MIRROR_HOME and MIRROR_USER for this command",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        default=False,
+        help="Overwrite existing entries from YAML files. By default, existing entries are skipped.",
+    )
     args = parser.parse_args()
 
     env = args.env or MEMORY_ENV
     print(f"Seeding identity into [{env}]...\n")
-    results = seed(env=env, mirror_home=args.mirror_home)
+    if args.force:
+        print("  (--force: existing entries will be overwritten from YAML files)\n")
+    results = seed(env=env, mirror_home=args.mirror_home, force=args.force)
 
-    print(f"\nResult: {results['created']} created, {results['updated']} updated")
+    print(
+        f"\nResult: {results['created']} created, {results['updated']} updated, {results['skipped']} skipped"
+    )
     if results["errors"]:
         print(f"Errors: {len(results['errors'])}")
         for err in results["errors"]:

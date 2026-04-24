@@ -134,9 +134,11 @@ context, research notes, or any document the mirror should be able to draw from.
 
 1. **First person:** the AI speaks as the user, not about the user.
 2. **One voice:** personas are lenses, not separate agents.
-3. **Database as runtime source of truth:** repository templates under
-   `templates/identity/` are bootstrap material; live user-home YAML files are
-   the seed source, and runtime identity and journey state come from the memory database.
+3. **Database as source of truth:** repository templates under `templates/identity/`
+   and user-home YAML files under `~/.mirror/<user>/identity/` are bootstrap material
+   only. After the first seed, identity lives in the database. Edit it directly
+   with `/mm-identity edit <layer> <key>`. Use `/mm-seed --force` only to reset
+   from YAML files intentionally.
 
 ## Operating Modes
 
@@ -273,7 +275,8 @@ project construction.
 - `/mm-journal` / `/mm:journal` - personal journal entry
 
 **Identity:**
-- `/mm-seed` / `/mm:seed` - seed identity files from the active user home into the database
+- `/mm-seed` / `/mm:seed` - seed identity YAML files into the database (bootstrap only — skips existing entries)
+- `/mm-identity` / `/mm:identity` - read and update identity directly in the database
 
 **Session control:**
 - `/mm-mute` / `/mm:mute` - toggle conversation logging
