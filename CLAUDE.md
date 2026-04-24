@@ -1,9 +1,146 @@
 # Mirror Mind
 
+## What This Project Is
+
+Mirror Mind is a configuration and memory framework for a Jungian mirror AI. It
+is not a generic assistant. It reflects the user's values, behavior, style, and
+identity, and it speaks in first person.
+
+**The problem it solves:** every time you open a new AI session, you start from
+zero. You re-explain your projects, your values, your situation. The AI answers
+as if meeting you for the first time — because it is. Mirror Mind changes that.
+It loads your identity, your ongoing projects, and your accumulated insights into
+every conversation automatically. The AI speaks as you, not about you — and
+over time, it remembers: decisions, insights, tensions, and commitments are
+extracted from every conversation and stored with semantic search, so the mirror
+grows sharper the more you use it.
+
+**Runtimes:**
+
+Mirror Mind works through two interfaces over one shared Python core
+(`src/memory/`). Logic lives once; the interface is a thin wrapper.
+
+- **[Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent)
+  — preferred.** Pi is a multi-model coding agent that lets you choose the
+  underlying AI model freely — not locked to Claude or any single provider.
+  Skills live under `.pi/skills/` and are invoked with the `/mm-` prefix.
+- **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+  — supported alternative.** The original interface, still fully supported.
+  Skills live under `.claude/skills/` and are invoked with the `/mm:` prefix.
+
+If you are new to Mirror Mind, start with Pi.
+
+**Framework/identity separation:**
+
+- **Repository:** generic templates under `templates/identity/` and project code
+- **User home:** real identity under `~/.mirror/<user>/identity/`
+- **Memory database:** personal identity, prompts, philosophy, memories, attachments, conversations, journeys, and journey paths
+- **Extensions:** user-specific capabilities installed under `~/.mirror/<user>/extensions/` — not part of the core repo; see `examples/extensions/` for the reference implementation
+- **Seeding:** `/mm-seed` loads identity from the active user home into the database
+
+New installs use `~/.mirror/<user>/memory.db`. Existing legacy installs should be
+moved with an explicit operational plan or configured with `MIRROR_HOME`, `MIRROR_USER`, or `DB_PATH`.
+For Portuguese-era legacy databases, use `uv run python -m memory migrate-legacy` — see `REFERENCE.md` for the full migration workflow.
+
+## Psychic Architecture
+
+- **Self/Soul** (`~/.mirror/<user>/identity/self/`) - deep identity, purpose, operating frequency
+- **Ego** (`~/.mirror/<user>/identity/ego/`) - operational identity, tone, behavior
+- **User** (`~/.mirror/<user>/identity/user/`) - user profile template
+- **Organization** (`~/.mirror/<user>/identity/organization/`) - organization identity template
+- **Personas** (`~/.mirror/<user>/identity/personas/`) - specialized expressions of ego or self
+- **Journeys** (`~/.mirror/<user>/identity/journeys/`) - journey templates
+- **Journey Path** - living status document for each journey, stored as `journey_path`
+- **Shadow** (planned) - recurring blind spots and avoided themes
+- **Meta-Self** (planned) - system governance
+
+## Repository Structure
+
+**Repository:**
+```text
+src/memory/                     -> long-term memory system
+templates/identity/            -> generic bootstrap templates
+examples/extensions/           -> reference extensions (e.g. review-copy)
+tests/                         -> automated tests
+.claude/skills/                -> operational skills (Claude Code)
+.pi/skills/                    -> operational skills (Pi)
+CLAUDE.md                      -> routing and project reference
+REFERENCE.md                   -> detailed operational reference
+```
+
+**User home (outside the repo):**
+```text
+~/.mirror/<user>/identity/     -> real user-owned identity
+~/.mirror/<user>/extensions/   -> user-installed extensions
+~/.mirror/<user>/memory.db     -> runtime database
+```
+
+## Memory System
+
+Python package for persistent memory. It stores conversations, extracts
+memories through an LLM, supports hybrid search across memories, and manages
+attachments — reference documents the mirror can search semantically per journey.
+
+**Database:** SQLite at `~/.mirror/<user>/memory.db` in production.
+
+**Embeddings:** OpenAI `text-embedding-3-small`
+**Extraction:** Gemini Flash through OpenRouter
+**Search:** cosine similarity plus hybrid scoring
+
+```python
+from memory import MemoryClient
+
+mem = MemoryClient()
+
+conversation = mem.start_conversation(
+    interface="claude_code",  # or "pi"
+    persona="therapist",
+    journey="example-journey",
+)
+mem.add_message(conversation.id, role="user", content="...")
+mem.add_message(conversation.id, role="assistant", content="...")
+memories = mem.end_conversation(conversation.id)
+
+relevant = mem.search("pricing decision", limit=5, journey="example-journey")
+
+# Attachments — reference documents stored and searched per journey
+mem.add_attachment(journey_id="example-journey", name="strategy.md", content="...")
+results = mem.search_attachments("example-journey", "pricing")  # returns (Attachment, score) tuples
+```
+
+**Memory layers:**
+
+- `self` - deep realizations about identity, purpose, values
+- `ego` - operational decisions, strategy, day-to-day knowledge
+- `shadow` - tensions, avoided themes, recurring blind spots
+- `persona` - domain-specific operational knowledge
+- `journey` - journey identity
+- `journey_path` - current journey status
+
+**Attachments:**
+
+Reference documents stored per journey and searched semantically. Attachments
+are embedded at ingestion time and retrieved by cosine similarity at runtime.
+In Mirror Mode, relevant attachments (score > 0.4) are automatically injected
+into the identity context alongside memories. Use them for specs, financial
+context, research notes, or any document the mirror should be able to draw from.
+
+**Environment variables:** `OPENAI_API_KEY`, `OPENROUTER_API_KEY`,
+`MEMORY_ENV`, `MIRROR_HOME`, `MIRROR_USER`, plus path overrides such as
+`MEMORY_DIR`, `DB_PATH`, `BACKUP_DIR`, and `DB_BACKUP_PATH`. See
+`.env.example.advanced` for the full reference.
+
+## Core Principles
+
+1. **First person:** the AI speaks as the user, not about the user.
+2. **One voice:** personas are lenses, not separate agents.
+3. **Database as runtime source of truth:** repository templates under
+   `templates/identity/` are bootstrap material; live user-home YAML files are
+   the seed source, and runtime identity and journey state come from the memory database.
+
 ## Operating Modes
 
-This project has two modes. Claude should choose the right mode at each
-interaction.
+The mirror operates in two modes, chosen automatically based on context.
 
 ### Mirror Mode
 
@@ -12,11 +149,11 @@ mentoring, health, existential or spiritual questions, sensemaking,
 psychological tensions, class preparation, product launches, or any topic that
 asks for personal reflection or positioning.
 
-**How to operate:** follow `/mm:mirror`. Load identity, route persona, search
+**How to operate:** follow `/mm-mirror`. Load identity, route persona, search
 attachments, answer in first person, and record the response.
 
 If automatic routing fails or the user wants to force this mode, invoke
-`/mm:mirror` explicitly.
+`/mm-mirror` explicitly.
 
 #### Ego-Persona Model
 
@@ -30,7 +167,7 @@ adds domain depth without becoming a separate entity.
 - the depth required exceeds the generic ego repertoire
 - the user explicitly asks for a persona
 
-**Routing by domain:** configure project-specific mapping here. Example:
+**Routing by domain:**
 
 - Writing/blog/articles/publishing -> `writer`
 - Therapy/existential/psychology/shadow -> `therapist`
@@ -77,22 +214,24 @@ Signature rules:
 ### Journey Status
 
 **When to activate:** "How are we doing?", "How is journey X?", "What is the
-status?", or any question about progress, roadmap, or current state.
+status?", or any question about progress, roadmap, or current state. This is a
+routing shortcut within Mirror Mode, not a separate mode — the mirror
+recognizes these questions and dispatches to the journey skill automatically.
 
-**How to operate:** use `/mm:journey` or `/mm:journey <slug>`. For a compact
-list, use `/mm:journeys`.
+**How to operate:** use `/mm-journey` or `/mm-journey <slug>`. For a compact
+list, use `/mm-journeys`.
 
 ### Builder Mode
 
 **When to activate:** code, project structure, YAML prompt editing, bugs,
-implementation, architecture, Python/Django development, or any software
+implementation, architecture, Python development, or any software
 engineering task.
 
 **How to operate:** read code, edit files, run commands, propose technical
 solutions, and keep docs updated when the code changes.
 
-**Builder Mode for a journey:** when the user invokes `/mm:build <slug>` (Claude Code)
-or `/mm-build <slug>` (Pi), load Builder Mode with full journey context plus
+**Builder Mode for a journey:** when the user invokes `/mm-build <slug>` (Pi)
+or `/mm:build <slug>` (Claude Code), load Builder Mode with full journey context plus
 project docs. See the corresponding skill file for the active runtime.
 
 This includes:
@@ -103,143 +242,59 @@ This includes:
 - docs kept current as code evolves (`README`, architecture, data model, wireframes, decisions)
 
 **Commits:** when asked to commit, use descriptive English commit messages.
-Prefer small commits with clear review boundaries.
+Prefer small commits with clear review boundaries. Always explain the WHY —
+not just what was done, but the reason behind the change. Commit messages do
+not have to be short; they should be as helpful as possible so that anyone
+reading the history can understand both what changed and why it mattered.
 
 ### Ambiguity
 
 If the mode is unclear, ask whether the user wants personal/work reflection or
 project construction.
 
-### Available Skills
+## Available Skills
 
-- `/mm:mirror` / `/mm-mirror` - complete Mirror Mode procedure
-- `/mm:build` / `/mm-build` - Builder Mode for a journey
-- `/mm:consult` - ask other LLMs through OpenRouter
-- `/mm:review-copy` - send copy to multiple LLMs and generate an HTML review
-- `/mm:journeys` - compact journey list
-- `/mm:journey` - detailed journey status
-- `/mm:memories` - recorded memories
-- `/mm:tasks` - task management by journey
-- `/mm:week` - weekly planning
-- `/mm:journal` - personal journal entry
-- `/mm:save` - export conversation content to Markdown
-- `/mm:backup` - memory database backup
-- `/mm:seed` - seed identity files from the active user home into the database
-- `/mm:mute` - toggle conversation logging
-- `/mm:new` - start a new conversation
-- `/mm:help` - list commands
+**Core modes:**
+- `/mm-mirror` / `/mm:mirror` - complete Mirror Mode procedure
+- `/mm-build` / `/mm:build` - Builder Mode for a journey
 
----
+**Journeys & tasks:**
+- `/mm-journeys` / `/mm:journeys` - compact journey list
+- `/mm-journey` / `/mm:journey` - detailed journey status
+- `/mm-tasks` / `/mm:tasks` - task management by journey
+- `/mm-week` / `/mm:week` - weekly planning
 
-## What This Project Is
+**Memory & inspection:**
+- `/mm-memories` / `/mm:memories` - recorded memories
+- `/mm-conversations` / `/mm:conversations` - recent conversations list
+- `/mm-recall` / `/mm:recall` - load messages from a previous conversation into context
 
-Mirror Mind is a configuration and memory framework for a Jungian mirror AI. It
-is not a generic assistant. It reflects the user's values, behavior, style, and
-identity, and it speaks in first person.
+**Content:**
+- `/mm-journal` / `/mm:journal` - personal journal entry
 
-**Framework/identity separation:**
+**Identity:**
+- `/mm-seed` / `/mm:seed` - seed identity files from the active user home into the database
 
-- **Repository:** generic templates under `templates/identity/` and project code
-- **User home:** real identity under `~/.mirror/<user>/identity/`
-- **Memory database:** personal identity, prompts, philosophy, memories, conversations, journeys, and journey paths
-- **Seeding:** `/mm:seed` loads identity from the active user home into the database
+**Session control:**
+- `/mm-mute` / `/mm:mute` - toggle conversation logging
+- `/mm-new` / `/mm:new` - start a new conversation
 
-New installs use `~/.mirror/<user>/memory.db`. Existing legacy installs should be
-moved with an explicit operational plan or configured with `MIRROR_HOME`, `MIRROR_USER`, or `DB_PATH`.
+**Utilities:**
+- `/mm-consult` / `/mm:consult` - ask other LLMs through OpenRouter
+- `/mm-backup` / `/mm:backup` - memory database backup
+- `/mm-help` / `/mm:help` - list commands
 
-For Portuguese-era databases such as `~/.espelho/memoria.db`, use the explicit
-legacy migration workflow:
+## Development Conventions
 
-```text
-uv run python -m memory migrate-legacy validate --source ~/.espelho/memoria.db --target-home ~/.mirror/<user> [--report PATH]
-uv run python -m memory migrate-legacy run --source ~/.espelho/memoria.db --target-home ~/.mirror/<user> [--report PATH]
-```
-
-Safety contract:
-
-- explicit source and explicit target home
-- no source mutation
-- fail if target `memory.db` already exists
-- only clean Portuguese legacy DBs are supported
-- mixed-state or already-English DBs fail explicitly
-
-## Psychic Architecture
-
-- **Self/Soul** (`~/.mirror/<user>/identity/self/`) - deep identity, purpose, operating frequency
-- **Ego** (`~/.mirror/<user>/identity/ego/`) - operational identity, tone, behavior
-- **User** (`~/.mirror/<user>/identity/user/`) - user profile template
-- **Organization** (`~/.mirror/<user>/identity/organization/`) - organization identity template
-- **Personas** (`~/.mirror/<user>/identity/personas/`) - specialized expressions of ego or self
-- **Journeys** (`~/.mirror/<user>/identity/journeys/`) - journey templates
-- **Journey Path** - living status document for each journey, stored as `journey_path`
-- **Shadow** (planned) - recurring blind spots and avoided themes
-- **Meta-Self** (planned) - system governance
-
-## Repository Structure
-
-```text
-src/memory/                     -> long-term memory system
-templates/identity/            -> generic bootstrap templates
-~/.mirror/<user>/identity/     -> real user-owned identity (outside the repo)
-tests/                         -> automated tests
-.claude/skills/                -> operational skills
-CLAUDE.md                      -> routing and project reference
-REFERENCE.md                   -> detailed operational reference
-```
-
-## Memory System
-
-Python package for persistent memory. It stores conversations, extracts
-memories through an LLM, and supports hybrid search: semantic similarity,
-recency, reinforcement, and manual relevance.
-
-**Database:** SQLite at `~/.mirror/<user>/memory.db` in production.
-
-**Embeddings:** OpenAI `text-embedding-3-small`
-**Extraction:** Gemini Flash through OpenRouter
-**Search:** cosine similarity plus hybrid scoring
-
-```python
-from memory import MemoryClient
-
-mem = MemoryClient()
-
-conversation = mem.start_conversation(
-    interface="claude_code",
-    persona="therapist",
-    journey="example-journey",
-)
-mem.add_message(conversation.id, role="user", content="...")
-mem.add_message(conversation.id, role="assistant", content="...")
-memories = mem.end_conversation(conversation.id)
-
-relevant = mem.search("pricing decision", limit=5, journey="example-journey")
-```
-
-**Memory layers:**
-
-- `self` - deep realizations about identity, purpose, values
-- `ego` - operational decisions, strategy, day-to-day knowledge
-- `shadow` - tensions, avoided themes, recurring blind spots
-- `persona` - domain-specific operational knowledge
-- `journey` - journey identity
-- `journey_path` - current journey status
-
-**Environment variables:** `OPENAI_API_KEY`, `OPENROUTER_API_KEY`,
-`MEMORY_ENV`, `MIRROR_HOME`, `MIRROR_USER`, plus path overrides such as
-`MEMORY_DIR`, `DB_PATH`, `BACKUP_DIR`, and `DB_BACKUP_PATH`. See
-`.env.example.advanced` for the full reference.
-
-## Core Principles
-
-1. **First person:** the AI speaks as the user, not about the user.
-2. **One voice:** personas are lenses, not separate agents.
-3. **Database as runtime source of truth:** repository templates under
-   `templates/identity/` are bootstrap material; live user-home YAML files are
-   the seed source, and runtime identity and journey state come from the memory database.
-4. **Compatibility without new Portuguese API usage:** legacy Portuguese names
-   remain available during the compatibility window, but new code and docs
-   should use English names.
+- Use `uv run` for project Python commands and tests inside this repo.
+  Avoid raw `python -m ...`, `pytest`, or other system-Python entry points,
+  because they can bypass the locked project environment.
+- YAML files follow the local schema: `name`, `model`, `inherit`,
+  `routing`, `briefing`, and `system_prompt`. The `routing` field is seeded
+  into the database at `/mm-seed` time; at runtime, persona routing reads
+  from the database, not the YAML.
+- Personas inherit from `ego` or `self` depending on depth.
+- Practice TDD for behavior changes.
 
 ### CI Verification After Push
 
@@ -255,14 +310,3 @@ Required procedure:
 6. Confirm CI is green before continuing
 
 Treat post-push CI verification as part of done, not as optional follow-up.
-
-## Development Conventions
-
-- Use `uv run` for project Python commands and tests inside this repo.
-  Avoid raw `python -m ...`, `pytest`, or other system-Python entry points,
-  because they can bypass the locked project environment.
-- YAML files follow the local schema: `name`, `model`, `inherit`,
-  `routing`, `briefing`, and `system_prompt`.
-- Personas inherit from `ego` or `self` depending on depth.
-- Practice TDD for behavior changes.
-- Preserve compatibility APIs until the dedicated compatibility-removal track.
