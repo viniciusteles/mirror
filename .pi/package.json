@@ -1,0 +1,11 @@
+{
+  "name": "mirror-pi-extensions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pi coding agent extensions for Mirror Mind",
+  "devDependencies": {
+    "@mariozechner/pi-coding-agent": "latest",
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}
