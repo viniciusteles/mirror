@@ -14,14 +14,29 @@ which helped show the path toward a more model-flexible runtime.
 
 Historically, **Claude Code was the initial harness** used in Alisson's original implementation. This continuation keeps Claude support, but Pi is now the preferred runtime because it enables a more multi-model setup.
 
+## What you'll need
+
+Before Mirror Mind can run, you need accounts at three separate services:
+
+**1. [OpenAI](https://platform.openai.com) — for embeddings**
+Create an account, add credits, and generate an API key. Mirror Mind uses OpenAI only to generate embeddings (text-embedding-3-small) for indexing and searching your memories. Cost is very low — a few cents per session.
+
+**2. [OpenRouter](https://openrouter.ai) — for memory extraction and multi-LLM**
+Create an account, add credits, and generate an API key. Mirror Mind uses OpenRouter to run Gemini Flash at the end of each conversation to extract memories, and for the `/mm-consult` command to query other models. Also low cost.
+
+**3. An AI provider subscription — to run the mirror**
+Mirror Mind is a framework; the actual AI conversation runs through Pi or Claude Code:
+- **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
+- **Pi** is model-agnostic — you can configure any supported model, but you need access to whichever one you choose
+
+The first two are infrastructure costs. The third is the conversation interface. All three are required.
+
 ## Prerequisites
 
-- [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) installed if you want the preferred multi-model runtime
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed if you want the original alternative runtime
+- [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) — preferred runtime (multi-model)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — supported alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager
-- An OpenAI API key (embeddings)
-- An OpenRouter API key (LLM extraction and multi-LLM consult)
 
 ---
 
@@ -146,20 +161,7 @@ If you are already inside a runtime, the equivalent interactive entry points are
 
 ---
 
-## 6. Configure persona routing
-
-Open `CLAUDE.md` and map your personas to domains:
-
-```markdown
-**Routing by domain:**
-- Writing/blog/articles → `writer`
-- Therapy/existential → `therapist`
-- Finance/budget → `treasurer`
-```
-
----
-
-## 7. Start the mirror
+## 6. Start the mirror
 
 ### Preferred: Pi
 
@@ -193,7 +195,7 @@ Claude Code remains fully supported, but it is now the secondary runtime rather 
 
 ---
 
-## 8. Optional: install an extension
+## 7. Optional: install an extension
 
 Mirror Mind core and extensions are separate.
 
