@@ -47,11 +47,14 @@ Mirror Mind now supports two runtimes:
 Mirror Mind separates repository templates from live user identity:
 
 ```text
-templates/identity/           → Generic bootstrap templates shipped in the repo
-~/.mirror/<user>/identity/    → Real user-owned identity
-~/.mirror/<user>/memory.db    → Runtime source of truth
 src/memory/                   → Long-term memory system (Python)
-.claude/skills/               → Operational skills (mirror, consult, journey, etc.)
+templates/identity/           → Generic bootstrap templates shipped in the repo
+examples/extensions/          → Reference extensions (e.g. review-copy)
+tests/                        → Automated tests
+.claude/skills/               → Operational skills (Claude Code)
+.pi/skills/                   → Operational skills (Pi)
+~/.mirror/<user>/identity/    → Real user-owned identity (outside the repo)
+~/.mirror/<user>/memory.db    → Runtime source of truth (outside the repo)
 ```
 
 The identity itself is still layered psychologically:
@@ -173,19 +176,7 @@ If you are already inside a runtime, you can also seed there:
 - Pi: `/mm-seed`
 - Claude Code: `/mm:seed`
 
-### 6. Configure routing in CLAUDE.md
-
-Edit `CLAUDE.md` to map your personas to domains:
-
-```markdown
-**Routing by domain:**
-- Writing/blog/articles → `writer`
-- Therapy/existential/psychology → `therapist`
-- Student questions/mentoring → `mentor`
-- Finance/budget/expenses → `treasurer` (with external financial context when available)
-```
-
-### 7. Start using
+### 6. Start using
 
 **Preferred: Pi**
 
@@ -219,21 +210,25 @@ Claude Code is still fully supported, but it is now the secondary runtime rather
 
 ## Commands
 
-| Command | What it does |
-|---------|-------------|
-| `/mm:mirror` | Activates mirror mode — loads identity, persona, attachments and responds as you |
-| `/mm:consult` | Consults other LLMs via OpenRouter with mirror context |
-| `/mm:journey` | Status of active journeys |
-| `/mm:journeys` | Quick list of all journeys |
-| `/mm:memories` | List stored memories (insights, ideas, decisions) |
-| `/mm:tasks` | Task management by journey |
-| `/mm:week` | Weekly planning (ingest free-form text or view week) |
-| `/mm:journal` | Record a personal journal entry |
-| `/mm:backup` | Backup the memory database |
-| `/mm:seed` | Seed identity from the active user home into the memory bank |
-| `/mm:mute` | Toggle conversation recording (for testing) |
-| `/mm:new` | Start a new conversation |
-| `/mm:help` | List available commands |
+| Pi | Claude Code | What it does |
+|----|-------------|--------------|
+| `/mm-mirror` | `/mm:mirror` | Mirror Mode — loads identity, persona, attachments and responds as you |
+| `/mm-build` | `/mm:build` | Builder Mode — loads journey context and project docs |
+| `/mm-consult` | `/mm:consult` | Consult other LLMs via OpenRouter with mirror context |
+| `/mm-journeys` | `/mm:journeys` | Quick list of all journeys |
+| `/mm-journey` | `/mm:journey` | Detailed journey status |
+| `/mm-tasks` | `/mm:tasks` | Task management by journey |
+| `/mm-week` | `/mm:week` | Weekly planning |
+| `/mm-journal` | `/mm:journal` | Record a personal journal entry |
+| `/mm-memories` | `/mm:memories` | List stored memories |
+| `/mm-conversations` | `/mm:conversations` | Recent conversations list |
+| `/mm-recall` | `/mm:recall` | Load messages from a previous conversation into context |
+| `/mm-identity` | `/mm:identity` | Read and update identity in the database |
+| `/mm-seed` | `/mm:seed` | Seed identity from user home into the database |
+| `/mm-mute` | `/mm:mute` | Toggle conversation recording |
+| `/mm-new` | `/mm:new` | Start a new conversation |
+| `/mm-backup` | `/mm:backup` | Backup the memory database |
+| `/mm-help` | `/mm:help` | List available commands |
 
 ### Reference extensions
 
@@ -248,53 +243,6 @@ Current example:
 - `review-copy` is no longer shipped as a repo-local Claude or Pi skill; use
   the external install + runtime surfacing flow
 
-## Legacy migration
-
-Mirror Mind now includes an explicit migration path for Portuguese-era databases.
-
-### Supported source policy
-
-`uv run python -m memory migrate-legacy ...` supports only:
-- clean Portuguese legacy databases such as `memoria.db`
-
-It rejects:
-- already-English/current databases such as `memory.db`
-- mixed Portuguese/English database states
-- ambiguous or unsupported SQLite shapes
-
-### Commands
-
-```bash
-uv run python -m memory migrate-legacy validate \
-  --source ~/.espelho/memoria.db \
-  --target-home ~/.mirror/your-name \
-  --report /tmp/mirror-migration-validate.json
-
-uv run python -m memory migrate-legacy run \
-  --source ~/.espelho/memoria.db \
-  --target-home ~/.mirror/your-name \
-  --report /tmp/mirror-migration-run.json
-```
-
-### What `validate` does
-
-- classifies the source DB
-- reports detected legacy columns, indexes, and identity layers
-- reports planned translations such as:
-  - `travessia -> journey`
-  - `travessia_id -> journey_id`
-  - `caminho -> journey_path`
-- performs no writes
-
-### What `run` does
-
-- copies the source DB into `<target-home>/memory.db`
-- copies SQLite sidecars when present
-- runs the normal DB migration path on the copied target
-- verifies the target now uses the English schema
-- preserves source row counts
-- never mutates the source DB
-
 ## Architecture
 
 ### Psychic layers (Jungian)
@@ -303,6 +251,7 @@ uv run python -m memory migrate-legacy run \
 - **Ego** — Operational identity and behavior. How the self manifests day-to-day.
 - **Personas** — Specialized expressions of the ego in specific domains.
 - **Shadow** (planned) — Detection of unconscious patterns.
+- **Meta-Self** (planned) — System governance and meta-awareness.
 
 ### Journeys
 
@@ -354,204 +303,30 @@ core and provide context back to the mirror.
 Typical extension boundaries:
 - external tools with their own storage or APIs
 - custom/user-installed skills that orchestrate stable core commands
-- reference extensions kept in-repo temporarily for documentation and migration
-  purposes
 
 ### Extension quick start
 
-For most users, the extension flow is:
-
-1. install into your Mirror home
-2. let Pi consume the runtime catalog automatically
-3. expose Claude skills explicitly into a project when needed
-
-Example with `review-copy`:
+Install an extension into your mirror home, then surface it at runtime:
 
 ```bash
+# Install
 uv run python -m memory extensions install \
   review-copy \
   --extensions-root examples/extensions \
   --mirror-home ~/.mirror/<user>
+
+# Pi picks it up automatically on session start.
+# Claude Code: expose it to a project explicitly.
+uv run python -m memory extensions expose-claude \
+  --mirror-home ~/.mirror/<user> \
+  --target-root /path/to/project
 ```
 
-Then:
 - Pi command: `ext-review-copy`
-- Claude command: `ext:review-copy` after:
+- Claude Code command: `ext:review-copy`
 
-```bash
-uv run python -m memory extensions expose-claude \
-  --mirror-home ~/.mirror/<user> \
-  --target-root /path/to/project
-```
-
-To remove the Claude project projection later:
-
-```bash
-uv run python -m memory extensions clean-claude \
-  --target-root /path/to/project
-```
-
-First reference external-skill tree:
-
-```text
-examples/extensions/review-copy/
-  skill.yaml
-  SKILL.md
-```
-
-Install shape for a real user home:
-
-```text
-~/.mirror/<user>/extensions/review-copy/
-  skill.yaml
-  SKILL.md
-```
-
-Useful extension commands:
-
-```bash
-# discover / inspect
-uv run python -m memory list extensions --extensions-root examples/extensions
-uv run python -m memory extensions validate --extensions-root examples/extensions
-uv run python -m memory inspect extension review-copy --extensions-root examples/extensions
-uv run python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/<user>
-uv run python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/<user>
-
-# install / uninstall
-uv run python -m memory extensions install review-copy --extensions-root examples/extensions --mirror-home ~/.mirror/<user>
-uv run python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
-
-# explicit runtime or project surfacing
-uv run python -m memory extensions sync --extensions-root examples/extensions --runtime pi --target-root /tmp/pi-skills
-uv run python -m memory extensions sync --extensions-root examples/extensions --runtime claude --target-root /tmp/claude-skills
-uv run python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project
-uv run python -m memory extensions clean-claude --target-root /path/to/project
-
-# full smoke test
-./scripts/smoke_external_review_copy.sh
-```
-
-`sync` materializes runtime-visible skill folders such as:
-- `/tmp/pi-skills/ext-review-copy/SKILL.md`
-- `/tmp/claude-skills/ext:review-copy/SKILL.md`
-
-and writes an `extensions.json` runtime catalog into the target root.
-
-Pi runtime consumption:
-- on `session_start`, `.pi/extensions/mirror-logger.ts` now reads the installed
-  Pi runtime catalog when present
-- validates the runtime catalog envelope
-- logs discovered external skill commands
-- shows a lightweight `ext N` status hint in the Pi UI
-- on `resources_discover`, it contributes installed external `SKILL.md` paths
-  from the Pi runtime catalog so those skills become part of Pi's discovered
-  skill surface
-
-Claude runtime surfacing:
-- `uv run python -m memory extensions expose-claude --mirror-home ~/.mirror/<user> --target-root /path/to/project`
-  copies installed Claude external skills from the runtime catalog into the
-  target project's `.claude/skills/` surface
-- rerunning `expose-claude` prunes previously exposed external-skill paths from
-  the overlay catalog before writing the current surface
-- `uv run python -m memory extensions clean-claude --target-root /path/to/project`
-  removes previously exposed Claude external-skill files from the project
-- this is explicit project-level surfacing, not automatic global mutation
-
-Catalog shape (v1):
-- `schema_version`
-- `runtime`
-- `target_root`
-- `generated_at`
-- `extensions[]`
-
-Each extension entry records:
-- `id`, `name`, `category`, `kind`, `summary`
-- `runtime`, `command_name`
-- `source_extension_dir`, `manifest_path`, `source_skill_path`
-- `installed_skill_path`
-
-### Concrete `review-copy` migration flow
-
-One-command install into a real user home:
-
-```bash
-uv run python -m memory extensions install \
-  review-copy \
-  --extensions-root examples/extensions \
-  --mirror-home ~/.mirror/<user>
-```
-
-This installs the source tree under `~/.mirror/<user>/extensions/` and syncs
-runtime-facing skill trees under `~/.mirror/<user>/runtime/skills/`.
-
-To install only one runtime surface, add `--runtime pi` or `--runtime claude`.
-To remove the extension later, run:
-
-```bash
-uv run python -m memory extensions uninstall review-copy --mirror-home ~/.mirror/<user>
-```
-
-To surface installed Claude external skills into a project-local Claude skill
-surface:
-
-```bash
-uv run python -m memory extensions expose-claude \
-  --mirror-home ~/.mirror/<user> \
-  --target-root /path/to/project
-```
-
-To remove that project-local Claude external skill surface later:
-
-```bash
-uv run python -m memory extensions clean-claude \
-  --target-root /path/to/project
-```
-
-Equivalent explicit step-by-step flow:
-
-```bash
-mkdir -p ~/.mirror/<user>/extensions
-cp -R examples/extensions/review-copy ~/.mirror/<user>/extensions/
-
-uv run python -m memory extensions validate --mirror-home ~/.mirror/<user>
-uv run python -m memory inspect extension review-copy --mirror-home ~/.mirror/<user>
-
-uv run python -m memory extensions sync \
-  --mirror-home ~/.mirror/<user> \
-  --runtime pi \
-  --target-root ~/.mirror/<user>/runtime/skills/pi
-
-uv run python -m memory extensions sync \
-  --mirror-home ~/.mirror/<user> \
-  --runtime claude \
-  --target-root ~/.mirror/<user>/runtime/skills/claude
-```
-
-Resulting artifacts:
-
-```text
-~/.mirror/<user>/extensions/review-copy/skill.yaml
-~/.mirror/<user>/extensions/review-copy/SKILL.md
-~/.mirror/<user>/runtime/skills/pi/ext-review-copy/SKILL.md
-~/.mirror/<user>/runtime/skills/pi/extensions.json
-~/.mirror/<user>/runtime/skills/claude/ext:review-copy/SKILL.md
-~/.mirror/<user>/runtime/skills/claude/extensions.json
-```
-
-This keeps the source extension user-owned under `~/.mirror/<user>/extensions/`
-while making runtime surfacing explicit and reproducible. `review-copy` is now
-expected to be invoked through `ext:review-copy` / `ext-review-copy`, not via a
-repo-local `mm:review-copy` or `mm-review-copy` skill.
-
-For a full end-to-end smoke test, run:
-
-```bash
-./scripts/smoke_external_review_copy.sh
-```
-
-Financial import/reporting tools live in `~/dev/workspace/financial-tools`. The
-`treasurer` persona can interpret financial context from that tool, but Mirror
-Mind does not import bank statements or own financial tables.
+The reference extension is at `examples/extensions/review-copy/`. For the full
+extension CLI reference, see `REFERENCE.md`.
 
 ## Stack
 
@@ -559,11 +334,13 @@ Mind does not import bank statements or own financial tables.
 - **SQLite** — memory bank at `~/.mirror/<user>/memory.db`
 - **OpenAI** — embeddings (text-embedding-3-small)
 - **OpenRouter** — multi-LLM access (Gemini, GPT, Claude, etc.)
-- **Claude Code** — primary interface
+- **Claude Code** — supported alternative
 
 ## Principles
 
 - **First person** — the AI speaks as you, not about you
+- **One voice** — personas are lenses, not separate agents; the voice is always the ego's
+- **Database as source of truth** — identity lives in the database after the first seed; YAML files are bootstrap material only
 
 ## License
 
