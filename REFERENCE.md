@@ -1,6 +1,6 @@
 # Mirror Mind Operational Reference
 
-Quick reference for Claude Code. Load on demand from `CLAUDE.md`.
+Quick reference for Mirror Mind — used by both Claude Code and Pi. Load on demand from `CLAUDE.md`.
 
 ---
 
@@ -20,6 +20,7 @@ voice. The mirror still speaks in first person as one ego.
 | `product-designer` | Product, UX, product strategy | `ego` |
 | `engineer` | Software, tools, debugging, architecture | `ego` |
 | `doctor` | Health, symptoms, medicine, lifestyle | `self` |
+| `researcher` | Research, investigation, literature, information gathering | `ego` |
 | `scholar` | General knowledge, curiosity, research framing | `ego` |
 | `treasurer` | Finance, spending, balances, runway, budget | `ego` |
 | `traveler` | Travel planning, destinations, logistics | `ego` |
@@ -69,10 +70,13 @@ other long-form reference content.
 
 ## Skills
 
-| Command | Purpose | Main Arguments |
+Claude Code uses the `/mm:` prefix; Pi uses the `/mm-` prefix. Both call the same Python core.
+
+| Command (Claude / Pi) | Purpose | Main Arguments |
 |---------|---------|----------------|
 | `/mm:mirror` | Loads identity, persona, journey, and attachments for Mirror Mode | `load [--persona P] [--journey J] [--query Q] [--org]`, `log "summary"`, `journeys` |
-| `/mm:consult` | Asks other LLMs through OpenRouter with Mirror context | `<family> [tier] "prompt"`, `credits` |
+| `/mm:identity` / `/mm-identity` | Read and update identity directly in the database | `list [--layer L]`, `get <layer> <key>`, `set <layer> <key>`, `edit <layer> <key>` |
+| `/mm:consult` / `/mm-consult` | Asks other LLMs through OpenRouter with Mirror context | `<family> [tier] "prompt"`, `credits` |
 | `ext:review-copy` | External Claude skill for multi-LLM copy review; install + expose it explicitly before use | skill-driven workflow |
 | `/mm:journeys` | Lists journeys with status | no arguments |
 | `/mm:journey` | Shows detailed journey identity, journey path, memories, and conversations | `[journey]`, `update <journey> <content>` |
@@ -80,8 +84,7 @@ other long-form reference content.
 | `/mm:tasks` | Manages tasks by journey | `list`, `add "title"`, `done <id>`, `doing <id>`, `block <id>`, `delete <id>`, `import`, `sync` |
 | `/mm:week` | Weekly planning | `view`, `plan "text"`, `save` |
 | `/mm:journal` | Records a personal journal entry | `[--journey J] "text"` |
-| `/mm:save` | Exports conversation content to Markdown | `[slug]`, `--full`, `--session-id ID`, `--mirror-home PATH` |
-| `/mm:recall` | Loads a previous conversation into context | `<conversation_id> [--limit N]` |
+| `/mm:recall` / `/mm-recall` | Loads a previous conversation into context | `<conversation_id> [--limit N]` |
 | `/mm:conversations` | Lists recent conversations | `--limit N`, `--journey J`, `--persona P` |
 | `/mm:backup` | Backs up the memory database | no arguments |
 | `/mm:seed` | Seeds identity files from the active user home into the database | no arguments |
@@ -382,10 +385,6 @@ Expected artifacts:
 external install flow, then surface it explicitly as `ext:review-copy` for
 Claude or `ext-review-copy` for Pi.
 
-Financial tooling lives in `~/dev/workspace/financial-tools`. The `treasurer`
-persona can interpret financial context from that tool, but Mirror Mind does
-not import bank statements or own financial tables.
-
 ---
 
 ## Common SQL
@@ -470,27 +469,6 @@ for runtime content.
 
 ---
 
-## Transcript Export
-
-`uv run python -m memory save` is now aligned with the user-home/export model.
-
-Examples:
-
-```bash
-uv run python -m memory save my-session
-uv run python -m memory save --full my-session
-uv run python -m memory save --session-id $CLAUDE_SESSION_ID my-session
-uv run python -m memory save --mirror-home ~/.mirror/<user> my-session
-```
-
-Output resolution priority:
-1. explicit output dir, when provided by the export layer
-2. explicit `--mirror-home` → `<mirror-home>/exports/transcripts`
-3. configured `TRANSCRIPT_EXPORT_DIR`
-
-Transcript export is explicit by default. Automatic transcript export remains
-controlled by `TRANSCRIPT_EXPORT_AUTOMATIC`.
-
 ## Migration Reports
 
 Both legacy migration commands support:
@@ -543,12 +521,6 @@ they agree (`MIRROR_HOME` ends with the same user name).
 | Variable | Default | Role |
 |----------|---------|------|
 | `MEMORY_ENV` | `production` | One of `production`, `development`, `test`. Controls DB file name and gates `MemoryClient.reset`. |
-
-### Transcript export (CV4.E6)
-
-| Variable | Default | Role |
-|----------|---------|------|
-| `TRANSCRIPT_EXPORT_AUTOMATIC` | `false` | When true, session-end automatically exports the full transcript. Accepts `1`, `true`, `yes`, `on`. |
 
 ### Path overrides
 
