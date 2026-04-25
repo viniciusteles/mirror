@@ -22,14 +22,14 @@ identity YAMLs, and docs — use English names. The migration took 9 sessions an
 Migration-only support remains in database migrations and migration rehearsal
 code to allow upgrading old databases.
 
-The full inventory is in `docs/english-domain-language-migration-plan.md`.
+See also: [CV0 English Foundation](roadmap/cv0-english-foundation/index.md).
 
 ---
 
 ### Pi adoption ports interface ideas from `mirror-pi`, not the old `memoria` core
 
 **Date:** 2026-04-17  
-**Reference:** `docs/process/spikes/pi-runtime-adoption-2026-04-17.md`
+**Reference:** [CV1 Pi Runtime](roadmap/cv1-pi-runtime/index.md)
 
 The `~/dev/workspace/mirror-pi` spike (Henrique's project) is pre-English-migration
 and still uses `memoria`, `travessia`, `.espelho`. It is useful as a working

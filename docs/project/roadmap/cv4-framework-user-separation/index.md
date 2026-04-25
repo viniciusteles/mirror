@@ -54,12 +54,12 @@ Notes:
 
 | Code | Epic | User-visible outcome | Status |
 |------|------|----------------------|--------|
-| [CV4.E1](cv4-e1-user-home-layout/index.md) | User Home Layout | Mirror Mind has a documented canonical per-user home under `~/.mirror/<user>/` | ✅ Done |
-| [CV4.E2](cv4-e2-template-identity-in-repo/index.md) | Template Identity in Repo | The repo ships only generic templates under `templates/identity/` | ✅ Done |
-| [CV4.E3](cv4-e3-external-identity-loading-and-seeding/index.md) | External Identity Loading and Seeding | Seed/load reads from the user home instead of repo-owned identity files | ✅ Done |
-| [CV4.E4](cv4-e4-multi-user-foundation/index.md) | Multi-User Foundation | More than one user home can coexist cleanly on one machine | ✅ Done |
-| [CV4.E5](cv4-e5-legacy-migration-into-user-home/index.md) | Legacy Migration into User Home | Old Portuguese-era data migrates into the new user-home layout | ✅ Done |
-| [CV4.E6](cv4-e6-transcript-export-configuration/index.md) | Transcript Export Configuration | Transcript exports are optional, configurable, and stored outside the repo | ✅ Done |
+| CV4.E1 | User Home Layout | Mirror Mind has a documented canonical per-user home under `~/.mirror/<user>/` |
+| CV4.E2 | Template Identity in Repo | The repo ships only generic templates under `templates/identity/` |
+| CV4.E3 | External Identity Loading and Seeding | Seed/load reads from the user home instead of repo-owned identity files |
+| CV4.E4 | Multi-User Foundation | More than one user home can coexist cleanly on one machine |
+| CV4.E5 | Legacy Migration into User Home | Old Portuguese-era data migrates into the new user-home layout |
+| CV4.E6 | Transcript Export Configuration | Transcript exports are optional, configurable, and stored outside the repo |
 
 ---
 

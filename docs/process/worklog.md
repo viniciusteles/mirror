@@ -171,7 +171,7 @@ against the current English core.
 
 Implementation sequence and risks documented.
 
-Reference: [Pi Runtime Adoption Spike](spikes/pi-runtime-adoption-2026-04-17.md)
+Reference: [CV1 Pi Runtime](../project/roadmap/cv1-pi-runtime/index.md)
 
 ---
 
@@ -185,7 +185,7 @@ Adopted planning style from Alisson Vale's `mirror-mind` repo:
 CV → Epic → Story with `plan.md` + `test-guide.md` per story, breadcrumbs,
 status tables, and narrative worklog.
 
-Reference: [Mirror Mind Documentation Assessment](../../docs/mirror-mind-assessment.md)
+Reference: Mirror Mind documentation assessment (historical, source no longer in repo)
 
 ---
 

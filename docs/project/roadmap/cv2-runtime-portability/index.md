@@ -27,9 +27,9 @@ exist.
 
 | Code | Epic | User-visible outcome | Status |
 |------|------|---------------------|--------|
-| [CV2.E1](cv2-e1-session-lifecycle-parity/index.md) | Session Lifecycle Parity | Both runtimes handle session start/end identically | ✅ |
-| [CV2.E2](cv2-e2-hook-dispatch-to-cli/index.md) | Hook Dispatch to CLI | Claude Code hooks call the Python CLI, not script paths | ✅ |
-| [CV2.E3](cv2-e3-runtime-interface-contract/index.md) | Runtime Interface Contract | The interface is documented; a new runtime could be built from it | ✅ |
+| CV2.E1 | Session Lifecycle Parity | Both runtimes handle session start/end identically |
+| CV2.E2 | Hook Dispatch to CLI | Claude Code hooks call the Python CLI, not script paths |
+| CV2.E3 | Runtime Interface Contract | The interface is documented; a new runtime could be built from it |
 
 ---
 

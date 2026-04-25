@@ -31,9 +31,9 @@ runtime control plane comes first.
 
 | Code | Epic | User-visible outcome | Status |
 |------|------|----------------------|--------|
-| [CV5.E1](cv5-e1-session-scoped-runtime-state/index.md) | Session-Scoped Runtime State | Active session behavior no longer depends on singleton files | ✅ Done |
-| [CV5.E2](cv5-e2-concurrency-hardening/index.md) | Concurrency Hardening | Concurrent access no longer corrupts runtime state or trips avoidable startup races | ✅ Done |
-| [CV5.E3](cv5-e3-runtime-integration-and-validation/index.md) | Runtime Integration and Validation | Claude Code and Pi flows use the safer session model and have regression coverage for simultaneous use | ✅ Done |
+| CV5.E1 | Session-Scoped Runtime State | Active session behavior no longer depends on singleton files |
+| CV5.E2 | Concurrency Hardening | Concurrent access no longer corrupts runtime state or trips avoidable startup races |
+| CV5.E3 | Runtime Integration and Validation | Claude Code and Pi flows use the safer session model and have regression coverage for simultaneous use |
 
 ---
 

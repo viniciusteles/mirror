@@ -27,10 +27,10 @@ agent runtime — Builder Mode on Pi is redundant. `mm:build` is not ported.
 
 | Code | Epic | User-visible outcome | Status |
 |------|------|---------------------|--------|
-| [CV3.E1](cv3-e1-cli-completeness/index.md) | CLI Completeness | Every skill operation is reachable via `python -m memory` | ✅ |
-| [CV3.E2](cv3-e2-pi-skill-wrappers/index.md) | Pi Skill Wrappers | 15 skills available on Pi | ✅ |
-| [CV3.E3](cv3-e3-pi-intelligence-skills/index.md) | Pi Intelligence Skills | `mm:consult` and, historically, `mm:review-copy` were made available on Pi | ✅ |
-| [CV3.E4](cv3-e4-skill-architecture-cleanup/index.md) | Skill Architecture Cleanup | All skills call `python -m memory` directly — no run.py | ✅ |
+| CV3.E1 | CLI Completeness | Every skill operation is reachable via `python -m memory` |
+| CV3.E2 | Pi Skill Wrappers | 15 skills available on Pi |
+| CV3.E3 | Pi Intelligence Skills | `mm:consult` and, historically, `mm:review-copy` were made available on Pi |
+| CV3.E4 | Skill Architecture Cleanup | All skills call `python -m memory` directly — no run.py |
 
 ---
 

@@ -64,9 +64,6 @@ to allow upgrading old databases.
 
 ## References
 
-- `docs/english-domain-language-migration-plan.md` — full migration plan
-- `docs/portuguese-domain-language-inventory.md` — original inventory
-- `docs/session-logs/2026/` — sessions 001–009 (narrative records)
 - [Decisions](../../decisions.md) — "English domain language is complete and tagged"
 
 ---

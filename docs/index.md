@@ -32,7 +32,6 @@ How we work.
 
 - [Development Guide](process/development-guide.md) — navigator/driver model, TDD, verification checklist
 - [Worklog](process/worklog.md) — operational progress (what was done, what is next)
-- [Spikes](process/spikes/) — technical investigation records
 
 ---
 

@@ -17,18 +17,16 @@ unchanged.
 The strategy: one implementation, two frontends. Claude Code and Pi both call
 the same Python core. Neither interface owns behavior.
 
-**Reference:** [Pi Runtime Adoption Spike](../../../process/spikes/pi-runtime-adoption-2026-04-17.md)
-
 ---
 
 ## Epics
 
-| Code | Epic | User-visible outcome | Status |
-|------|------|---------------------|--------|
-| [CV1.E1](cv1-e1-shared-command-core/index.md) | Shared Command Core | The mirror speaks from one place | ✅ |
-| [CV1.E2](cv1-e2-pi-skill-surface/index.md) | Pi Skill Surface | I can invoke the mirror from Pi | ✅ |
-| [CV1.E3](cv1-e3-pi-session-lifecycle/index.md) | Pi Session Lifecycle | Pi sessions are remembered | ✅ |
-| [CV1.E4](cv1-e4-pi-operational-validation/index.md) | Pi Operational Validation | The mirror runs on Pi | ✅ |
+| Code | Epic | User-visible outcome |
+|------|------|---------------------|
+| CV1.E1 | Shared Command Core | The mirror speaks from one place |
+| CV1.E2 | Pi Skill Surface | I can invoke the mirror from Pi |
+| CV1.E3 | Pi Session Lifecycle | Pi sessions are remembered |
+| CV1.E4 | Pi Operational Validation | The mirror runs on Pi |
 
 ---
 
