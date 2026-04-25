@@ -2,7 +2,7 @@
 
 # CV6 — Multi-User Onboarding, Identity Runtime Maturity, and Extensibility
 
-**Status:** In Progress
+**Status:** ✅ Done
 **Goal:** Make Mirror Mind truly ready for other users by moving runtime-relevant identity behavior into a complete database-backed model, cleaning remaining personal/repo coupling, making onboarding explicit, and defining an extension model for user-specific capabilities that do not belong in core.
 
 ---
@@ -20,11 +20,11 @@ other people:
 - onboarding was underdefined for a new user starting from scratch
 - user-specific capabilities still risked being embedded in the core repo instead of living as extensions
 
-CV6 is actively closing those gaps. The database is now the runtime source of
-truth for persona routing metadata, persona detection is implemented and
-inspectable, the main repo-boundary leaks around `review-copy` have been
-resolved, and the extension model now has a real end-to-end reference path.
-The biggest remaining area is onboarding polish and broader runtime maturity.
+CV6 closed those gaps. The database is now the runtime source of truth for
+persona routing metadata, persona detection is implemented and inspectable, the
+main repo-boundary leaks around `review-copy` have been resolved, the extension
+model has a real end-to-end reference path, and onboarding now starts from
+meaningful starter identity assets rather than placeholders.
 
 This CV is about framework maturity:
 - identity metadata should be complete enough in the database to drive runtime behavior
@@ -41,7 +41,7 @@ This CV is about framework maturity:
 | [CV6.E1](cv6-e1-structured-identity-metadata-in-db/index.md) | Structured Identity Metadata in the Database | Runtime-relevant persona metadata is stored in the database rather than discarded at seed time | ✅ Done |
 | [CV6.E2](cv6-e2-db-backed-persona-auto-routing/index.md) | Persona Auto-Routing from Database Metadata | Mirror Mode can resolve personas from database-backed routing metadata instead of relying only on explicit or sticky persona state | ✅ Done |
 | [CV6.E3](cv6-e3-multi-user-cleanup-and-boundary-audit/index.md) | Multi-User Cleanup and Repo Boundary Audit | Remaining personal/framework/runtime boundary leaks are identified and cleaned up | ✅ Done |
-| [CV6.E4](cv6-e4-new-user-onboarding-flow/index.md) | New User Onboarding Flow | A new user can bootstrap, customize, seed, verify, and start using Mirror Mind without touching personal repo-owned artifacts | In Progress |
+| [CV6.E4](cv6-e4-new-user-onboarding-flow/index.md) | New User Onboarding Flow | A new user can bootstrap, customize, seed, verify, and start using Mirror Mind without touching personal repo-owned artifacts | ✅ Done |
 | [CV6.E5](cv6-e5-extension-model/index.md) | Extension Model for User-Specific Capabilities | Users can add specialized capabilities without baking them into Mirror Mind core | ✅ Done |
 
 ---
@@ -57,41 +57,11 @@ CV6 is done when:
 - at least one user-specific capability has a documented extension path that does not require absorbing it into core
 - docs clearly distinguish among core framework features, user-owned identity, and external/user-installed extensions
 
-Current progress against that definition:
+Final progress against that definition:
 - done: DB-backed persona metadata persistence, routing, and inspection
 - done: highest-risk repo boundary cleanup for `review-copy` and repo-local persona leakage
 - done: extension model lifecycle through validate/inspect/sync/install/uninstall plus Pi runtime consumption and Claude expose/clean flows
-- in progress: onboarding documentation and end-to-end newcomer verification
-
----
-
-## Remaining CV6 Work
-
-The main remaining work is now concentrated in onboarding and operational
-readiness for a genuinely new user.
-
-### 1. Tighten newcomer verification
-- confirm the current getting-started flow is sufficient for a first-time user
-- decide whether explicit smoke/verification commands should be added for the
-  full bootstrap → seed → verify path
-- identify any steps that still rely too much on implicit project knowledge
-
-### 2. Decide whether CV6.E4 needs more tooling
-- determine if documentation alone is enough for onboarding
-- if not, define the smallest missing support surface
-- keep that support aligned with the user-home/runtime model rather than adding
-  repo-local shortcuts
-
-### 3. Validate extension onboarding as part of the user journey
-- confirm that the extension flow is understandable to a new user
-- verify the distinction between source extensions, runtime materialization, Pi
-  discovery, and Claude project surfacing
-- document any recurring confusion points if they appear in real usage
-
-### 4. Reassess CV6 completion after onboarding review
-- once the onboarding path feels explicit and verifiable end to end, re-check
-  the CV6 done condition
-- if no additional maturity gaps remain, move CV6 from In Progress to Done
+- done: onboarding documentation and end-to-end newcomer verification using meaningful starter personas and a starter journey
 
 ---
 
@@ -106,9 +76,9 @@ E1 (structured identity metadata in DB)
 ```
 
 E1 came first because persona routing and identity inspection needed a stable
-runtime metadata contract. E2 built on that contract. E3 and E5 are now also
-substantially complete. E4 remains the main open area, focused on tightening
-onboarding and newcomer verification.
+runtime metadata contract. E2 built on that contract. E3 cleaned boundary leaks,
+E5 established the extension model, and E4 closed onboarding with meaningful
+starter identity assets and verification guidance.
 
 ---
 

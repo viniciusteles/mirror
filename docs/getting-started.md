@@ -141,6 +141,8 @@ Optional sections live under the same `identity/` root:
 - `personas/`
 - `journeys/`
 
+The starter templates include three useful default personas — `writer`, `thinker`, and `engineer` — plus one broadly useful starter journey: `personal-growth`. You can keep them, edit them, delete them, or add your own before seeding. They are intentionally generic so the first seed produces meaningful runtime data instead of placeholder records.
+
 Repository templates now live under `templates/identity/`. Live identity belongs under `~/.mirror/<user>/identity/`; normal seed input does not come from the repository.
 
 ---
@@ -309,7 +311,9 @@ Confirm the onboarding flow worked end to end:
 uv run python -m memory list personas --verbose
 uv run python -m memory list journeys
 uv run python -m memory detect-persona "I want help writing an article"
-uv run python -m memory inspect persona writer   # replace writer with one of your persona ids
+uv run python -m memory detect-persona "help me think through this idea"
+uv run python -m memory detect-persona "debug this Python issue"
+uv run python -m memory inspect persona writer
 ```
 
 What to check:
@@ -325,9 +329,7 @@ uv run python -m memory inspect runtime-catalog pi --mirror-home ~/.mirror/your-
 uv run python -m memory inspect runtime-catalog claude --mirror-home ~/.mirror/your-name
 ```
 
-Expected: your personas, routing metadata, and journeys appear in the output. If you installed
-`review-copy`, the runtime catalog output should also show `ext-review-copy`
-and `ext:review-copy`.
+Expected: the default personas (`writer`, `thinker`, `engineer`) or your customized personas appear with routing metadata, and `personal-growth` or your customized journeys appear in the journey list. If you installed `review-copy`, the runtime catalog output should also show `ext-review-copy` and `ext:review-copy`.
 
 ### Onboarding success checklist
 

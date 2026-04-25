@@ -52,9 +52,11 @@ templates/identity/
     identity.yaml
     principles.yaml
   personas/
-    _template.yaml
+    writer.yaml
+    thinker.yaml
+    engineer.yaml
   journeys/
-    _template.yaml
+    personal-growth.yaml
 ```
 
 ## Required vs optional identity
@@ -66,8 +68,21 @@ Required core identity for seeding:
 
 Optional:
 - `organization/`
-- `personas/`
-- `journeys/`
+- `personas/` — starter lenses for writing, thinking, and engineering
+- `journeys/` — starter long-running arc for personal growth
+
+## Starter defaults
+
+The repository ships meaningful starter defaults rather than placeholder files:
+
+- `personas/writer.yaml` — writing, editing, publishing, and voice refinement
+- `personas/thinker.yaml` — ideas, decisions, framing, hypotheses, and conceptual clarity
+- `personas/engineer.yaml` — software, systems, debugging, tests, and technical design
+- `journeys/personal-growth.yaml` — a broadly useful journey for reflection, self-knowledge, and intentional change
+
+These files are safe to seed as-is for a first run. A user can then edit, delete,
+or replace them in their own `~/.mirror/<user>/identity/` home before or after
+seeding.
 
 ## Notes
 

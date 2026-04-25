@@ -13,7 +13,7 @@ def _write_template(path: Path, content: str = "template") -> None:
 def test_init_user_home_copies_templates_into_identity_root(tmp_path):
     templates_root = tmp_path / "templates" / "identity"
     _write_template(templates_root / "self" / "config.yaml", "config: value\n")
-    _write_template(templates_root / "personas" / "_template.yaml", "persona_id: sample\n")
+    _write_template(templates_root / "personas" / "writer.yaml", "persona_id: writer\n")
 
     destination_root = tmp_path / ".mirror" / "testuser"
 
@@ -25,9 +25,9 @@ def test_init_user_home_copies_templates_into_identity_root(tmp_path):
     assert (created_identity_root / "self" / "config.yaml").read_text(
         encoding="utf-8"
     ) == "config: value\n"
-    assert (created_identity_root / "personas" / "_template.yaml").read_text(
+    assert (created_identity_root / "personas" / "writer.yaml").read_text(
         encoding="utf-8"
-    ) == "persona_id: sample\n"
+    ) == "persona_id: writer\n"
 
 
 def test_init_user_home_creates_parent_directories(tmp_path):

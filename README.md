@@ -169,15 +169,27 @@ Edit the YAML files in your user home:
 - **`~/.mirror/your-name/identity/user/identity.yaml`** — Your profile: name, role, background.
 - **`~/.mirror/your-name/identity/organization/identity.yaml`** — Your company or project (optional).
 
-### 3. Create your personas
+### 3. Review your starter personas
 
-Copy `~/.mirror/your-name/identity/personas/_template.yaml` for each domain you want a specialized lens.
+The templates include three useful default personas:
 
-Edit each file with the persona's identity, approach, and routing keywords. Personas inherit from `ego` (behavior) or `self` (full soul) depending on depth.
+- `writer` — writing, editing, publishing, and voice refinement
+- `thinker` — ideas, decisions, framing, hypotheses, and conceptual clarity
+- `engineer` — software, systems, debugging, tests, and technical design
 
-### 4. Create your journeys
+You can keep them, edit them, delete them, or add your own under
+`~/.mirror/your-name/identity/personas/`. Edit each file with the persona's
+identity, approach, and routing keywords. Personas inherit from `ego`
+(behavior) or `self` (full soul) depending on depth.
 
-Copy `~/.mirror/your-name/identity/journeys/_template.yaml` for each ongoing journey.
+### 4. Review your starter journey
+
+The templates include one broadly useful default journey:
+
+- `personal-growth` — reflection, self-knowledge, values, habits, meaning, and intentional change
+
+You can keep it, edit it, delete it, or add your own under
+`~/.mirror/your-name/identity/journeys/`.
 
 A journey is any project, arc, or area of your life where things are happening and the mirror needs context. See [Journeys](#journeys) below.
 

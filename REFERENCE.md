@@ -444,9 +444,11 @@ src/memory/                      -> Python package: client, store, db, search, e
 ### Templates Vs. Real Content
 
 Repository templates under `templates/identity/` are bootstrap assets only.
-The active user home under `~/.mirror/<user>/identity/` is the seed source for
-real identity. The memory database is the runtime source of truth for personal
-identity content.
+They include generic starter personas (`writer`, `thinker`, `engineer`) and a
+starter journey (`personal-growth`) so the first seed produces meaningful runtime
+records rather than placeholders. The active user home under
+`~/.mirror/<user>/identity/` is the seed source for real identity. The memory
+database is the runtime source of truth for personal identity content.
 
 ```python
 from memory import MemoryClient

@@ -9,6 +9,19 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-25 — CV6.E4 onboarding closed with meaningful starter identity
+
+Audited CV6.E4 and found the remaining onboarding friction: fresh users seeded
+placeholder `your-persona` / `your-journey` records, which made the documented
+verification commands look broken or fake. Replaced those placeholders with
+meaningful starter runtime assets: `writer`, `thinker`, `engineer`, and the
+`personal-growth` journey.
+
+Updated onboarding docs and template docs so the first seed now produces useful
+personas, routing metadata, and a broadly applicable journey. The verification
+flow now exercises real database-backed persona detection for writing, thinking,
+and engineering queries. CV6.E4 and the overall CV6 roadmap are now marked done.
+
 ### 2026-04-22 — credits clarified and Pi repositioned as the preferred runtime
 
 Updated `README.md` and `docs/getting-started.md` to make the project's lineage
@@ -248,7 +261,7 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV6 (planned): Multi-User Onboarding, Identity Runtime Maturity, and Extensibility** — persona metadata/routing is now database-backed with CLI inspection/debug tooling. Boundary-audit and extension-model planning now identify `mirror-logger.ts` as core runtime integration and `review-copy` as the first reference-extension candidate. The old repo-local `meta/personas/engineer.yaml` artifact has been removed. Extension planning now goes further: the recommended long-term model is a user-home external skill registry under `~/.mirror/<user>/extensions/`, with validated `skill.yaml` manifests, explicit `ext:` / `ext-` namespacing, and `review-copy` as the first migration candidate. A concrete reference external-skill tree now exists at `examples/extensions/review-copy/`, the install/validate/inspect/sync flow is documented end-to-end, Pi now consumes installed external skills from the runtime catalog, Claude now has explicit project-surface expose/clean commands, and both repo-local `review-copy` skills have been removed. The former intelligence-depth track moves to CV7.
+- **CV7 (planned): Intelligence Depth** — extraction prompt tuning, richer Jungian/shadow layering behavior, reinforcement tuning, hybrid search weighting improvements, and broader memory signal/noise quality work.
 - **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:
   1. **Quick win (pending).** Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`) that also open a fresh client on every call. Each hook invocation today runs bootstrap + migrations once per helper call; a shared client would halve or third that cost for common hook paths.
   2. **Structural.** Introduce a per-process `MemoryClient` cache keyed by `db_path` (lazy singleton) for library helpers in `hooks/` and `cli/conversation_logger.py`. Long-lived callers (Pi extension, shell hooks wired into one process) would reuse a single connection instead of paying bootstrap cost on every call. See [Decisions](../project/decisions.md) for the split between one-shot CLI entry points (process exit reclaims fds, no change needed) and library functions called from Python (where caching matters).

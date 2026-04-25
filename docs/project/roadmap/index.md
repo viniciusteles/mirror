@@ -22,7 +22,7 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV3](cv3-pi-skill-parity/index.md) | Pi Skill Parity | ✅ Done |
 | [CV4](cv4-framework-user-separation/index.md) | Framework/User Separation | ✅ Done |
 | [CV5](cv5-multisession-safety/index.md) | Multisession Safety | ✅ Done |
-| [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | In Progress |
+| [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | ✅ Done |
 | [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | Planned |
 
 ---
@@ -54,13 +54,12 @@ coverage. See the [CV5 index](cv5-multisession-safety/index.md).
 
 ## CV6 — Multi-User Onboarding, Identity Runtime Maturity, and Extensibility
 
-In progress. CV6 has already landed several core pieces: runtime-relevant
-persona metadata now persists in the database, persona routing is database
-backed and inspectable, the highest-risk repo boundary leaks have been cleaned
-up, and the extension model now exists with a real end-to-end `review-copy`
-example across Pi and Claude. Remaining work is mostly around tightening the
-new-user onboarding path and any follow-up maturity work that emerges from real
-usage.
+Done. CV6 made Mirror Mind ready for broader multi-user use: runtime-relevant
+persona metadata persists in the database, persona routing is database backed
+and inspectable, repo/personal/runtime boundary leaks have been cleaned up, the
+extension model exists with an end-to-end `review-copy` reference path across Pi
+and Claude, and new users now bootstrap from meaningful starter identity assets
+instead of placeholders.
 
 ## CV7 — Intelligence Depth
 

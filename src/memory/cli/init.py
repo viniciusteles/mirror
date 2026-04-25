@@ -51,7 +51,7 @@ def main(argv: list[str] | None = None) -> None:
     print("Next steps:")
     print(f"  1. Set MIRROR_HOME={identity_root.parent}")
     print(f"  2. Edit files under {identity_root}")
-    print("  3. Run: python -m memory seed")
+    print("  3. Run: uv run python -m memory seed")
 
 
 if __name__ == "__main__":

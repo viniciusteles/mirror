@@ -3,7 +3,7 @@
 # CV6.E4 — New User Onboarding Flow
 
 **Epic:** A new user can bootstrap, customize, seed, verify, and start using Mirror Mind without touching personal repo-owned artifacts  
-**Status:** In Progress
+**Status:** ✅ Done
 
 ---
 
@@ -16,15 +16,15 @@ result, and start using the system with confidence.
 
 This epic turns that path into a documented and testable workflow.
 
-Progress so far:
-- `docs/getting-started.md` now covers install, bootstrap, identity editing,
+Completed outcome:
+- `docs/getting-started.md` covers install, bootstrap, identity editing,
   seeding, verification, and the extension flow
-- onboarding docs now point users at `~/.mirror/<user>/identity/` and the
+- onboarding docs point users at `~/.mirror/<user>/identity/` and the
   database/runtime model instead of repo-local personal artifacts
-- extension usage is documented as part of the newcomer path
-
-Remaining work is mainly about deciding whether more explicit verification or
-workflow hardening is still needed beyond the current docs.
+- starter templates now seed meaningful defaults instead of placeholder records:
+  `writer`, `thinker`, `engineer`, and `personal-growth`
+- verification commands exercise database-backed persona metadata, routing, and
+  journey listing from a fresh user home
 
 ---
 
@@ -41,12 +41,12 @@ workflow hardening is still needed beyond the current docs.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV6.E4.S1 | Define the end-to-end onboarding contract for a new user | In Progress |
-| CV6.E4.S2 | Close the highest-friction gaps in the onboarding flow | In Progress |
+| CV6.E4.S1 | Define the end-to-end onboarding contract for a new user | ✅ Done |
+| CV6.E4.S2 | Close the highest-friction gaps in the onboarding flow | ✅ Done |
 
-This epic is partially implemented through the current getting-started and
-reference documentation, but remains open until the onboarding path is judged
-complete and verifiable enough for new users.
+This epic is complete: a new user can bootstrap a user home, review meaningful
+starter identity assets, seed the database, verify personas/journeys/routing,
+and start using Mirror Mind without touching repo-owned personal artifacts.
 
 ---
 

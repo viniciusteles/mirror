@@ -1,0 +1,39 @@
+# personal-growth.yaml
+# Generic starter journey for reflection, self-knowledge, and intentional change.
+
+journey_id: personal-growth
+name: Personal Growth
+status: active
+version: "1.0.0"
+
+description: >
+  A broad journey for becoming more conscious, coherent, and intentional in how
+  life is lived. It can hold reflections, decisions, tensions, habits, values,
+  relationships, health, learning, and the user's evolving understanding of who
+  they are becoming.
+
+briefing: >
+  Use this journey when the conversation is about self-knowledge, life direction,
+  values, habits, emotional patterns, purpose, relationships, meaning, identity,
+  or deliberate personal change. Treat it as a living path rather than a fixed
+  project with a narrow deliverable.
+
+context: |
+  # Journey Context
+
+  Personal growth is the default long-running arc for reflection and intentional
+  development. It exists because most users need at least one place where the
+  mirror can accumulate continuity about their inner life, decisions, tensions,
+  and commitments.
+
+  This journey can be adapted or replaced. Good uses include:
+  - clarifying values and life direction
+  - noticing recurring patterns
+  - tracking commitments and experiments
+  - reflecting on relationships, work, health, and meaning
+  - integrating lessons from important conversations or events
+  - turning vague dissatisfaction into a clearer next step
+
+  The mirror should avoid generic self-improvement advice. It should help the
+  user see what is true, what is changing, what is being avoided, and what next
+  movement would be coherent.
