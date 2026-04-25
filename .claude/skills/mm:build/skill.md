@@ -32,15 +32,44 @@ The command:
 
 ## 2. Read Project Docs
 
-Parse `project_path` from the last output line above. Then read the project docs directly using file tools:
+Parse `project_path` from the last output line above. If `project_path` is not set, skip this step and proceed — the journey has no associated project yet.
 
-- `<project_path>/docs/README.md`
-- `<project_path>/docs/architecture.md`
-- `<project_path>/docs/data-model.md`
-- `<project_path>/docs/wireframes/*.md`
-- `<project_path>/docs/decisions/*.md`
+Use file tools to load project documentation. Prefer the project's actual documentation structure over any fixed scaffold.
 
-If `project_path` is not set, skip this step and proceed - the journey has no associated project yet.
+### Always read when present
+
+- `<project_path>/README.md` — public overview, setup, and usage
+- `<project_path>/REFERENCE.md` — detailed operational reference
+- `<project_path>/CLAUDE.md` — project-specific operating instructions
+- `<project_path>/docs/index.md` — documentation map
+
+### Discover available docs
+
+Run:
+
+```bash
+find <project_path>/docs -maxdepth 3 -type f -name '*.md' | sort
+```
+
+Then read the docs relevant to the current task.
+
+For Mirror Mind, the primary docs are:
+
+- `<project_path>/docs/getting-started.md`
+- `<project_path>/docs/project/briefing.md`
+- `<project_path>/docs/project/decisions.md`
+- `<project_path>/docs/project/runtime-interface.md`
+- `<project_path>/docs/project/roadmap/index.md`
+- `<project_path>/docs/process/development-guide.md`
+- `<project_path>/docs/process/worklog.md`
+- `<project_path>/docs/product/principles.md`
+
+When working inside a CV/Epic/Story, also read the relevant:
+
+- `index.md`
+- `plan.md`
+- `test-guide.md`
+- `refactoring.md`, if present
 
 ## 3. Work In Builder Mode
 
@@ -48,30 +77,19 @@ If `project_path` is not set, skip this step and proceed - the journey has no as
 - Keep project docs updated as the code evolves
 - Commit at the end of each session with a descriptive English commit message
 
-## 4. Project Docs Structure
+## 4. Project Docs Maintenance
 
-Every project associated with a journey should have:
-
-```
-<project_path>/
-  docs/
-    README.md          - overview: goal, stack, how to run
-    architecture.md    - system architecture (Mermaid diagrams)
-    data-model.md      - data model, entities, relationships
-    wireframes/
-      *.md             - screen/component wireframes (Mermaid or ASCII)
-    decisions/
-      *.md             - ADRs (Architecture Decision Records)
-```
-
-**Diagram format:** Mermaid blocks in Markdown.
+Follow the project's existing documentation structure. Do not create a generic docs scaffold unless the user explicitly asks for one.
 
 **When to update docs:**
-- `README.md`: stack, setup, or goal changes
-- `architecture.md`: services or layers are added/removed
-- `data-model.md`: models or migrations change
-- `wireframes/`: screens or flows change
-- `decisions/`: non-obvious architecture decisions are made
+- `README.md`: public positioning, setup, stack, or usage changes
+- `REFERENCE.md`: CLI behavior, configuration, runtime contracts, or operational details change
+- `docs/project/briefing.md`: stable architectural premises change
+- `docs/project/decisions.md`: an incremental design decision is made
+- `docs/project/runtime-interface.md`: runtime lifecycle, hooks, skills, or extension contracts change
+- `docs/project/roadmap/`: CV/Epic/Story status, plans, or verification guides change
+- `docs/process/worklog.md`: a meaningful milestone is completed
+- `docs/product/principles.md`: product, code, testing, or process principles change
 
 ## 5. Configure `project_path`
 
