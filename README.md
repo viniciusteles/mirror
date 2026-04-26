@@ -72,20 +72,17 @@ Personas are not separate entities — they are specialized lenses the ego activ
 
 ## What you'll need
 
-Mirror Mind requires accounts at three separate services before anything works:
+Mirror Mind requires accounts at two separate services before anything works:
 
-**1. [OpenAI](https://platform.openai.com) — for embeddings**
-Create an account, add credits, and generate an API key. Mirror Mind uses OpenAI only to generate embeddings (text-embedding-3-small) for indexing and searching your memories. Cost is very low — a few cents per session.
+**1. [OpenRouter](https://openrouter.ai) — for embeddings, memory extraction, and multi-LLM**
+Create an account, add credits, and generate an API key. OpenRouter handles everything the memory system needs: generating embeddings to index and search your memories (using OpenAI’s text-embedding-3-small model behind the scenes), extracting memories from conversations via Gemini Flash, and the `/mm-consult` command to query other models. Cost is very low — a few cents per session.
 
-**2. [OpenRouter](https://openrouter.ai) — for memory extraction and multi-LLM**
-Create an account, add credits, and generate an API key. Mirror Mind uses OpenRouter to run Gemini Flash at the end of each conversation to extract memories, and for the `/mm-consult` command to query other models. Also low cost.
-
-**3. An AI provider subscription — to run the mirror**
+**2. An AI provider subscription — to run the mirror**
 Mirror Mind is a framework; the actual AI conversation runs through Pi or Claude Code:
 - **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
 - **Pi** is model-agnostic — you can configure any supported model, but you need access to whichever one you choose
 
-The first two are infrastructure costs. The third is the conversation interface. All three are required.
+One account for infrastructure, one for the conversation interface. Both are required.
 
 ## Prerequisites
 
@@ -107,8 +104,7 @@ uv sync
 # Set up environment variables
 cp .env.example .env
 # Edit .env with your keys:
-#   OPENAI_API_KEY=...                 (embeddings)
-#   OPENROUTER_API_KEY=...             (multi-LLM)
+#   OPENROUTER_API_KEY=...             (embeddings, extraction, and multi-LLM)
 #   MEMORY_ENV=production              (optional environment)
 #   MIRROR_HOME=~/.mirror/your-name    (recommended user home)
 #   MIRROR_USER=your-name              (optional convenience/consistency check)

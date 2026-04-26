@@ -166,12 +166,11 @@ TRANSCRIPT_EXPORT_DIR = _path_from_env(
     if _RESOLVED_MIRROR_HOME and not os.environ.get("EXPORT_DIR")
     else EXPORT_DIR / "transcripts",
 )
-# OpenAI embeddings.
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-EMBEDDING_MODEL = "text-embedding-3-small"
+# Embeddings — routed through OpenRouter (same model, no separate OpenAI key needed).
+EMBEDDING_MODEL = "openai/text-embedding-3-small"
 EMBEDDING_DIMENSIONS = 1536
 
-# OpenRouter extraction.
+# OpenRouter — used for embeddings, extraction, and multi-LLM consult.
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 EXTRACTION_MODEL = "google/gemini-2.5-flash-lite"

@@ -1,8 +1,16 @@
-"""Testes das funções de serialização de embeddings."""
+"""Tests for embedding generation and serialisation."""
+
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from memory.intelligence.embeddings import bytes_to_embedding, embedding_to_bytes
+from memory.config import OPENROUTER_BASE_URL
+from memory.intelligence.embeddings import (
+    bytes_to_embedding,
+    embedding_to_bytes,
+    generate_embedding,
+    get_embedding_client,
+)
 
 
 class TestEmbeddingRoundTrip:
@@ -55,3 +63,47 @@ class TestEmbeddingRoundTrip:
         original = np.ones(64, dtype=np.float32) / np.sqrt(64)
         restored = bytes_to_embedding(embedding_to_bytes(original))
         np.testing.assert_array_almost_equal(original, restored)
+
+
+class TestGetEmbeddingClient:
+    def test_uses_openrouter_base_url(self):
+        client = get_embedding_client()
+        assert str(client.base_url).rstrip("/") == OPENROUTER_BASE_URL.rstrip("/")
+
+    def test_uses_openrouter_api_key(self):
+        with patch("memory.intelligence.embeddings.OPENROUTER_API_KEY", "test-key"):
+            client = get_embedding_client()
+        assert client.api_key == "test-key"
+
+
+class TestGenerateEmbedding:
+    def test_calls_embeddings_create_with_correct_model(self):
+        fake_vector = np.random.rand(1536).astype(np.float32)
+        mock_client = MagicMock()
+        mock_client.embeddings.create.return_value = MagicMock(
+            data=[MagicMock(embedding=fake_vector.tolist())]
+        )
+
+        with patch("memory.intelligence.embeddings.get_embedding_client", return_value=mock_client):
+            result = generate_embedding("hello world")
+
+        mock_client.embeddings.create.assert_called_once_with(
+            input="hello world",
+            model="openai/text-embedding-3-small",
+        )
+        assert result.shape == (1536,)
+        assert result.dtype == np.float32
+
+    def test_returns_float32_ndarray(self):
+        fake_vector = [0.1] * 1536
+        mock_client = MagicMock()
+        mock_client.embeddings.create.return_value = MagicMock(
+            data=[MagicMock(embedding=fake_vector)]
+        )
+
+        with patch("memory.intelligence.embeddings.get_embedding_client", return_value=mock_client):
+            result = generate_embedding("test")
+
+        assert isinstance(result, np.ndarray)
+        assert result.dtype == np.float32
+        assert result.shape == (1536,)

@@ -125,7 +125,7 @@ In Mirror Mode, relevant attachments (score > 0.4) are automatically injected
 into the identity context alongside memories. Use them for specs, financial
 context, research notes, or any document the mirror should be able to draw from.
 
-**Environment variables:** `OPENAI_API_KEY`, `OPENROUTER_API_KEY`,
+**Environment variables:** `OPENROUTER_API_KEY`,
 `MEMORY_ENV`, `MIRROR_HOME`, `MIRROR_USER`, plus path overrides such as
 `MEMORY_DIR`, `DB_PATH`, `BACKUP_DIR`, and `DB_BACKUP_PATH`. See
 `.env.example.advanced` for the full reference.

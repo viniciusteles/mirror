@@ -515,8 +515,7 @@ they agree (`MIRROR_HOME` ends with the same user name).
 
 | Variable | Role |
 |----------|------|
-| `OPENAI_API_KEY` | Embeddings (`text-embedding-3-small`). |
-| `OPENROUTER_API_KEY` | Extraction (Gemini Flash) and the multi-LLM `consult` command. |
+| `OPENROUTER_API_KEY` | Embeddings (`openai/text-embedding-3-small` via OpenRouter), extraction (Gemini Flash), and the multi-LLM `consult` command. |
 
 ### Environment selection
 

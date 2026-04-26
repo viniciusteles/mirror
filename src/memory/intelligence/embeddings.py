@@ -1,18 +1,18 @@
-"""Wrapper for generating embeddings through OpenAI."""
+"""Wrapper for generating embeddings through OpenRouter."""
 
 import numpy as np
 from openai import OpenAI
 
-from memory.config import EMBEDDING_MODEL, OPENAI_API_KEY
+from memory.config import EMBEDDING_MODEL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL
 
 
-def get_openai_client() -> OpenAI:
-    return OpenAI(api_key=OPENAI_API_KEY)
+def get_embedding_client() -> OpenAI:
+    return OpenAI(api_key=OPENROUTER_API_KEY, base_url=OPENROUTER_BASE_URL)
 
 
 def generate_embedding(text: str) -> np.ndarray:
-    """Generate an embedding for text using OpenAI text-embedding-3-small."""
-    client = get_openai_client()
+    """Generate an embedding for text using OpenAI text-embedding-3-small via OpenRouter."""
+    client = get_embedding_client()
     response = client.embeddings.create(
         input=text,
         model=EMBEDDING_MODEL,
