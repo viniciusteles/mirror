@@ -9,6 +9,18 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Focused storage component tests added
+
+Added component-level characterization tests for the storage contracts that now
+carry the persistence boundary: conversation read models, memory read models,
+runtime session state, and identity metadata behavior. The tests intentionally
+cover focused contract behavior rather than exhaustive CRUD duplication.
+
+This completes the storage-refactor follow-up task. The storage layer is now
+split into focused components, CLI code no longer reaches into raw SQL, simple
+service read-model SQL lives in storage, and the most important storage
+contracts have direct tests.
+
 ### 2026-04-26 — Service read-model SQL moved into storage
 
 Moved the conversation and memory reporting SQL introduced during CLI cleanup
