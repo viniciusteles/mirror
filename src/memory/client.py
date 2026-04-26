@@ -10,6 +10,7 @@ from memory.services.conversation import ConversationService
 from memory.services.identity import IdentityService
 from memory.services.journey import JourneyService
 from memory.services.memory import MemoryService
+from memory.services.runtime_session import RuntimeSessionService
 from memory.services.tasks import TaskService
 from memory.storage.store import Store
 
@@ -39,6 +40,7 @@ class MemoryClient:
         self.search_engine = MemorySearch(self.store)
 
         # Services, wired bottom-up.
+        self.runtime_sessions = RuntimeSessionService(self.store)
         self.attachments = AttachmentService(self.store)
         self.identity = IdentityService(self.store, self.attachments)
         self.journeys = JourneyService(self.store, self.identity)

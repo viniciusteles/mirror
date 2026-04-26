@@ -1,6 +1,6 @@
 """Runtime session persistence operations."""
 
-from memory.models import Conversation, RuntimeSession
+from memory.models import RuntimeSession
 from memory.storage.base import ConnectionBacked
 
 _UNSET = object()
@@ -140,82 +140,6 @@ class RuntimeSessionStore(ConnectionBacked):
         )
         self.conn.commit()
         return record
-
-    def get_or_create_runtime_session_conversation(
-        self,
-        session_id: str,
-        *,
-        interface: str,
-        persona: str | None = None,
-        journey: str | None = None,
-        title: str | None = None,
-    ) -> Conversation:
-        self.conn.execute("BEGIN IMMEDIATE")
-        try:
-            row = self.conn.execute(
-                "SELECT conversation_id FROM runtime_sessions WHERE session_id = ?",
-                (session_id,),
-            ).fetchone()
-            if row and row["conversation_id"]:
-                existing = self.conn.execute(
-                    "SELECT * FROM conversations WHERE id = ?",
-                    (row["conversation_id"],),
-                ).fetchone()
-                if existing:
-                    self.conn.commit()
-                    return Conversation(**dict(existing))
-
-            conv = Conversation(interface=interface, persona=persona, journey=journey, title=title)
-            self.conn.execute(
-                """INSERT INTO conversations
-                   (id, title, started_at, ended_at, interface, persona, journey, summary, tags, metadata)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    conv.id,
-                    conv.title,
-                    conv.started_at,
-                    conv.ended_at,
-                    conv.interface,
-                    conv.persona,
-                    conv.journey,
-                    conv.summary,
-                    conv.tags,
-                    conv.metadata,
-                ),
-            )
-            self.conn.execute(
-                """INSERT INTO runtime_sessions
-                   (session_id, conversation_id, interface, mirror_active, persona, journey,
-                    hook_injected, active, started_at, updated_at, closed_at, metadata)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                   ON CONFLICT(session_id) DO UPDATE SET
-                     conversation_id = excluded.conversation_id,
-                     interface = excluded.interface,
-                     persona = excluded.persona,
-                     journey = excluded.journey,
-                     active = 1,
-                     closed_at = NULL,
-                     updated_at = excluded.updated_at""",
-                (
-                    session_id,
-                    conv.id,
-                    interface,
-                    0,
-                    persona,
-                    journey,
-                    0,
-                    1,
-                    conv.started_at,
-                    conv.started_at,
-                    None,
-                    None,
-                ),
-            )
-            self.conn.commit()
-            return conv
-        except Exception:
-            self.conn.rollback()
-            raise
 
     def get_active_runtime_conversation_ids(self) -> set[str]:
         rows = self.conn.execute(

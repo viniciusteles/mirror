@@ -9,6 +9,17 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Runtime session workflow moved into service layer
+
+Extracted runtime session conversation binding from storage into
+`RuntimeSessionService`. The conversation logger now calls
+`mem.runtime_sessions.get_or_create_conversation(...)`, leaving
+`RuntimeSessionStore` closer to pure runtime-session persistence.
+
+Added focused service tests for creation, reuse, and stale binding replacement.
+The remaining storage/service boundary debt is direct
+`mem.store.conn.execute(...)` SQL usage in CLI modules.
+
 ### 2026-04-26 — Store split into focused storage components
 
 Refactored `src/memory/storage/store.py` from a 700-line database god object into
@@ -18,9 +29,7 @@ sessions, messages, memories, identity, attachments, and tasks. The public
 without behavioral changes.
 
 This is the first storage-layer cleanup pass. The remaining architectural debt
-is to move workflow-heavy methods, especially runtime session conversation
-binding, out of storage and into the service layer, and to reduce direct
-`mem.store.conn.execute(...)` SQL usage in CLI modules.
+is to reduce direct `mem.store.conn.execute(...)` SQL usage in CLI modules.
 
 ### 2026-04-25 — CV6.E4 onboarding closed with meaningful starter identity
 

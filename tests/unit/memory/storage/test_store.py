@@ -359,16 +359,6 @@ class TestRuntimeSessions:
         assert session.mirror_active is True
         assert session.persona == "engineer"
 
-    def test_get_or_create_runtime_session_conversation_reuses_existing(self, store):
-        conv1 = store.get_or_create_runtime_session_conversation(
-            "sess-1", interface="claude_code", persona="engineer", journey="mirror-poc"
-        )
-        conv2 = store.get_or_create_runtime_session_conversation(
-            "sess-1", interface="claude_code", persona="writer", journey="other"
-        )
-
-        assert conv1.id == conv2.id
-
     def test_get_latest_runtime_defaults_returns_most_recent_persona_and_journey(self, store):
         store.upsert_runtime_session("sess-a", persona="writer")
         store.upsert_runtime_session("sess-b", journey="course-launch")

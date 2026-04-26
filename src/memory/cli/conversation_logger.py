@@ -74,7 +74,7 @@ def get_or_create_conversation(
 ) -> str:
     """Return the conversation_id for a session_id, creating it if needed."""
     mem = _memory_client(mirror_home)
-    conv = mem.store.get_or_create_runtime_session_conversation(
+    conv = mem.runtime_sessions.get_or_create_conversation(
         session_id,
         interface=interface,
         persona=persona,

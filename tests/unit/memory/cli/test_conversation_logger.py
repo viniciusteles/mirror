@@ -84,31 +84,27 @@ class TestInterfaceForwarding:
         mock_mem = MagicMock()
         runtime_session = None
         mock_mem.store.get_runtime_session.return_value = runtime_session
-        mock_mem.store.get_or_create_runtime_session_conversation.return_value = MagicMock(
-            id="conv-1"
-        )
+        mock_mem.runtime_sessions.get_or_create_conversation.return_value = MagicMock(id="conv-1")
         mocker.patch("memory.cli.conversation_logger._memory_client", return_value=mock_mem)
 
         from memory.cli.conversation_logger import log_user_message
 
         log_user_message("sess-1", "hello", interface="pi")
 
-        mock_mem.store.get_or_create_runtime_session_conversation.assert_called_once_with(
+        mock_mem.runtime_sessions.get_or_create_conversation.assert_called_once_with(
             "sess-1", interface="pi", persona=None, journey=None
         )
 
     def test_log_assistant_message_forwards_interface(self, mocker):
         mock_mem = MagicMock()
-        mock_mem.store.get_or_create_runtime_session_conversation.return_value = MagicMock(
-            id="conv-1"
-        )
+        mock_mem.runtime_sessions.get_or_create_conversation.return_value = MagicMock(id="conv-1")
         mocker.patch("memory.cli.conversation_logger._memory_client", return_value=mock_mem)
 
         from memory.cli.conversation_logger import log_assistant_message
 
         log_assistant_message("sess-1", "response", interface="pi")
 
-        mock_mem.store.get_or_create_runtime_session_conversation.assert_called_once_with(
+        mock_mem.runtime_sessions.get_or_create_conversation.assert_called_once_with(
             "sess-1", interface="pi", persona=None, journey=None
         )
 
