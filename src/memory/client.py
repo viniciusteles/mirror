@@ -91,6 +91,8 @@ class MemoryClient:
             raise RuntimeError(
                 "reset() is blocked in production. Use MEMORY_ENV=development or MEMORY_ENV=test."
             )
+        if self.conn is None:
+            raise RuntimeError("reset() cannot run after close()")
         self.conn.executescript("""
             DELETE FROM memory_access_log;
             DELETE FROM conversation_embeddings;

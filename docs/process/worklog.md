@@ -9,6 +9,19 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Store split into focused storage components
+
+Refactored `src/memory/storage/store.py` from a 700-line database god object into
+a thin façade composed from focused storage components: conversations, runtime
+sessions, messages, memories, identity, attachments, and tasks. The public
+`Store` API remains unchanged, so services and CLI callers continue to work
+without behavioral changes.
+
+This is the first storage-layer cleanup pass. The remaining architectural debt
+is to move workflow-heavy methods, especially runtime session conversation
+binding, out of storage and into the service layer, and to reduce direct
+`mem.store.conn.execute(...)` SQL usage in CLI modules.
+
 ### 2026-04-25 — CV6.E4 onboarding closed with meaningful starter identity
 
 Audited CV6.E4 and found the remaining onboarding friction: fresh users seeded

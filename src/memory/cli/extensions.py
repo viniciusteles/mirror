@@ -8,6 +8,7 @@ import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -222,7 +223,7 @@ def _catalog_entry_for_manifest(manifest: dict, runtime: str, target_skill_path:
     }
 
 
-def _catalog_document(runtime: str, target_root: Path, items: list[dict]) -> dict[str, object]:
+def _catalog_document(runtime: str, target_root: Path, items: list[dict]) -> dict[str, Any]:
     return {
         "schema_version": "1",
         "runtime": runtime,
@@ -258,7 +259,7 @@ def sync_extensions_for_runtime(
     return synced
 
 
-def _load_catalog(path: Path) -> dict[str, object]:
+def _load_catalog(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {"schema_version": "1", "extensions": []}
     try:
@@ -270,7 +271,7 @@ def _load_catalog(path: Path) -> dict[str, object]:
     return data if isinstance(data, dict) else {"schema_version": "1", "extensions": []}
 
 
-def load_runtime_catalog(runtime: str, mirror_home: Path) -> dict[str, object]:
+def load_runtime_catalog(runtime: str, mirror_home: Path) -> dict[str, Any]:
     runtime_root = default_runtime_skills_dir_for_home(mirror_home, runtime)
     catalog_path = runtime_root / "extensions.json"
     if not catalog_path.exists():
@@ -319,7 +320,7 @@ def install_extension(
     source_root: Path,
     mirror_home: Path,
     runtime: str | None = None,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     source_dir = source_root / extension_id
     load_extension_manifest(source_dir)
 
@@ -346,7 +347,7 @@ def install_extension(
     }
 
 
-def _load_claude_overlay_catalog(path: Path) -> list[dict[str, object]]:
+def _load_claude_overlay_catalog(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
     try:
@@ -356,7 +357,7 @@ def _load_claude_overlay_catalog(path: Path) -> list[dict[str, object]]:
     return data if isinstance(data, list) else []
 
 
-def cleanup_claude_runtime_skills(project_root: Path) -> dict[str, object]:
+def cleanup_claude_runtime_skills(project_root: Path) -> dict[str, Any]:
     claude_skills_root = project_root / ".claude" / "skills"
     overlay_catalog_path = claude_skills_root / "extensions.external.json"
     removed: list[str] = []
@@ -386,7 +387,7 @@ def cleanup_claude_runtime_skills(project_root: Path) -> dict[str, object]:
     }
 
 
-def expose_claude_runtime_skills(mirror_home: Path, project_root: Path) -> dict[str, object]:
+def expose_claude_runtime_skills(mirror_home: Path, project_root: Path) -> dict[str, Any]:
     catalog = load_runtime_catalog("claude", mirror_home)
     items = catalog.get("extensions", [])
     claude_skills_root = project_root / ".claude" / "skills"
@@ -433,7 +434,7 @@ def uninstall_extension(
     *,
     mirror_home: Path,
     runtime: str | None = None,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     installed_dir = default_extensions_dir_for_home(mirror_home) / extension_id
     if not installed_dir.exists():
         raise ExtensionValidationError(f"installed extension not found: {installed_dir}")
