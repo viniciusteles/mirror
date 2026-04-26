@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from memory.models import Identity
@@ -185,6 +186,32 @@ class JourneyService:
 
         semantic_matches.sort(key=lambda x: x[1], reverse=True)
         return semantic_matches
+
+    def get_project_path(self, journey: str) -> str | None:
+        """Return the project path configured for a journey."""
+        ident = self._get_journey_identity(journey)
+        if not ident or not ident.metadata:
+            return None
+        try:
+            meta = json.loads(ident.metadata)
+            project_path = meta.get("project_path")
+            return project_path if isinstance(project_path, str) else None
+        except (json.JSONDecodeError, TypeError):
+            return None
+
+    def set_project_path(self, journey: str, project_path: str) -> str:
+        """Configure and return the resolved project path for a journey."""
+        ident = self._get_journey_identity(journey)
+        if not ident:
+            raise ValueError(f"Journey '{journey}' not found.")
+        try:
+            meta = json.loads(ident.metadata) if ident.metadata else {}
+        except (json.JSONDecodeError, TypeError):
+            meta = {}
+        resolved_path = str(Path(project_path).expanduser().resolve())
+        meta["project_path"] = resolved_path
+        self.store.update_identity_metadata(ident.layer, journey, json.dumps(meta))
+        return resolved_path
 
     def get_sync_file(self, journey: str) -> str | None:
         """Return the sync file configured for a journey."""

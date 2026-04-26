@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 
 from memory.cli.conversation_logger import switch_conversation
@@ -15,15 +14,6 @@ def _print_builder_banner(slug: str, project_path: str | None = None) -> None:
     print(f"\033[38;5;117m⚙ Builder Mode active — journey: {slug}\033[0m", file=sys.stderr)
     if project_path:
         print(f"\033[38;5;117m  📁 {project_path}\033[0m", file=sys.stderr)
-
-
-def _get_project_path(mem: MemoryClient, slug: str) -> str | None:
-    row = mem.store.conn.execute(
-        "SELECT metadata FROM identity WHERE layer = 'journey' AND key = ?", (slug,)
-    ).fetchone()
-    if row and row[0]:
-        return json.loads(row[0]).get("project_path")
-    return None
 
 
 def _extract_query(journey_content: str, slug: str) -> str:
@@ -52,7 +42,7 @@ def cmd_load(slug: str) -> None:
         print(f"Error: journey '{slug}' not found.", file=sys.stderr)
         sys.exit(1)
 
-    project_path = _get_project_path(mem, slug)
+    project_path = mem.journeys.get_project_path(slug)
     _print_builder_banner(slug, project_path)
 
     context = mem.load_mirror_context(persona="engineer", journey=slug)

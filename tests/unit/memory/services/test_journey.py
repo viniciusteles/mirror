@@ -173,6 +173,42 @@ class TestJourneyServiceDetectJourney:
         assert scores == sorted(scores, reverse=True)
 
 
+class TestJourneyServiceProjectPath:
+    def test_get_project_path_returns_none_when_no_identity(self, journey_service):
+        result = journey_service.get_project_path("nao-existe")
+        assert result is None
+
+    def test_get_project_path_returns_none_when_metadata_has_no_project_path(
+        self, journey_service, identity_service
+    ):
+        identity_service.set_identity("journey", "reflexo", "# Reflexo\n**Status:** active")
+        result = journey_service.get_project_path("reflexo")
+        assert result is None
+
+    def test_get_project_path_returns_configured_path(
+        self, journey_service, identity_service, tmp_path
+    ):
+        identity_service.set_identity("journey", "reflexo", "# Reflexo\n**Status:** active")
+        project_path = tmp_path / "project"
+        journey_service.set_project_path("reflexo", str(project_path))
+        result = journey_service.get_project_path("reflexo")
+        assert result == str(project_path.resolve())
+
+    def test_set_project_path_expands_and_resolves_path(
+        self, journey_service, identity_service, tmp_path
+    ):
+        identity_service.set_identity("journey", "reflexo", "# Reflexo\n**Status:** active")
+        project_path = tmp_path / "project"
+        project_path.mkdir()
+        result = journey_service.set_project_path("reflexo", str(project_path))
+        assert result == str(project_path.resolve())
+        assert journey_service.get_project_path("reflexo") == str(project_path.resolve())
+
+    def test_set_project_path_raises_when_journey_not_found(self, journey_service):
+        with pytest.raises(ValueError, match="not found"):
+            journey_service.set_project_path("inexistente", "/tmp/project")
+
+
 class TestJourneyServiceGetSyncFile:
     def test_returns_none_when_no_identity(self, journey_service):
         result = journey_service.get_sync_file("nao-existe")

@@ -9,6 +9,17 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Journey project path metadata moved into service layer
+
+Moved journey `project_path` metadata access into `JourneyService` through
+`get_project_path()` and `set_project_path()`. Builder Mode and the journey
+`set-path` CLI now use the service instead of direct SQL against the identity
+table, removing four direct `mem.store.conn` accesses from CLI code.
+
+Added service and CLI regression tests for project path reads and updates. The
+remaining direct CLI SQL is now limited to conversation recall/list reporting
+and memory reporting.
+
 ### 2026-04-26 — Runtime session workflow moved into service layer
 
 Extracted runtime session conversation binding from storage into

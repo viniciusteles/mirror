@@ -34,6 +34,23 @@ def test_journey_status_reads_from_explicit_mirror_home(tmp_path, capsys):
     assert "Scoped conversation" in captured.out
 
 
+def test_journey_set_path_uses_journey_service(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+    db_path = default_db_path_for_home(mirror_home)
+    mem = MemoryClient(env="test", db_path=db_path)
+    mem.set_identity("journey", "mirror-poc", JOURNEY_CONTENT)
+    project_path = tmp_path / "project"
+
+    from memory.cli.journey import main
+
+    main(["set-path", "mirror-poc", str(project_path), "--mirror-home", str(mirror_home)])
+
+    captured = capsys.readouterr()
+    assert "project_path set" in captured.err
+    assert captured.out.strip() == str(project_path.resolve())
+    assert mem.journeys.get_project_path("mirror-poc") == str(project_path.resolve())
+
+
 def test_journey_update_explicit_mirror_home_overrides_environment_selection(
     mocker, tmp_path, capsys
 ):

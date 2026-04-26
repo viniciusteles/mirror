@@ -45,26 +45,14 @@ def cmd_status(journey: str | None, *, mirror_home: str | None = None) -> None:
 
 
 def cmd_set_path(journey: str, path: str, *, mirror_home: str | None = None) -> None:
-    from pathlib import Path
-
     mem = MemoryClient(db_path=db_path_from_mirror_home(mirror_home))
-    if not mem.get_identity("journey", journey):
+    try:
+        project_path = mem.journeys.set_project_path(journey, path)
+    except ValueError:
         print(f"Error: journey '{journey}' not found.", file=sys.stderr)
         sys.exit(1)
-    row = mem.store.conn.execute(
-        "SELECT metadata FROM identity WHERE layer = 'journey' AND key = ?", (journey,)
-    ).fetchone()
-    import json
-
-    meta = json.loads(row[0]) if row and row[0] else {}
-    meta["project_path"] = str(Path(path).expanduser().resolve())
-    mem.store.conn.execute(
-        "UPDATE identity SET metadata = ? WHERE layer = 'journey' AND key = ?",
-        (json.dumps(meta), journey),
-    )
-    mem.store.conn.commit()
-    print(f"project_path set for '{journey}': {meta['project_path']}", file=sys.stderr)
-    print(meta["project_path"])
+    print(f"project_path set for '{journey}': {project_path}", file=sys.stderr)
+    print(project_path)
 
 
 def cmd_update(journey: str, content: str, *, mirror_home: str | None = None) -> None:
