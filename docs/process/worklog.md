@@ -9,6 +9,14 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — GitHub Actions prepared for Node.js 24
+
+Updated the active CI workflow to use Node 24-compatible action versions:
+`actions/checkout@v6`, `actions/setup-python@v6`, and
+`astral-sh/setup-uv@v8`. Removed the stale duplicate `test.yml` workflow that
+still used the old pip-based dependency path and duplicated the active uv-based
+workflow.
+
 ### 2026-04-26 — Focused storage component tests added
 
 Added component-level characterization tests for the storage contracts that now
