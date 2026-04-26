@@ -5,7 +5,6 @@ import sys
 
 from memory import MemoryClient
 from memory.cli.common import db_path_from_mirror_home
-from memory.models import Conversation
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -21,16 +20,11 @@ def main(argv: list[str] | None = None) -> None:
 
     mem = MemoryClient(db_path=db_path_from_mirror_home(args.mirror_home))
 
-    row = mem.store.conn.execute(
-        "SELECT * FROM conversations WHERE id LIKE ? ORDER BY started_at DESC LIMIT 1",
-        (f"{args.conv_id}%",),
-    ).fetchone()
+    conv = mem.conversations.find_by_id_prefix(args.conv_id)
 
-    if not row:
+    if not conv:
         print(f"Conversation '{args.conv_id}' not found.", file=sys.stderr)
         sys.exit(1)
-
-    conv = Conversation(**dict(row))
 
     print(f"# Conversation: {conv.title or '(untitled)'}")
     print(f"**Date:** {conv.started_at[:10] if conv.started_at else '?'}")

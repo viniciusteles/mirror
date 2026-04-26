@@ -9,6 +9,16 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Conversation CLI queries moved into service layer
+
+Moved conversation recall and recent-conversation listing queries behind
+`ConversationService`. Added the `ConversationSummary` read model plus service
+methods for ID-prefix lookup and recent summaries with message counts. The
+`recall` and `conversations` CLIs no longer execute SQL directly.
+
+Remaining direct CLI SQL is now isolated to memory reporting in
+`src/memory/cli/memories.py`.
+
 ### 2026-04-26 — Journey project path metadata moved into service layer
 
 Moved journey `project_path` metadata access into `JourneyService` through

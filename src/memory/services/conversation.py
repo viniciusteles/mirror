@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
 from memory.intelligence.extraction import extract_memories, extract_tasks
-from memory.models import Conversation, Memory, Message
+from memory.models import Conversation, ConversationSummary, Memory, Message
 from memory.storage.store import Store
 
 if TYPE_CHECKING:
@@ -58,6 +58,48 @@ class ConversationService:
             token_count=token_count,
         )
         return self.store.add_message(msg)
+
+    def find_by_id_prefix(self, prefix: str) -> Conversation | None:
+        """Return the latest conversation whose id starts with prefix."""
+        row = self.store.conn.execute(
+            "SELECT * FROM conversations WHERE id LIKE ? ORDER BY started_at DESC LIMIT 1",
+            (f"{prefix}%",),
+        ).fetchone()
+        if not row:
+            return None
+        return Conversation(**dict(row))
+
+    def list_recent(
+        self,
+        *,
+        limit: int = 20,
+        journey: str | None = None,
+        persona: str | None = None,
+    ) -> list[ConversationSummary]:
+        """Return recent conversation summaries with optional filters."""
+        conditions = ["1=1"]
+        params: list[str | int] = []
+
+        if journey:
+            conditions.append("journey = ?")
+            params.append(journey)
+        if persona:
+            conditions.append("persona = ?")
+            params.append(persona)
+
+        where = " AND ".join(conditions)
+        params.append(limit)
+
+        rows = self.store.conn.execute(
+            f"""SELECT id, title, started_at, persona, journey,
+                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id) as message_count
+                FROM conversations c
+                WHERE {where}
+                ORDER BY started_at DESC
+                LIMIT ?""",
+            params,
+        ).fetchall()
+        return [ConversationSummary(**dict(row)) for row in rows]
 
     def end_conversation(
         self,

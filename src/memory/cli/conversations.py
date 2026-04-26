@@ -20,39 +20,25 @@ def main(argv: list[str] | None = None) -> None:
 
     mem = MemoryClient(db_path=db_path_from_mirror_home(args.mirror_home))
 
-    conditions = ["1=1"]
-    params: list[str | int] = []
+    summaries = mem.conversations.list_recent(
+        limit=args.limit,
+        journey=args.journey,
+        persona=args.persona,
+    )
 
-    if args.journey:
-        conditions.append("journey = ?")
-        params.append(args.journey)
-    if args.persona:
-        conditions.append("persona = ?")
-        params.append(args.persona)
-
-    where = " AND ".join(conditions)
-    params.append(args.limit)
-
-    rows = mem.store.conn.execute(
-        f"""SELECT id, title, started_at, persona, journey,
-                   (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id) as msg_count
-            FROM conversations c
-            WHERE {where}
-            ORDER BY started_at DESC
-            LIMIT ?""",
-        params,
-    ).fetchall()
-
-    if not rows:
+    if not summaries:
         print("No conversations found.")
         return
 
-    for conv_id, title, started_at, persona, journey, msg_count in rows:
-        title = title or "(untitled)"
-        date = started_at[:10] if started_at else "?"
-        persona_str = f" ◇ {persona}" if persona else ""
-        journey_str = f" [{journey}]" if journey else ""
-        print(f"**{date}** | `{conv_id[:8]}`{journey_str}{persona_str} ({msg_count} msgs)")
+    for summary in summaries:
+        title = summary.title or "(untitled)"
+        date = summary.started_at[:10] if summary.started_at else "?"
+        persona_str = f" ◇ {summary.persona}" if summary.persona else ""
+        journey_str = f" [{summary.journey}]" if summary.journey else ""
+        print(
+            f"**{date}** | `{summary.id[:8]}`{journey_str}{persona_str} "
+            f"({summary.message_count} msgs)"
+        )
         print(f"  {title}")
         print()
 

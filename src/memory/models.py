@@ -33,6 +33,15 @@ class Conversation(_DomainModel):
     metadata: str | None = None
 
 
+class ConversationSummary(_DomainModel):
+    id: str
+    title: str | None = None
+    started_at: str | None = None
+    persona: str | None = None
+    journey: str | None = None
+    message_count: int = 0
+
+
 class RuntimeSession(_DomainModel):
     session_id: str
     conversation_id: str | None = None
