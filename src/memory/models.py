@@ -57,6 +57,19 @@ class RuntimeSession(_DomainModel):
     metadata: str | None = None
 
 
+class MemorySummary(_DomainModel):
+    id: str
+    memory_type: str
+    layer: str
+    title: str
+    content: str
+    context: str | None = None
+    journey: str | None = None
+    persona: str | None = None
+    tags: str | None = None
+    created_at: str
+
+
 class Memory(_DomainModel):
     id: str = Field(default_factory=lambda: _uuid())
     conversation_id: str | None = None

@@ -4,7 +4,7 @@ import json
 
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
 from memory.intelligence.search import MemorySearch
-from memory.models import Memory, SearchResult
+from memory.models import Memory, MemorySummary, SearchResult
 from memory.storage.store import Store
 
 
@@ -62,6 +62,48 @@ class MemoryService:
             layer=layer,
             journey=journey,
         )
+
+    def list_recent(
+        self,
+        *,
+        limit: int = 20,
+        memory_type: str | None = None,
+        layer: str | None = None,
+        journey: str | None = None,
+    ) -> list[MemorySummary]:
+        """Return recent memory summaries with optional filters."""
+        conditions = ["1=1"]
+        params: list[str | int] = []
+        if memory_type:
+            conditions.append("memory_type = ?")
+            params.append(memory_type)
+        if layer:
+            conditions.append("layer = ?")
+            params.append(layer)
+        if journey:
+            conditions.append("journey = ?")
+            params.append(journey)
+
+        where = " AND ".join(conditions)
+        params.append(limit)
+
+        rows = self.store.conn.execute(
+            f"""SELECT id, memory_type, layer, title, content, context,
+                       journey, persona, tags, created_at
+                FROM memories
+                WHERE {where}
+                ORDER BY created_at DESC
+                LIMIT ?""",
+            params,
+        ).fetchall()
+        return [MemorySummary(**dict(row)) for row in rows]
+
+    def count_by_type(self) -> list[tuple[str, int]]:
+        """Return memory counts grouped by type."""
+        rows = self.store.conn.execute(
+            "SELECT memory_type, COUNT(*) as count FROM memories GROUP BY memory_type"
+        ).fetchall()
+        return [(row["memory_type"], row["count"]) for row in rows]
 
     def get_by_type(self, memory_type: str) -> list[Memory]:
         """Return all memories of one type."""

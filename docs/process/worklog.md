@@ -9,6 +9,16 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Direct CLI SQL removed from memory reporting
+
+Moved memory listing and memory-type count queries behind `MemoryService`.
+Added the `MemorySummary` read model plus service tests for recent listing,
+filters, and grouped counts. The `memories` CLI no longer executes SQL
+directly.
+
+This completes the direct CLI SQL cleanup for `src/memory/cli`: `rg
+"store\\.conn" src/memory/cli` now returns no results.
+
 ### 2026-04-26 — Conversation CLI queries moved into service layer
 
 Moved conversation recall and recent-conversation listing queries behind
