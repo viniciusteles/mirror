@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from memory.models import Memory
+from memory.models import Memory, MemorySummary
 from memory.storage.base import ConnectionBacked
 
 
@@ -40,6 +40,46 @@ class MemoryStore(ConnectionBacked):
         if not row:
             return None
         return Memory(**dict(row))
+
+    def list_recent_memory_summaries(
+        self,
+        *,
+        limit: int = 20,
+        memory_type: str | None = None,
+        layer: str | None = None,
+        journey: str | None = None,
+    ) -> list[MemorySummary]:
+        conditions = ["1=1"]
+        params: list[str | int] = []
+        if memory_type:
+            conditions.append("memory_type = ?")
+            params.append(memory_type)
+        if layer:
+            conditions.append("layer = ?")
+            params.append(layer)
+        if journey:
+            conditions.append("journey = ?")
+            params.append(journey)
+
+        where = " AND ".join(conditions)
+        params.append(limit)
+
+        rows = self.conn.execute(
+            f"""SELECT id, memory_type, layer, title, content, context,
+                       journey, persona, tags, created_at
+                FROM memories
+                WHERE {where}
+                ORDER BY created_at DESC
+                LIMIT ?""",
+            params,
+        ).fetchall()
+        return [MemorySummary(**dict(row)) for row in rows]
+
+    def count_memories_by_type(self) -> list[tuple[str, int]]:
+        rows = self.conn.execute(
+            "SELECT memory_type, COUNT(*) as count FROM memories GROUP BY memory_type"
+        ).fetchall()
+        return [(row["memory_type"], row["count"]) for row in rows]
 
     def get_memories_by_type(self, memory_type: str) -> list[Memory]:
         rows = self.conn.execute(

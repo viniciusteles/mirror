@@ -1,6 +1,6 @@
 """Conversation persistence operations."""
 
-from memory.models import Conversation
+from memory.models import Conversation, ConversationSummary
 from memory.storage.base import ConnectionBacked
 
 
@@ -33,6 +33,46 @@ class ConversationStore(ConnectionBacked):
         if not row:
             return None
         return Conversation(**dict(row))
+
+    def find_conversation_by_id_prefix(self, prefix: str) -> Conversation | None:
+        row = self.conn.execute(
+            "SELECT * FROM conversations WHERE id LIKE ? ORDER BY started_at DESC LIMIT 1",
+            (f"{prefix}%",),
+        ).fetchone()
+        if not row:
+            return None
+        return Conversation(**dict(row))
+
+    def list_recent_conversation_summaries(
+        self,
+        *,
+        limit: int = 20,
+        journey: str | None = None,
+        persona: str | None = None,
+    ) -> list[ConversationSummary]:
+        conditions = ["1=1"]
+        params: list[str | int] = []
+
+        if journey:
+            conditions.append("journey = ?")
+            params.append(journey)
+        if persona:
+            conditions.append("persona = ?")
+            params.append(persona)
+
+        where = " AND ".join(conditions)
+        params.append(limit)
+
+        rows = self.conn.execute(
+            f"""SELECT id, title, started_at, persona, journey,
+                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id) as message_count
+                FROM conversations c
+                WHERE {where}
+                ORDER BY started_at DESC
+                LIMIT ?""",
+            params,
+        ).fetchall()
+        return [ConversationSummary(**dict(row)) for row in rows]
 
     def get_conversations_in_range(self, start_time: str, end_time: str) -> list[Conversation]:
         """Return conversations whose interval overlaps the given range."""

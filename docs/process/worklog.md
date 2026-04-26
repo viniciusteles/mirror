@@ -9,6 +9,18 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — Service read-model SQL moved into storage
+
+Moved the conversation and memory reporting SQL introduced during CLI cleanup
+from services into their focused storage components. `ConversationService` and
+`MemoryService` now expose domain/read-model methods while delegating raw SQL to
+`ConversationStore` and `MemoryStore`.
+
+Also routed conversation task-duplicate checks through `TaskService` instead of
+calling task storage directly. The only remaining raw DB access in
+`src/memory/services` is the explicit transaction in `RuntimeSessionService`,
+which remains deferred as a separate transaction-boundary design decision.
+
 ### 2026-04-26 — Direct CLI SQL removed from memory reporting
 
 Moved memory listing and memory-type count queries behind `MemoryService`.

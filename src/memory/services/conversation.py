@@ -61,13 +61,7 @@ class ConversationService:
 
     def find_by_id_prefix(self, prefix: str) -> Conversation | None:
         """Return the latest conversation whose id starts with prefix."""
-        row = self.store.conn.execute(
-            "SELECT * FROM conversations WHERE id LIKE ? ORDER BY started_at DESC LIMIT 1",
-            (f"{prefix}%",),
-        ).fetchone()
-        if not row:
-            return None
-        return Conversation(**dict(row))
+        return self.store.find_conversation_by_id_prefix(prefix)
 
     def list_recent(
         self,
@@ -77,29 +71,11 @@ class ConversationService:
         persona: str | None = None,
     ) -> list[ConversationSummary]:
         """Return recent conversation summaries with optional filters."""
-        conditions = ["1=1"]
-        params: list[str | int] = []
-
-        if journey:
-            conditions.append("journey = ?")
-            params.append(journey)
-        if persona:
-            conditions.append("persona = ?")
-            params.append(persona)
-
-        where = " AND ".join(conditions)
-        params.append(limit)
-
-        rows = self.store.conn.execute(
-            f"""SELECT id, title, started_at, persona, journey,
-                       (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id) as message_count
-                FROM conversations c
-                WHERE {where}
-                ORDER BY started_at DESC
-                LIMIT ?""",
-            params,
-        ).fetchall()
-        return [ConversationSummary(**dict(row)) for row in rows]
+        return self.store.list_recent_conversation_summaries(
+            limit=limit,
+            journey=journey,
+            persona=persona,
+        )
 
     def end_conversation(
         self,
@@ -163,7 +139,7 @@ class ConversationService:
                 user_name=user_name,
             )
             for et in extracted_tasks:
-                existing = self.store.find_tasks_by_title(et.title, et.journey)
+                existing = self.tasks.find_tasks(et.title, et.journey)
                 if not existing:
                     self.tasks.add_task(
                         title=et.title,

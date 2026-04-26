@@ -72,38 +72,16 @@ class MemoryService:
         journey: str | None = None,
     ) -> list[MemorySummary]:
         """Return recent memory summaries with optional filters."""
-        conditions = ["1=1"]
-        params: list[str | int] = []
-        if memory_type:
-            conditions.append("memory_type = ?")
-            params.append(memory_type)
-        if layer:
-            conditions.append("layer = ?")
-            params.append(layer)
-        if journey:
-            conditions.append("journey = ?")
-            params.append(journey)
-
-        where = " AND ".join(conditions)
-        params.append(limit)
-
-        rows = self.store.conn.execute(
-            f"""SELECT id, memory_type, layer, title, content, context,
-                       journey, persona, tags, created_at
-                FROM memories
-                WHERE {where}
-                ORDER BY created_at DESC
-                LIMIT ?""",
-            params,
-        ).fetchall()
-        return [MemorySummary(**dict(row)) for row in rows]
+        return self.store.list_recent_memory_summaries(
+            limit=limit,
+            memory_type=memory_type,
+            layer=layer,
+            journey=journey,
+        )
 
     def count_by_type(self) -> list[tuple[str, int]]:
         """Return memory counts grouped by type."""
-        rows = self.store.conn.execute(
-            "SELECT memory_type, COUNT(*) as count FROM memories GROUP BY memory_type"
-        ).fetchall()
-        return [(row["memory_type"], row["count"]) for row in rows]
+        return self.store.count_memories_by_type()
 
     def get_by_type(self, memory_type: str) -> list[Memory]:
         """Return all memories of one type."""
