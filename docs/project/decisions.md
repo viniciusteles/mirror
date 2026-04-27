@@ -11,6 +11,72 @@ resolved.
 
 ## Completed Decisions
 
+### Shadow is both a structural layer and a memory destination
+
+**Date:** 2026-04-26
+**Reference:** [CV7 §5.5 of draft-analysis](roadmap/cv7-intelligence-depth/draft-analysis.md), [CV7 index](roadmap/cv7-intelligence-depth/index.md), [CV7.E4](roadmap/cv7-intelligence-depth/cv7-e4-memory-depth/index.md)
+**Source:** Mirror Mode session with the therapist persona (recorded
+conversation, 2026-04-26)
+
+In the Jungian frame, shadow is not a category of content; it is a region
+of the psyche defined by its relationship to ego consciousness. The
+architectural consequence:
+
+- **Memory destination side** — raw shadow material (tensions, avoidances,
+  contradictions, repeated emotional vocabulary) accumulates as extracted
+  memories with `layer = shadow`. Already partly in our schema; extraction
+  discipline (CV7.E3) sharpens what lands here.
+- **Structural layer side** — a `shadow` layer in the `identity` table,
+  peer to `self` and `ego`. Holds consolidated, ready-to-surface shadow
+  observations. Composes into the prompt under its own conditions.
+- **Consolidation as integration** — the bridge. Raw memories cluster,
+  get reviewed, distilled into structural content; raw memories remain as
+  provenance.
+
+Readiness states (`observed → candidate → surfaced → acknowledged →
+integrated`) live as a column on memories. Reception gains a
+`touches_shadow` axis distinct from `touches_identity`. Composition is
+asymmetric: shadow surfaces with provenance and only when evidence
+supports it, never as a verdict.
+
+The remaining sub-question — the promotion mechanism (auto by
+repetition, manual by acknowledgment, or hybrid) — is parked for the
+CV7.E4.S3 / E4.S4 planning pass.
+
+---
+
+### Expression pass and `mode` axis deferred from CV7
+
+**Date:** 2026-04-26
+**Reference:** [CV7 §8.1 of draft-analysis](roadmap/cv7-intelligence-depth/draft-analysis.md), [CV7.E2](roadmap/cv7-intelligence-depth/cv7-e2-reception/index.md)
+
+Reception in CV7.E2 ships with four axes (`personas, journey,
+touches_identity, touches_shadow`), not five. The `mode` classification
+(conversational / compositional / essayistic) and the post-generation
+expression pass that Alisson built as the form-shaping mechanism in
+`mirror-mind` CV1.E7.S1 are **deferred from CV7**.
+
+**Rationale.** The expression pass solves *proportionality* — short
+messages getting back essays, casual asks getting back lectures. We do
+not have evidence yet that this is among our top complaints, and we do
+not have the instrumentation to measure it honestly. Building the cure
+before measuring the disease is the over-engineering CV7 is trying to
+avoid.
+
+**Watch criterion.** Once CV7.E1 lands, a *proportionality probe* gets
+added to the eval harness: short, casual, lived-in messages with the
+expectation that responses stay short and proportional. If responses
+systematically over-shape (essays for one-line messages, lectures for
+casual asks), the expression pass earns its way back into the roadmap as
+a focused mini-CV or epic in CV8 with its own success criteria.
+
+**Anti-trap.** "Stamp `mode` on the assistant message now, build the
+expression pass later" is rejected. A mode stamp without a downstream
+consumer is dead metadata. When we revisit, classification and
+consumption come back together — or neither.
+
+---
+
 ### English domain language is complete and tagged
 
 **Date:** 2026-04-17  

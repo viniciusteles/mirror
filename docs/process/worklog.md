@@ -9,6 +9,32 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-26 — CV7 promoted from Planned to Planning
+
+CV7 (Intelligence Depth) has been moved from "named placeholder" to
+structured planning. Produced:
+
+- `docs/project/roadmap/cv7-intelligence-depth/draft-analysis.md` —
+  comprehensive territorial analysis comparing the current Mirror Mind
+  intelligence stack to Alisson's `mirror-mind` reconstruction and to the
+  broader field of agent memory and pipelined response systems. Includes
+  the success-metric framework (means vs ends, truth vs proxy,
+  optimization vs envelope), the four-epic proposal, and explicit
+  resolved decisions.
+- Rewritten CV7 index with the four epics, done condition, sequencing,
+  and resolved/parked decisions.
+- Four epic indexes: CV7.E1 (Pipeline Observability & Evals), CV7.E2
+  (Reception & Conditional Composition), CV7.E3 (Extraction Quality),
+  CV7.E4 (Memory Depth: Search, Reinforcement, Shadow).
+- Two architectural decisions recorded in `docs/project/decisions.md`:
+  shadow as both structural layer and memory destination (resolved via
+  Mirror Mode session with the therapist persona); expression pass /
+  `mode` axis deferred from CV7 with explicit watch criterion.
+- Roadmap index updated: CV7 status now "Planning".
+
+Next step: detailed planning of CV7.E1.S1 (the `llm_calls` log table) as
+the first concrete tracer bullet for the CV.
+
 ### 2026-04-26 — GitHub Actions prepared for Node.js 24
 
 Updated the active CI workflow to use Node 24-compatible action versions:
