@@ -49,33 +49,35 @@ def _resolve_defaults(
 ) -> tuple[str | None, str | None, list | None, bool]:
     """Resolve routing defaults. Returns (persona, journey, detected, touches_identity).
 
-    touches_identity is True when reception is disabled (load full context) or when
-    the reception classifier signals an identity-touching turn.
+    Priority order (highest to lowest):
+      1. Explicit args passed directly to load()
+      2. Reception classifier (when MEMORY_RECEPTION=1) — can override sticky
+      3. Session/global sticky defaults — fallback when reception is off or empty
+      4. Keyword/embedding detection — final fallback
+
+    touches_identity defaults True (full context) when reception is disabled.
     """
-    """Resolve explicit + sticky + detected mirror defaults."""
+    # Phase 1 — explicit args (never overridden).
     resolved_persona = persona
     resolved_journey = journey
     detected: list | None = None
-    touches_identity: bool = True  # default: load full context when reception is off
+    touches_identity: bool = True  # full context when reception is off
 
+    # Phase 2 — load sticky into holding vars; do NOT apply yet.
+    # Reception gets to run before sticky is applied so it can override it.
     runtime_session = mem.store.get_runtime_session(session_id) if session_id else None
+    session_persona: str | None = runtime_session.persona if runtime_session else None
+    session_journey: str | None = runtime_session.journey if runtime_session else None
 
-    if resolved_persona is None and runtime_session and runtime_session.persona:
-        resolved_persona = runtime_session.persona
-    if resolved_journey is None and runtime_session and runtime_session.journey:
-        resolved_journey = runtime_session.journey
-
-    if resolved_persona is None or resolved_journey is None:
-        sticky_persona, sticky_journey = mem.store.get_latest_runtime_defaults(
+    if session_persona is None or session_journey is None:
+        global_persona, global_journey = mem.store.get_latest_runtime_defaults(
             exclude_session_id=session_id
         )
-        if resolved_persona is None:
-            resolved_persona = sticky_persona
-        if resolved_journey is None:
-            resolved_journey = sticky_journey
+        session_persona = session_persona or global_persona
+        session_journey = session_journey or global_journey
 
-    # Reception: LLM-based classifier when enabled, keyword detection as fallback.
-    if RECEPTION_ENABLED and query and (resolved_persona is None or resolved_journey is None):
+    # Phase 3 — reception (when enabled, runs before sticky is applied).
+    if RECEPTION_ENABLED and query:
         import json
 
         from memory.intelligence.reception import reception
@@ -123,7 +125,13 @@ def _resolve_defaults(
         touches_identity = result.touches_identity
         # touches_shadow available for E4.S4 shadow layer gating.
 
-    # Keyword/embedding detection as fallback when reception is off or returned empty.
+    # Phase 4 — apply sticky as fallback (reception was empty or disabled).
+    if resolved_persona is None:
+        resolved_persona = session_persona
+    if resolved_journey is None:
+        resolved_journey = session_journey
+
+    # Phase 5 — keyword/embedding detection as final fallback.
     if resolved_persona is None and query:
         detected_personas = mem.detect_persona(query)
         if detected_personas:

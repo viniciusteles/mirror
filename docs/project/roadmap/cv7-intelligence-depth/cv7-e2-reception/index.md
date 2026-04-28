@@ -56,9 +56,9 @@ surfacing, expression pass if it returns) plug in as additional steps.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV7.E2.S1 | Reception MVP — classifier returns four axes; eval-driven | Planned |
-| CV7.E2.S2 | Conditional composition in `load_mirror_context` (identity + shadow gates) | Planned |
-| CV7.E2.S3 | Reception as the source of truth for persona/journey routing in `mm-mirror` | Planned |
+| CV7.E2.S1 | Reception MVP — classifier returns four axes; eval-driven | Done |
+| CV7.E2.S2 | Conditional composition in `load_mirror_context` (identity + shadow gates) | Done |
+| CV7.E2.S3 | Reception as the source of truth for persona/journey routing in `mm-mirror` | Done |
 
 ---
 

@@ -302,6 +302,119 @@ def test_title_from_summary_short():
     assert result == "Clear and concise"
 
 
+def test_reception_overrides_sticky_persona_when_enabled(mocker):
+    """S3: reception runs before sticky is applied and can override it."""
+    from memory.models import ReceptionResult
+
+    mocker.patch("memory.skills.mirror.RECEPTION_ENABLED", True)
+    mocker.patch("memory.skills.mirror.LOG_LLM_CALLS", False)
+    # reception is imported locally inside _resolve_defaults — patch at source.
+    mocker.patch(
+        "memory.intelligence.reception.reception",
+        return_value=ReceptionResult(
+            personas=["engineer"],
+            journey=None,
+            touches_identity=False,
+            touches_shadow=False,
+        ),
+    )
+
+    mock_mem = MagicMock()
+    mock_mem.load_mirror_context.return_value = "context"
+    mock_mem.store.get_runtime_session.return_value = MagicMock(
+        persona="therapist", journey="deep-work"
+    )
+    mock_mem.store.get_identity_by_layer.return_value = []
+
+    with (
+        patch("memory.skills.mirror.MemoryClient", return_value=mock_mem),
+        patch("memory.skills.mirror.write_state"),
+        patch("memory.skills.mirror.switch_conversation"),
+    ):
+        from memory.skills import mirror
+
+        _ctx, resolved_persona, resolved_journey, _detected = mirror.load(
+            query="can you help me fix this Python bug",
+            session_id="sess-x",  # needed so runtime_session is fetched
+        )
+
+    # Reception said "engineer"; sticky said "therapist" — reception wins.
+    assert resolved_persona == "engineer"
+    # Journey was not overridden by reception (returned None) — sticky applies.
+    assert resolved_journey == "deep-work"
+
+
+def test_sticky_applies_when_reception_returns_empty(mocker):
+    """S3: when reception returns no persona, sticky default is the fallback."""
+    from memory.models import ReceptionResult
+
+    mocker.patch("memory.skills.mirror.RECEPTION_ENABLED", True)
+    mocker.patch("memory.skills.mirror.LOG_LLM_CALLS", False)
+    mocker.patch(
+        "memory.intelligence.reception.reception",
+        return_value=ReceptionResult.empty(),
+    )
+
+    mock_mem = MagicMock()
+    mock_mem.load_mirror_context.return_value = "context"
+    mock_mem.store.get_runtime_session.return_value = MagicMock(persona="writer", journey="mirror")
+    mock_mem.store.get_identity_by_layer.return_value = []
+
+    with (
+        patch("memory.skills.mirror.MemoryClient", return_value=mock_mem),
+        patch("memory.skills.mirror.write_state"),
+        patch("memory.skills.mirror.switch_conversation"),
+    ):
+        from memory.skills import mirror
+
+        _ctx, resolved_persona, resolved_journey, _detected = mirror.load(
+            query="what is the meaning of life",
+            session_id="sess-x",  # needed so runtime_session is fetched
+        )
+
+    # Reception returned empty — sticky fallback applies.
+    assert resolved_persona == "writer"
+    assert resolved_journey == "mirror"
+
+
+def test_explicit_arg_not_overridden_by_reception(mocker):
+    """S3: explicit persona arg is never overridden by reception."""
+    from memory.models import ReceptionResult
+
+    mocker.patch("memory.skills.mirror.RECEPTION_ENABLED", True)
+    mocker.patch("memory.skills.mirror.LOG_LLM_CALLS", False)
+    mocker.patch(
+        "memory.intelligence.reception.reception",
+        return_value=ReceptionResult(
+            personas=["engineer"],
+            journey=None,
+            touches_identity=False,
+            touches_shadow=False,
+        ),
+    )
+
+    mock_mem = MagicMock()
+    mock_mem.load_mirror_context.return_value = "context"
+    mock_mem.store.get_runtime_session.return_value = None
+    mock_mem.store.get_latest_runtime_defaults.return_value = (None, None)
+    mock_mem.store.get_identity_by_layer.return_value = []
+
+    with (
+        patch("memory.skills.mirror.MemoryClient", return_value=mock_mem),
+        patch("memory.skills.mirror.write_state"),
+        patch("memory.skills.mirror.switch_conversation"),
+    ):
+        from memory.skills import mirror
+
+        _ctx, resolved_persona, _rj, _detected = mirror.load(
+            persona="therapist",  # explicit — must not be overridden
+            query="can you help me fix this Python bug",
+        )
+
+    # Explicit arg "therapist" wins over reception's "engineer".
+    assert resolved_persona == "therapist"
+
+
 def test_title_from_summary_long():
     from memory.skills.mirror import title_from_summary
 
