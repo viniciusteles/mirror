@@ -59,11 +59,11 @@ Two pieces:
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV7.E1.S1 | `llm_calls` log table + instrumentation hooks at every existing call site | Planned |
-| CV7.E1.S2 | Evals harness skeleton + first eval (`extraction`) | Planned |
-| CV7.E1.S3 | Routing eval + proportionality eval | Planned |
-| CV7.E1.S4 | `inspect llm-calls` CLI for trace inspection | Planned |
-| CV7.E1.S5 | Baseline measurement run + worklog of baseline scores | Planned |
+| CV7.E1.S1 | `llm_calls` log table + instrumentation hooks at every existing call site | Done |
+| CV7.E1.S2 | Evals harness skeleton + first eval (`extraction`) | Done |
+| CV7.E1.S3 | Routing eval + proportionality eval | Done |
+| CV7.E1.S4 | `inspect llm-calls` CLI for trace inspection | Done |
+| CV7.E1.S5 | Baseline measurement run + worklog of baseline scores | Done |
 
 ---
 

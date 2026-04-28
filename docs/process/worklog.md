@@ -9,6 +9,63 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-28 — CV7.E1 complete: Pipeline Observability & Evals
+
+All five stories shipped. E1 baseline is established.
+
+**S1 — `llm_calls` log table + instrumentation**
+Every LLM call in the extraction pipeline now writes a structured row when
+`MEMORY_LOG_LLM_CALLS=1`. `send_to_model()` captures latency and prompt.
+Extraction refactored: prompts split to `prompts.py`, `ExtractedTask` moved
+to `models.py`, `_parse_json_response()` eliminates 4x duplication, all four
+functions route through `send_to_model()` with `on_llm_call` callbacks.
+
+**S2 — Evals harness + extraction eval**
+`evals/` framework established: `EvalProbe`, `EvalResult`, `EvalReport` types,
+a runner with scored output and exit codes, and the first eval (`extraction`)
+with 5 probes. `uv run python -m memory eval <name>` is a working command.
+
+**S3 — Routing eval + proportionality eval**
+Two more evals: `routing` (15 probes, persona detection behavioral contract)
+and `proportionality` (5 probes, casual exchanges should produce 0 memories —
+the watch probe for the expression pass).
+
+**S4 — `inspect llm-calls` CLI**
+`python -m memory inspect llm-calls` with filters by role, conversation,
+session, since-date, and limit. Per-row trace with timestamp, model, token
+counts, latency, and prompt/response snippets.
+
+**S5 — Baseline measurement (this entry)**
+All three evals run against production LLM. Scores recorded below.
+
+---
+
+#### E1 Baseline Scores (2026-04-28, model: google/gemini-2.5-flash-lite)
+
+| Eval | Score | Threshold | Result | Notes |
+|------|-------|-----------|--------|
+| `extraction` | 5/5 (1.00) | 0.80 | PASS | All five transcript probes produced correct memory shapes |
+| `routing` | 13/15 (0.87) | 0.85 | PASS | Two misses documented below |
+| `proportionality` | 5/5 (1.00) | 0.80 | PASS | Zero memories extracted for all casual exchanges |
+
+**Routing misses (keyword routing — expected to improve with E2 LLM classifier):**
+- `ambiguous-writing-over-research`: got `researcher` instead of `writer`. Query
+  contains both "writing" and "research"; researcher wins on keyword density.
+  E2's intent-based classifier should resolve this correctly.
+- `null-open-question` ("what is the meaning of freedom"): got `scholar` instead
+  of `None`. "meaning" is a routing keyword for scholar. Acceptable false
+  positive for keyword matching; E2 should handle open existential questions
+  as null.
+
+**Proportionality signal:** Clean baseline — extraction correctly ignores
+trivial exchanges. No signal for the expression pass; CV7 ships without it
+as planned.
+
+**Next step:** CV7.E2 — Reception & Conditional Composition. E1 baseline
+serves as the regression net for all E2 behavioral changes.
+
+---
+
 ### 2026-04-26 — CV7 promoted from Planned to Planning
 
 CV7 (Intelligence Depth) has been moved from "named placeholder" to
