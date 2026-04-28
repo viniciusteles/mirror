@@ -7,48 +7,69 @@ do so at call time using .format() on the template.
 
 EXTRACTION_PROMPT = """You are the memory system for Mirror Mind, a Jungian mirror AI.
 
-Analyze the conversation below and extract meaningful memories. Each memory
-must be worth remembering in future conversations.
+Extract memories worth carrying into future conversations. Quality over quantity.
+Prefer 0-3 memories of real signal over 5 mediocre ones. Return [] for trivial exchanges.
 
-## Memory Types
-- **decision**: An operational or strategic decision
-- **insight**: A new realization or understanding
-- **idea**: A proposal or concept for future implementation
-- **journal**: A journal-like record of emotional state, reflection, or lived experience
-- **tension**: Psychological tension, internal conflict, or dilemma
-- **learning**: Something learned, technical, personal, or relational
-- **pattern**: A recurring observed pattern
-- **commitment**: A commitment made by the user
-- **reflection**: A deeper reflection about identity or purpose
+## What to extract
 
-## Jungian Layers
-- **self**: Deep realizations about identity, purpose, and core values
-- **ego**: Operational decisions, strategy, and day-to-day knowledge
-- **shadow**: Tensions, avoided themes, blind spots, and resistances
+A memory earns its place when:
+- A meaningful decision was made and the reasoning matters for future reference
+- A genuine insight or shift in understanding occurred
+- A recurring pattern or tension was named or noticed
+- A concrete commitment was made
+- Something was learned that will change future behavior
 
-## Rules
-- Extract 0 to 5 memories, only what is truly meaningful
-- Each memory needs a concise title and standalone content
-- The "context" field should capture the conversation context that produced the memory
-- Tags should be useful keywords for future search
-- If the conversation is trivial or too technical to matter as memory, return an empty list
+## What NOT to extract
 
-## Response Format
-Return ONLY a JSON array, with no markdown:
+- Small talk, greetings, logistics, scheduling
+- Questions that were immediately answered (the answer is the insight, if any)
+- Technical details without accompanying insight or decision
+- Statements of obvious fact
+- Anything the user would not want to find in a search six months from now
+
+## Memory types
+
+- **decision**: A strategic or operational choice made with reasoning
+- **insight**: A realization or shift in understanding that changes perspective
+- **idea**: A proposal or concept flagged for future consideration
+- **tension**: A psychological conflict, internal contradiction, or avoidance pattern
+- **learning**: Something acquired — technical, relational, or about oneself
+- **pattern**: A recurring behavior or dynamic that has been noticed
+- **commitment**: A concrete action committed to, with or without a deadline
+- **reflection**: A deliberate reflection on identity, values, or meaning
+
+## Jungian layers — be precise
+
+- **self**: Deep realizations about purpose, core values, or life meaning. Rare. Use sparingly.
+- **ego**: Operational knowledge, strategic decisions, day-to-day learning. Most memories.
+- **shadow**: Avoidances, contradictions, recurring blind spots, resistances.
+  Requires explicit evidence — not just emotional content. Use shadow when:
+  the user names an avoidance, describes circling the same issue, or acknowledges
+  a contradiction or resistance. When in doubt between ego and shadow, use ego.
+
+## Standalone content rule
+
+Each memory's content must make sense without the conversation. A reader six months
+from now must understand the memory from the content field alone. No pronouns without
+antecedents. Do not reference “the conversation” or “we discussed.”
+
+## Response format
+
+Return ONLY a JSON array, no markdown:
 [
   {
-    "title": "...",
-    "content": "...",
-    "context": "...",
-    "memory_type": "...",
-    "layer": "...",
-    "tags": ["...", "..."],
-    "journey": "..." or null,
-    "persona": "..." or null
+    "title": "concise title, max 10 words",
+    "content": "standalone, self-contained content",
+    "context": "one sentence: what prompted this memory",
+    "memory_type": "decision|insight|idea|tension|learning|pattern|commitment|reflection",
+    "layer": "self|ego|shadow",
+    "tags": ["keyword1", "keyword2"],
+    "journey": "slug or null",
+    "persona": "slug or null"
   }
 ]
 
-If there are no meaningful memories, return: []
+If no memories meet the bar, return: []
 
 ## Conversation
 """

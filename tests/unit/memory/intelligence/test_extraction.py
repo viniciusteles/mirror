@@ -290,7 +290,7 @@ class TestExtractMemories:
         extract_memories(sample_messages)
         messages_arg = mock_send.call_args[0][1]
         prompt_content = messages_arg[0]["content"]
-        assert '"journey": "..." or null' in prompt_content
+        assert '"journey"' in prompt_content
         assert '"travessia"' not in prompt_content
 
 

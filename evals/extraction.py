@@ -120,7 +120,7 @@ def _probe_existential_reflection() -> tuple[bool, str]:
 
 
 def _probe_tension_shadow() -> tuple[bool, str]:
-    """Should extract a tension memory, ideally in the shadow or ego layer."""
+    """Explicit avoidance pattern — should extract tension/pattern with layer=shadow."""
     messages = _msgs(
         (
             "user",
@@ -146,10 +146,11 @@ def _probe_tension_shadow() -> tuple[bool, str]:
     )
     memories = extract_memories(messages, journey="eval")
     notes = _summary(memories)
+    # Tightened after prompt revision: shadow discipline should route avoidance to shadow.
     passed = (
         len(memories) >= 1
         and _has_type(memories, "tension", "pattern", "insight")
-        and _has_layer(memories, "shadow", "ego")
+        and _has_layer(memories, "shadow")  # shadow required, not ego
     )
     return passed, notes
 
@@ -194,6 +195,82 @@ def _probe_commitment() -> tuple[bool, str]:
     return passed, notes
 
 
+def _probe_mixed_conversation() -> tuple[bool, str]:
+    """Decision mixed with small talk — only the decision should be extracted."""
+    messages = _msgs(
+        ("user", "Hey, how's it going?"),
+        ("assistant", "Doing well. What's on your mind?"),
+        (
+            "user",
+            "Good, good. Actually I've been thinking about our pricing model. "
+            "We've been charging per seat but I think we should move to usage-based. "
+            "The per-seat model is killing us with smaller customers who don't want "
+            "to commit upfront.",
+        ),
+        (
+            "assistant",
+            "Usage-based aligns cost to value. What does the migration look like?",
+        ),
+        (
+            "user",
+            "We'd grandfather existing customers for 12 months and launch the new "
+            "model for new signups immediately. I've decided to move forward — "
+            "announcing it to the team next week.",
+        ),
+        (
+            "assistant",
+            "Clean decision. The 12-month window gives you time to learn without "
+            "burning existing relationships.",
+        ),
+        ("user", "Exactly. Anyway, thanks. Talk soon."),
+    )
+    memories = extract_memories(messages, journey="eval")
+    notes = _summary(memories)
+    # Should extract the pricing decision but not the social framing.
+    has_decision = _has_type(memories, "decision", "insight", "commitment")
+    not_over_extracted = len(memories) <= 2
+    passed = len(memories) >= 1 and has_decision and not_over_extracted
+    return passed, notes
+
+
+def _probe_shadow_layer_discipline() -> tuple[bool, str]:
+    """User explicitly names a recurring avoidance — should land in shadow layer."""
+    messages = _msgs(
+        (
+            "user",
+            "I've been thinking about why I never follow through on the financial "
+            "planning I say I'm going to do. I've promised myself three times this "
+            "year to build a proper budget and I just don't.",
+        ),
+        ("assistant", "What happens when you sit down to do it?"),
+        (
+            "user",
+            "I feel this low-grade dread. Like if I look at the numbers properly "
+            "I'll have to confront something I don't want to face. So I find "
+            "something else to do.",
+        ),
+        (
+            "assistant",
+            "That's a clear pattern — the avoidance is protecting you from "
+            "information that might demand a response.",
+        ),
+        (
+            "user",
+            "Yeah. It's the same thing I do with my health checkups. I just "
+            "don't book them. I think I'm afraid of what I might find out.",
+        ),
+    )
+    memories = extract_memories(messages, journey="eval")
+    notes = _summary(memories)
+    # Explicit avoidance pattern — shadow layer required.
+    passed = (
+        len(memories) >= 1
+        and _has_type(memories, "pattern", "tension", "insight")
+        and _has_layer(memories, "shadow")
+    )
+    return passed, notes
+
+
 # ---------------------------------------------------------------------------
 # Probe registry
 # ---------------------------------------------------------------------------
@@ -223,5 +300,15 @@ PROBES: list[EvalProbe] = [
         id="commitment",
         description="extracts commitment memory from an investor update conversation",
         run=_probe_commitment,
+    ),
+    EvalProbe(
+        id="mixed-conversation",
+        description="extracts only the decision from a conversation mixed with small talk",
+        run=_probe_mixed_conversation,
+    ),
+    EvalProbe(
+        id="shadow-layer-discipline",
+        description="routes explicit avoidance pattern to shadow layer, not ego",
+        run=_probe_shadow_layer_discipline,
     ),
 ]
