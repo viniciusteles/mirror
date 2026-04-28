@@ -13,8 +13,9 @@ Commands:
                        Usage: python -m memory identity <list|get|set|edit> [args]
   list                 List personas, journeys, extensions, or all
                        Usage: python -m memory list [personas|journeys|extensions|all] [--mirror-home PATH] [--verbose] [--extensions-root PATH] [--runtime NAME]
-  inspect              Inspect one persona, extension, or runtime catalog
+  inspect              Inspect one persona, extension, runtime catalog, or llm-calls trace
                        Usage: python -m memory inspect persona|extension|runtime-catalog <id> [--mirror-home PATH] [--extensions-root PATH]
+                              python -m memory inspect llm-calls [--conversation ID] [--session ID] [--role ROLE] [--since DATE] [--limit N]
   detect-persona       Show persona routing matches for a query
                        Usage: python -m memory detect-persona <query> [--mirror-home PATH]
   extensions           List, validate, sync, install, uninstall, expose, or clean external skills under the active Mirror home

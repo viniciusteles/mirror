@@ -247,12 +247,82 @@ def _inspect_runtime_catalog(runtime: str, mirror_home: str | None) -> None:
         print(f"    installed_skill_path: {item.get('installed_skill_path', '(unknown)')}")
 
 
+def cmd_inspect_llm_calls(args: list[str]) -> None:
+    """python -m memory inspect llm-calls [--conversation ID] [--session ID] [--role ROLE] [--since DATE] [--limit N] [--mirror-home PATH]"""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="memory inspect llm-calls",
+        description="Inspect LLM call trace logs from the llm_calls table.",
+    )
+    parser.add_argument(
+        "--conversation", dest="conversation_id", default=None, help="Filter by conversation id"
+    )
+    parser.add_argument("--session", dest="session_id", default=None, help="Filter by session id")
+    parser.add_argument(
+        "--role",
+        default=None,
+        help="Filter by role (extraction, task_extraction, journal_classification, week_plan, consult)",
+    )
+    parser.add_argument(
+        "--since", default=None, help="Filter rows called_at >= DATE (YYYY-MM-DD or ISO timestamp)"
+    )
+    parser.add_argument("--limit", type=int, default=20, help="Maximum rows to show (default: 20)")
+    parser.add_argument("--mirror-home", default=None, help="Explicit user home")
+    parsed = parser.parse_args(args)
+
+    from memory.cli.common import db_path_from_mirror_home
+    from memory.client import MemoryClient
+
+    mem = MemoryClient(db_path=db_path_from_mirror_home(parsed.mirror_home))
+    rows = mem.store.get_llm_calls(
+        conversation_id=parsed.conversation_id,
+        role=parsed.role,
+        limit=parsed.limit,
+    )
+
+    # Apply filters not handled by the store.
+    if parsed.session_id:
+        rows = [r for r in rows if r.get("session_id") == parsed.session_id]
+    if parsed.since:
+        rows = [r for r in rows if (r.get("called_at") or "") >= parsed.since]
+
+    if not rows:
+        print("(no llm_calls rows match the given filters)")
+        return
+
+    print(f"=== llm_calls ({len(rows)} row{'s' if len(rows) != 1 else ''}) ===")
+    for row in rows:
+        called_at = (row.get("called_at") or "")[:19].replace("T", " ")
+        role = row.get("role") or "?"
+        model = row.get("model") or "?"
+        latency = row.get("latency_ms")
+        latency_str = f"{latency}ms" if latency is not None else "?ms"
+        p_tok = row.get("prompt_tokens") or 0
+        c_tok = row.get("completion_tokens") or 0
+        conv = (row.get("conversation_id") or "")[:8] or "—"
+        row_id = (row.get("id") or "")[:8]
+
+        print(f"\n[{called_at}] {role} | {model}")
+        print(f"  id:{row_id}  conv:{conv}  {p_tok}→{c_tok} tokens  {latency_str}")
+
+        prompt = (row.get("prompt") or "").strip()[:200]
+        response = (row.get("response") or "").strip()[:200]
+        print(f"  prompt:   {prompt!r}")
+        print(f"  response: {response!r}")
+
+
 def cmd_inspect(args: list[str]) -> None:
-    """python -m memory inspect persona|extension|runtime-catalog <id> [--mirror-home PATH] [--extensions-root PATH]"""
+    """python -m memory inspect persona|extension|runtime-catalog|llm-calls [args] [--mirror-home PATH]"""
+    # llm-calls is a self-contained subcommand — dispatch before positional parsing.
+    if args and args[0] == "llm-calls":
+        cmd_inspect_llm_calls(args[1:])
+        return
+
     mirror_home, extensions_root, positional = _parse_inspect_args(args)
     if len(positional) != 2 or positional[0] not in {"persona", "extension", "runtime-catalog"}:
         print(
-            "Usage: python -m memory inspect persona|extension|runtime-catalog <id> [--mirror-home PATH] [--extensions-root PATH]"
+            "Usage: python -m memory inspect persona|extension|runtime-catalog|llm-calls <id> [--mirror-home PATH] [--extensions-root PATH]"
         )
         sys.exit(1)
 
