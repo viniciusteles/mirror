@@ -10,7 +10,7 @@ The advice it gives could fit anyone. It doesn't know that you made that decisio
 
 That's not an assistant. That's a very smart stranger.
 
-**Mirror Mind is a different bet.** It's a framework that turns Claude into an AI that *actually knows you* — your identity, your voice, your values, your ongoing projects — and accumulates that knowledge over time, conversation by conversation.
+**Mirror Mind is a different bet.** It's a framework that turns any LLM into an AI that *actually knows you* — your identity, your voice, your values, your ongoing projects — and accumulates that knowledge over time, conversation by conversation.
 
 The mirror doesn't just answer your questions. It reflects your own intelligence back at you, sharpened. It remembers what matters. It carries context across months. It knows where you are in your projects and what's unresolved. When you need a therapist's depth, it shifts. When you need an engineer's precision, it shifts. One unified voice, multiple lenses.
 
