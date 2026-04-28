@@ -226,3 +226,7 @@ LOG_LLM_CALLS = os.getenv("MEMORY_LOG_LLM_CALLS", "") == "1"
 # Reception — set MEMORY_RECEPTION=1 to enable LLM-based turn classification
 # When disabled (default), persona/journey routing uses keyword detection unchanged.
 RECEPTION_ENABLED = os.getenv("MEMORY_RECEPTION", "") == "1"
+
+# Two-pass extraction — set MEMORY_TWO_PASS=1 to enable curation against existing memories
+# When disabled (default), extraction is single-pass unchanged.
+TWO_PASS_ENABLED = os.getenv("MEMORY_TWO_PASS", "") == "1"

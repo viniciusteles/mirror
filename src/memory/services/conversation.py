@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from memory.config import LOG_LLM_CALLS
+from memory.config import LOG_LLM_CALLS, TWO_PASS_ENABLED
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
-from memory.intelligence.extraction import extract_memories, extract_tasks
+from memory.intelligence.extraction import curate_against_existing, extract_memories, extract_tasks
 from memory.intelligence.llm_router import LLMResponse
 from memory.models import Conversation, ConversationSummary, Memory, Message
 from memory.storage.store import Store
@@ -144,7 +144,7 @@ class ConversationService:
 
             return _log
 
-        # Extract memories through the LLM.
+        # Extract memories through the LLM (candidate pass).
         extracted = extract_memories(
             messages,
             persona=conv.persona if conv else None,
@@ -152,6 +152,24 @@ class ConversationService:
             user_name=user_name,
             on_llm_call=_make_logger("extraction"),
         )
+
+        # Curation pass: deduplicate candidates against existing memories.
+        if TWO_PASS_ENABLED and extracted:
+            similar: list[Memory] = []
+            seen_ids: set[str] = set()
+            for candidate in extracted:
+                query = f"{candidate.title} {candidate.content[:60]}"
+                results = self.memories.search(query, limit=3, journey=conv.journey)
+                for sr in results:
+                    if sr.memory.id not in seen_ids:
+                        similar.append(sr.memory)
+                        seen_ids.add(sr.memory.id)
+            similar = similar[:15]  # Cap context size.
+            extracted = curate_against_existing(
+                extracted,
+                similar,
+                on_llm_call=_make_logger("curation"),
+            )
 
         # Extract tasks through the LLM.
         try:

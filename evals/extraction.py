@@ -12,8 +12,8 @@ Requires OPENROUTER_API_KEY. Costs a few cents per run.
 from __future__ import annotations
 
 from evals.types import EvalProbe
-from memory.intelligence.extraction import extract_memories
-from memory.models import ExtractedMemory, Message
+from memory.intelligence.extraction import curate_against_existing, extract_memories
+from memory.models import ExtractedMemory, Memory, Message
 
 THRESHOLD = 0.8
 
@@ -271,6 +271,57 @@ def _probe_shadow_layer_discipline() -> tuple[bool, str]:
     return passed, notes
 
 
+def _probe_two_pass_dedup() -> tuple[bool, str]:
+    """Duplicate candidate dropped; novel candidate kept by curation pass."""
+    # Simulate an already-stored memory about splitting the auth module.
+    existing_memory = Memory(
+        memory_type="decision",
+        layer="ego",
+        title="Split auth module into three focused components",
+        content=(
+            "Decided to split the auth module into validation, session management, "
+            "and rate-limiting before adding OAuth. Deferring this refactor always "
+            "costs more than it saves."
+        ),
+        context="Engineering conversation about auth module coupling.",
+    )
+
+    # Two candidates: one near-duplicate of the existing memory, one novel.
+    duplicate = ExtractedMemory(
+        title="Auth module split before OAuth",
+        content=(
+            "Chose to refactor the auth module into focused components "
+            "before adding OAuth support to avoid future untangling."
+        ),
+        context="Discussion about auth module single-responsibility violation.",
+        memory_type="decision",
+        layer="ego",
+        tags=["architecture", "refactoring"],
+    )
+    novel = ExtractedMemory(
+        title="Pricing model shift to usage-based",
+        content=(
+            "Decided to move from per-seat to usage-based pricing. "
+            "Existing customers grandfathered for 12 months; new signups on "
+            "the new model immediately."
+        ),
+        context="Strategy conversation about customer acquisition friction.",
+        memory_type="decision",
+        layer="ego",
+        tags=["pricing", "strategy"],
+    )
+
+    candidates = [duplicate, novel]
+    curated = curate_against_existing(candidates, [existing_memory])
+    notes = _summary(curated)
+
+    # The duplicate should be dropped; the novel pricing decision should survive.
+    has_novel = any("pric" in m.title.lower() or "pric" in m.content.lower() for m in curated)
+    duplicate_dropped = not any("auth" in m.title.lower() for m in curated)
+    passed = len(curated) >= 1 and has_novel and duplicate_dropped
+    return passed, notes
+
+
 # ---------------------------------------------------------------------------
 # Probe registry
 # ---------------------------------------------------------------------------
@@ -310,5 +361,10 @@ PROBES: list[EvalProbe] = [
         id="shadow-layer-discipline",
         description="routes explicit avoidance pattern to shadow layer, not ego",
         run=_probe_shadow_layer_discipline,
+    ),
+    EvalProbe(
+        id="two-pass-dedup",
+        description="curation pass drops near-duplicate; novel candidate survives",
+        run=_probe_two_pass_dedup,
     ),
 ]

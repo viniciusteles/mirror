@@ -9,6 +9,44 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-28 — CV7.E3.S2 complete: Two-pass extraction
+
+Adds a curation pass that deduplicates candidate memories against the
+user's existing memory pool before storing them.
+
+**`curate_against_existing(candidates, existing, on_llm_call)`** — new
+function in `extraction.py`. Storage-free: caller provides pre-fetched
+existing memories. Returns a filtered/revised `list[ExtractedMemory]` in
+the same shape as extraction output, so downstream code is unchanged.
+Fail-open contract: on any LLM error or malformed JSON, returns candidates
+unchanged (degrades to single-pass). Short-circuits with no LLM call when
+`existing` is empty.
+
+**`CURATION_PROMPT`** — static rules section in `prompts.py`. Encodes
+three decisions: keep (genuine new signal), merge (extends existing),
+drop (near-duplicate). Default to keep when uncertain.
+
+**`MEMORY_TWO_PASS=1`** feature flag in `config.py`. Default off —
+existing behavior completely unchanged when unset.
+
+**Wired into `_run_extraction()`** in `conversation.py`. When enabled:
+for each candidate, search existing memories (limit 3, same journey),
+dedup by id (cap 15), call `curate_against_existing`. LLM call logged
+with `role="curation"` when `MEMORY_LOG_LLM_CALLS=1`.
+
+**Eval** — `two-pass-dedup` probe added to `evals/extraction.py`:
+near-duplicate candidate dropped, novel candidate kept. 8 total probes,
+threshold 0.80.
+
+**Tests** — 8 unit tests for `curate_against_existing` covering: empty
+candidates, empty existing (both short-circuit), valid curation, all
+dropped, malformed JSON, LLM exception (last four: fail open), and
+callback behavior.
+
+886 tests pass. ruff clean.
+
+---
+
 ### 2026-04-28 — CV7.E3.S1 complete: Extraction prompt revision
 
 Rewrote `EXTRACTION_PROMPT` with four structural improvements over the
@@ -495,8 +533,7 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV7.E3.S2 (next):** Two-pass extraction — `extract_candidates()` → `curate_against_existing()`. The curator receives a compact view of existing memories tagged similarly and decides merge/keep/drop. Depends on E3.S1 (done).
-- **CV7.E3.S3 (parallel):** Per-conversation summary — 3–4 sentences produced alongside memories and stored on the conversation row; used by `mm-recall` and as reranking input.
+- **CV7.E3.S3 (next):** Per-conversation summary — 3–4 sentences produced alongside memories and stored on the conversation row; used by `mm-recall` and as reranking input. Independent of S1/S2.
 - **CV7.E3.S4:** Generated descriptors for personas/journeys/identity layers (storage shape decision required).
 - **CV7.E4:** Memory Depth — hybrid search, reinforcement, consolidation, shadow structural layer.
 - **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:

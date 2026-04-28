@@ -8,13 +8,14 @@ import pytest
 from memory.intelligence.extraction import (
     _parse_json_response,
     classify_journal_entry,
+    curate_against_existing,
     extract_memories,
     extract_tasks,
     extract_week_plan,
     format_transcript,
 )
 from memory.intelligence.llm_router import LLMResponse
-from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Message
+from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Memory, Message
 
 pytestmark = pytest.mark.unit
 
@@ -610,3 +611,104 @@ class TestClassifyJournalEntry:
         _make_send_to_model_mock(mocker, '{"title": "T", "layer": "ego", "tags": []}')
         result = classify_journal_entry("text", on_llm_call=None)
         assert result["title"] == "T"
+
+
+# ---------------------------------------------------------------------------
+# curate_against_existing
+# ---------------------------------------------------------------------------
+
+
+def _make_candidate(**kwargs) -> ExtractedMemory:
+    defaults: dict = {
+        "title": "Some Insight",
+        "content": "Something was learned.",
+        "memory_type": "insight",
+        "layer": "ego",
+        "tags": [],
+    }
+    defaults.update(kwargs)
+    return ExtractedMemory(**defaults)
+
+
+def _make_existing(**kwargs) -> Memory:
+    defaults: dict = {
+        "memory_type": "insight",
+        "layer": "ego",
+        "title": "Old Insight",
+        "content": "Something already known.",
+    }
+    defaults.update(kwargs)
+    return Memory(**defaults)
+
+
+class TestCurateAgainstExisting:
+    def test_empty_candidates_returns_empty_without_llm_call(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        result = curate_against_existing([], [_make_existing()])
+        assert result == []
+        mock_send.assert_not_called()
+
+    def test_empty_existing_returns_candidates_without_llm_call(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        candidates = [_make_candidate()]
+        result = curate_against_existing(candidates, [])
+        assert result == candidates
+        mock_send.assert_not_called()
+
+    def test_valid_response_returns_curated_list(self, mocker):
+        payload = json.dumps(
+            [
+                {
+                    "title": "Kept",
+                    "content": "Novel.",
+                    "memory_type": "decision",
+                    "layer": "ego",
+                    "tags": [],
+                }
+            ]
+        )
+        _make_send_to_model_mock(mocker, payload)
+        candidates = [_make_candidate(title="Kept"), _make_candidate(title="Dropped")]
+        result = curate_against_existing(candidates, [_make_existing()])
+        assert len(result) == 1
+        assert result[0].title == "Kept"
+
+    def test_all_dropped_returns_empty_list(self, mocker):
+        _make_send_to_model_mock(mocker, "[]")
+        candidates = [_make_candidate()]
+        result = curate_against_existing(candidates, [_make_existing()])
+        assert result == []
+
+    def test_malformed_json_fails_open(self, mocker):
+        _make_send_to_model_mock(mocker, "not valid json")
+        candidates = [_make_candidate()]
+        result = curate_against_existing(candidates, [_make_existing()])
+        assert result == candidates
+
+    def test_non_list_json_fails_open(self, mocker):
+        _make_send_to_model_mock(mocker, '{"oops": true}')
+        candidates = [_make_candidate()]
+        result = curate_against_existing(candidates, [_make_existing()])
+        assert result == candidates
+
+    def test_llm_exception_fails_open(self, mocker):
+        mocker.patch(
+            "memory.intelligence.extraction.send_to_model", side_effect=RuntimeError("timeout")
+        )
+        candidates = [_make_candidate()]
+        result = curate_against_existing(candidates, [_make_existing()])
+        assert result == candidates
+
+    def test_on_llm_call_invoked_when_llm_runs(self, mocker):
+        _make_send_to_model_mock(mocker, "[]")
+        callback = MagicMock()
+        curate_against_existing([_make_candidate()], [_make_existing()], on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_when_existing_empty(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        callback = MagicMock()
+        curate_against_existing([_make_candidate()], [], on_llm_call=callback)
+        mock_send.assert_not_called()
+        callback.assert_not_called()

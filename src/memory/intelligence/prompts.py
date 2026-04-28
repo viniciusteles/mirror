@@ -180,6 +180,51 @@ Return ONLY a JSON object, no markdown:
 ## User message
 """
 
+CURATION_PROMPT = """You are the memory curation system for Mirror Mind, a Jungian mirror AI.
+
+You have just extracted candidate memories from a conversation. Your job is to
+deduplicate them against the user's existing memory pool and decide what to
+actually store.
+
+## Decision rules
+
+For each candidate, decide:
+
+**keep** — The candidate contains genuine new signal not present in existing
+memories. Include it unchanged.
+
+**merge** — The candidate meaningfully extends or refines an existing memory.
+Synthesize a combined version: use the candidate's structure but incorporate
+the additional nuance. Include the merged version once.
+
+**drop** — The candidate is a near-duplicate, restatement, or weaker version
+of an existing memory. Omit it entirely.
+
+Default to **keep** when uncertain. Only drop on clear overlap. Merge only
+when the synthesis is strictly better than either alone. Never invent content
+not present in the candidates or existing memories.
+
+## Response format
+
+Return ONLY a JSON array in the same format as the extraction output.
+Omit dropped candidates entirely. Merged candidates appear as a single entry.
+If all candidates are duplicates, return: []
+
+[
+  {
+    "title": "concise title, max 10 words",
+    "content": "standalone, self-contained content",
+    "context": "one sentence: what prompted this memory",
+    "memory_type": "decision|insight|idea|tension|learning|pattern|commitment|reflection",
+    "layer": "self|ego|shadow",
+    "tags": ["keyword1", "keyword2"],
+    "journey": "slug or null",
+    "persona": "slug or null"
+  }
+]
+
+"""
+
 WEEK_PLAN_PROMPT = """You are the temporal planning system for Mirror Mind.
 
 Analyze the text below and extract ALL temporal items: tasks, commitments,

@@ -8,12 +8,13 @@ from typing import Any
 from memory.config import EXTRACTION_MODEL
 from memory.intelligence.llm_router import LLMResponse, send_to_model
 from memory.intelligence.prompts import (
+    CURATION_PROMPT,
     EXTRACTION_PROMPT,
     JOURNAL_CLASSIFICATION_PROMPT,
     TASK_EXTRACTION_PROMPT,
     WEEK_PLAN_PROMPT,
 )
-from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Message
+from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Memory, Message
 
 
 def format_transcript(messages: list[Message], user_name: str = "User") -> str:
@@ -81,6 +82,81 @@ def extract_memories(
             continue
 
     return memories
+
+
+def _format_candidates(candidates: list[ExtractedMemory]) -> str:
+    """Format candidate memories for the curation prompt."""
+    lines = []
+    for i, c in enumerate(candidates, 1):
+        lines.append(f"{i}. **{c.title}** ({c.memory_type}/{c.layer})")
+        lines.append(f"   Content: {c.content}")
+        if c.context:
+            lines.append(f"   Context: {c.context}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _format_existing(existing: list[Memory]) -> str:
+    """Format existing memories as compact descriptors for the curation prompt."""
+    lines = []
+    for m in existing:
+        lines.append(f"- **{m.title}** ({m.memory_type}/{m.layer})")
+        lines.append(f"  {m.content[:200]}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def curate_against_existing(
+    candidates: list[ExtractedMemory],
+    existing: list[Memory],
+    on_llm_call: Callable[[LLMResponse], None] | None = None,
+) -> list[ExtractedMemory]:
+    """Filter and deduplicate candidate memories against the existing memory pool.
+
+    Storage-free: caller provides both candidates and pre-fetched existing memories.
+
+    Returns:
+        A filtered/revised list of ExtractedMemory to store.
+        Returns candidates unchanged when existing is empty (no LLM call).
+        Returns candidates unchanged on any LLM or parse error (fail open).
+    """
+    if not candidates:
+        return []
+    if not existing:
+        return candidates  # Nothing to deduplicate against; skip LLM call.
+
+    prompt = (
+        CURATION_PROMPT
+        + "## Candidate memories (from this conversation)\n\n"
+        + _format_candidates(candidates)
+        + "\n## Existing similar memories (already stored)\n\n"
+        + _format_existing(existing)
+    )
+
+    try:
+        response = send_to_model(
+            EXTRACTION_MODEL,
+            [{"role": "user", "content": prompt}],
+            temperature=0.2,
+        )
+    except Exception:
+        return candidates  # Fail open: return all candidates on error.
+
+    if on_llm_call:
+        on_llm_call(response)
+
+    data = _parse_json_response(response.content)
+    if not isinstance(data, list):
+        return candidates  # Fail open: malformed response.
+
+    curated = []
+    for item in data:
+        try:
+            curated.append(ExtractedMemory(**item))
+        except Exception:
+            continue
+
+    return curated
 
 
 def extract_tasks(
