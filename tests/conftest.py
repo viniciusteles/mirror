@@ -1,7 +1,6 @@
 """Fixtures compartilhadas para todos os testes."""
 
 import sqlite3
-from unittest.mock import MagicMock
 
 import numpy as np
 import pytest

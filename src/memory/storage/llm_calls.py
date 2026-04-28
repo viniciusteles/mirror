@@ -87,4 +87,4 @@ class LLMCallStore(ConnectionBacked):
             "prompt_tokens", "completion_tokens", "latency_ms", "cost_usd",
             "conversation_id", "session_id", "called_at",
         ]
-        return [dict(zip(keys, row)) for row in rows]
+        return [dict(zip(keys, row, strict=True)) for row in rows]

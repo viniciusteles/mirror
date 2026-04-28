@@ -1,7 +1,7 @@
 """Unit tests for memory.intelligence.extraction."""
 
 import json
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 
 import pytest
 
