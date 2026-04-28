@@ -19,7 +19,7 @@
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -106,6 +106,29 @@ export default function (pi: ExtensionAPI) {
 		if (mirrorUser) {
 			return join(homedir(), ".mirror", mirrorUser);
 		}
+
+		// Pi may be started without Mirror-specific environment variables.
+		// In that case, infer the active Mirror home when exactly one user home
+		// has an installed Pi external-skill catalog.
+		const root = join(homedir(), ".mirror");
+		try {
+			const candidates = readdirSync(root)
+				.map((name) => join(root, name))
+				.filter((path) => {
+					try {
+						return statSync(path).isDirectory() && existsSync(join(path, "runtime", "skills", "pi", "extensions.json"));
+					} catch {
+						return false;
+					}
+				});
+			if (candidates.length === 1) return candidates[0];
+			if (candidates.length > 1) {
+				log("WARN", `multiple Mirror homes with Pi external skill catalogs; set MIRROR_USER or MIRROR_HOME`);
+			}
+		} catch {
+			// No Mirror home to infer from.
+		}
+
 		return null;
 	}
 
