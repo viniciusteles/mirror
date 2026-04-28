@@ -1,5 +1,6 @@
 """Pydantic models for the memory system."""
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import NamedTuple
 
@@ -151,6 +152,21 @@ class ExtractedMemory(_DomainModel):
     tags: list[str] = Field(default_factory=list)
     journey: str | None = None
     persona: str | None = None
+
+
+@dataclass
+class ReceptionResult:
+    """Output of the reception classifier for one Mirror Mode turn."""
+
+    personas: list[str]  # ordered, most relevant first; [] = ego responds alone
+    journey: str | None  # slug of the best-matching journey, or None
+    touches_identity: bool  # true when the message invites deep self-examination
+    touches_shadow: bool  # true when there is evidence of avoidance/contradiction/pattern
+
+    @classmethod
+    def empty(cls) -> "ReceptionResult":
+        """Safe fallback when classification fails or is disabled."""
+        return cls(personas=[], journey=None, touches_identity=False, touches_shadow=False)
 
 
 class ExtractedTask:

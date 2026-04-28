@@ -11,7 +11,7 @@ from evals.types import EvalProbe
 
 pytestmark = pytest.mark.unit
 
-EVAL_MODULES = ["evals.extraction", "evals.routing", "evals.proportionality"]
+EVAL_MODULES = ["evals.extraction", "evals.routing", "evals.proportionality", "evals.reception"]
 
 
 @pytest.fixture(params=EVAL_MODULES)

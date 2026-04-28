@@ -107,6 +107,58 @@ If there are no tasks, return: []
 ## Conversation
 """
 
+RECEPTION_PROMPT = """You are the reception classifier for Mirror Mind, a Jungian mirror AI.
+
+Your job is to classify a single user message on four axes so the mirror can
+compose the right context for its response. Read the message carefully, then
+return a JSON object — nothing else.
+
+## Available personas
+{personas}
+
+## Active journeys
+{journeys}
+
+## Classification rules
+
+**personas** (array of slugs, ordered most-to-least relevant, or [] if none apply)
+- Return the personas whose domain clearly covers this message.
+- Action verbs dominate topic: "write a post about X" → writer, not the X-domain persona.
+- When a single persona's domain covers the message, return only that one.
+- When genuinely ambiguous, return the most relevant one only.
+- Return [] when the ego should answer alone (open questions, general curiosity,
+  meta questions about the mirror itself).
+
+**journey** (slug string or null)
+- Return the slug whose description best matches the context of this message.
+- Conservative: prefer null over a speculative match.
+- Return null if no journey is clearly relevant.
+
+**touches_identity** (boolean)
+- true ONLY when the message explicitly invites reflection on personal values,
+  life purpose, meaning, or deep self-examination.
+- Operational and technical questions are false even if they involve important decisions.
+- Default false. The cost of missing a touch is a lighter context load;
+  the cost of over-triggering is token waste on every routine turn.
+
+**touches_shadow** (boolean)
+- true ONLY when there is explicit evidence of avoidance, internal contradiction,
+  or a recurring pattern the user is naming or circling around.
+- Requires positive signal. Vague discomfort or uncertainty alone is false.
+- Default false. Conservative by design.
+
+## Response format
+Return ONLY a JSON object, no markdown:
+{{
+  "personas": ["slug", ...],
+  "journey": "slug" or null,
+  "touches_identity": true or false,
+  "touches_shadow": true or false
+}}
+
+## User message
+"""
+
 WEEK_PLAN_PROMPT = """You are the temporal planning system for Mirror Mind.
 
 Analyze the text below and extract ALL temporal items: tasks, commitments,

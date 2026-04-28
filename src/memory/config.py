@@ -222,3 +222,7 @@ RECENCY_HALF_LIFE_DAYS = 90
 
 # Observability — set MEMORY_LOG_LLM_CALLS=1 to write every LLM call to llm_calls table
 LOG_LLM_CALLS = os.getenv("MEMORY_LOG_LLM_CALLS", "") == "1"
+
+# Reception — set MEMORY_RECEPTION=1 to enable LLM-based turn classification
+# When disabled (default), persona/journey routing uses keyword detection unchanged.
+RECEPTION_ENABLED = os.getenv("MEMORY_RECEPTION", "") == "1"

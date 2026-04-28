@@ -12,7 +12,9 @@ from memory.cli.conversation_logger import (
     update_current_conversation,
 )
 from memory.client import MemoryClient
+from memory.config import LOG_LLM_CALLS, RECEPTION_ENABLED
 from memory.hooks.mirror_state import write_state
+from memory.intelligence.llm_router import LLMResponse
 
 _GLOBAL_STICKY_DEFAULTS_SESSION_ID = "__global_sticky_defaults__"
 
@@ -66,6 +68,56 @@ def _resolve_defaults(
         if resolved_journey is None:
             resolved_journey = sticky_journey
 
+    # Reception: LLM-based classifier when enabled, keyword detection as fallback.
+    if RECEPTION_ENABLED and query and (resolved_persona is None or resolved_journey is None):
+        import json
+
+        from memory.intelligence.reception import reception
+
+        raw_personas = mem.store.get_identity_by_layer("persona")
+        personas_meta = []
+        for ident in raw_personas:
+            try:
+                meta = json.loads(ident.metadata) if ident.metadata else {}
+            except (json.JSONDecodeError, TypeError):
+                meta = {}
+            personas_meta.append(
+                {
+                    "slug": ident.key,
+                    "description": (ident.content or "")[:200],
+                    "routing_keywords": meta.get("routing_keywords") or [],
+                }
+            )
+
+        raw_journeys = mem.store.get_identity_by_layer("journey")
+        journeys_meta = [
+            {"slug": j.key, "description": (j.content or "")[:200]} for j in raw_journeys
+        ]
+
+        llm_logger = None
+        if LOG_LLM_CALLS:
+
+            def llm_logger(response: LLMResponse) -> None:
+                mem.store.log_llm_call(
+                    role="reception",
+                    model=response.model,
+                    prompt=response.prompt or "",
+                    response_text=response.content,
+                    prompt_tokens=response.prompt_tokens,
+                    completion_tokens=response.completion_tokens,
+                    latency_ms=response.latency_ms,
+                )
+
+        result = reception(query, personas_meta, journeys_meta, on_llm_call=llm_logger)
+
+        if result.personas and resolved_persona is None:
+            resolved_persona = result.personas[0]
+        if result.journey and resolved_journey is None:
+            resolved_journey = result.journey
+        # touches_identity and touches_shadow are available for S2 composition gating;
+        # not yet consumed here.
+
+    # Keyword/embedding detection as fallback when reception is off or returned empty.
     if resolved_persona is None and query:
         detected_personas = mem.detect_persona(query)
         if detected_personas:
