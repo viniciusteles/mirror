@@ -1,8 +1,6 @@
 # Mirror Mind
 
-![Before and after illustration: a person faces an opaque AI mirror that cannot reflect them, then a polished Mirror Mind reflection that carries their identity, memory, projects, and preferences.](docs/assets/mirror-mind-before-after.png)
-
-<img src="docs/assets/mirror-mind-before-after.png" style="width:600px;" />
+![Before and after illustration: a person faces an opaque AI mirror that cannot reflect them, then a polished Mirror Mind reflection that carries their identity, memory, projects, and preferences.](docs/assets/mirror-mind-before-after-600px.jpg)
 
 Every time you open a new AI session, you start from zero.
 
