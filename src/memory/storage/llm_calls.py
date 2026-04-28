@@ -83,8 +83,17 @@ class LLMCallStore(ConnectionBacked):
         ).fetchall()
 
         keys = [
-            "id", "role", "model", "prompt", "response",
-            "prompt_tokens", "completion_tokens", "latency_ms", "cost_usd",
-            "conversation_id", "session_id", "called_at",
+            "id",
+            "role",
+            "model",
+            "prompt",
+            "response",
+            "prompt_tokens",
+            "completion_tokens",
+            "latency_ms",
+            "cost_usd",
+            "conversation_id",
+            "session_id",
+            "called_at",
         ]
         return [dict(zip(keys, row, strict=True)) for row in rows]

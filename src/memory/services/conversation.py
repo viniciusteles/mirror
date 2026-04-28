@@ -129,6 +129,7 @@ class ConversationService:
         def _make_logger(role: str):
             if not LOG_LLM_CALLS:
                 return None
+
             def _log(response: LLMResponse) -> None:
                 self.store.log_llm_call(
                     role=role,
@@ -140,6 +141,7 @@ class ConversationService:
                     latency_ms=response.latency_ms,
                     conversation_id=conversation_id,
                 )
+
             return _log
 
         # Extract memories through the LLM.

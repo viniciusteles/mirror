@@ -116,6 +116,7 @@ class MemoryService:
         if not title or not layer or not tags:
             llm_logger = None
             if LOG_LLM_CALLS:
+
                 def llm_logger(response: LLMResponse) -> None:
                     self.store.log_llm_call(
                         role="journal_classification",
@@ -126,6 +127,7 @@ class MemoryService:
                         completion_tokens=response.completion_tokens,
                         latency_ms=response.latency_ms,
                     )
+
             classification = classify_journal_entry(content, on_llm_call=llm_logger)
             title = title or classification["title"]
             layer = layer or classification["layer"]

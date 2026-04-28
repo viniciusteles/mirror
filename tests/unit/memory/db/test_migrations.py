@@ -102,8 +102,17 @@ class TestRunMigrations:
         run_migrations(db_conn)
         cols = {row[1] for row in db_conn.execute("PRAGMA table_info(llm_calls)")}
         expected = {
-            "id", "role", "model", "prompt", "response",
-            "prompt_tokens", "completion_tokens", "latency_ms", "cost_usd",
-            "conversation_id", "session_id", "called_at",
+            "id",
+            "role",
+            "model",
+            "prompt",
+            "response",
+            "prompt_tokens",
+            "completion_tokens",
+            "latency_ms",
+            "cost_usd",
+            "conversation_id",
+            "session_id",
+            "called_at",
         }
         assert expected.issubset(cols)

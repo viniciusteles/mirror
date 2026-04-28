@@ -42,9 +42,7 @@ def _make_send_to_model_mock(mocker, content: str) -> MagicMock:
         latency_ms=100,
         prompt="[mocked prompt]",
     )
-    return mocker.patch(
-        "memory.intelligence.extraction.send_to_model", return_value=mock_response
-    )
+    return mocker.patch("memory.intelligence.extraction.send_to_model", return_value=mock_response)
 
 
 # ---------------------------------------------------------------------------
@@ -333,7 +331,15 @@ class TestExtractTasks:
 
     def test_due_date_field_mapped(self, mocker, sample_messages):
         payload = json.dumps(
-            [{"title": "T", "due_date": "2026-04-15", "journey": None, "stage": None, "context": None}]
+            [
+                {
+                    "title": "T",
+                    "due_date": "2026-04-15",
+                    "journey": None,
+                    "stage": None,
+                    "context": None,
+                }
+            ]
         )
         _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
@@ -349,7 +355,15 @@ class TestExtractTasks:
 
     def test_accepts_english_journey_from_llm(self, mocker, sample_messages):
         payload = json.dumps(
-            [{"title": "Do X", "due_date": None, "journey": "mirror", "stage": None, "context": None}]
+            [
+                {
+                    "title": "Do X",
+                    "due_date": None,
+                    "journey": "mirror",
+                    "stage": None,
+                    "context": None,
+                }
+            ]
         )
         _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
@@ -357,7 +371,15 @@ class TestExtractTasks:
 
     def test_stale_llm_journey_key_does_not_set_journey(self, mocker, sample_messages):
         payload = json.dumps(
-            [{"title": "Do X", "due_date": None, "travessia": "legacy", "stage": None, "context": None}]
+            [
+                {
+                    "title": "Do X",
+                    "due_date": None,
+                    "travessia": "legacy",
+                    "stage": None,
+                    "context": None,
+                }
+            ]
         )
         _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
@@ -530,7 +552,9 @@ class TestClassifyJournalEntry:
         assert "tags" in result
 
     def test_title_from_llm(self, mocker):
-        _make_send_to_model_mock(mocker, '{"title": "Crisis at 3am", "layer": "shadow", "tags": ["fear"]}')
+        _make_send_to_model_mock(
+            mocker, '{"title": "Crisis at 3am", "layer": "shadow", "tags": ["fear"]}'
+        )
         result = classify_journal_entry("text")
         assert result["title"] == "Crisis at 3am"
 
@@ -540,7 +564,9 @@ class TestClassifyJournalEntry:
         assert result["layer"] == "shadow"
 
     def test_tags_list_from_llm(self, mocker):
-        _make_send_to_model_mock(mocker, '{"title": "T", "layer": "ego", "tags": ["fear", "clarity"]}')
+        _make_send_to_model_mock(
+            mocker, '{"title": "T", "layer": "ego", "tags": ["fear", "clarity"]}'
+        )
         result = classify_journal_entry("text")
         assert result["tags"] == ["fear", "clarity"]
 

@@ -100,6 +100,7 @@ class TaskService:
 
         llm_logger = None
         if LOG_LLM_CALLS:
+
             def llm_logger(response: LLMResponse) -> None:
                 self.store.log_llm_call(
                     role="week_plan",
