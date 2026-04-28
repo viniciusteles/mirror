@@ -24,6 +24,7 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV5](cv5-multisession-safety/index.md) | Multisession Safety | ✅ Done |
 | [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | ✅ Done |
 | [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | In Progress |
+| [CV8](cv8-runtime-expansion/index.md) | Runtime Expansion: Codex and Gemini CLI | Draft |
 
 ---
 
@@ -63,13 +64,18 @@ instead of placeholders.
 
 ## CV7 — Intelligence Depth
 
-In progress. E1 (Pipeline Observability & Evals) and E2 (Reception &
-Conditional Composition) are done. E3 (Extraction Quality) is in progress —
-S1 (extraction prompt revision) is done. See the
-[CV7 index](cv7-intelligence-depth/index.md) and
+In progress. E1 (Pipeline Observability & Evals), E2 (Reception &
+Conditional Composition), and E3 (Extraction Quality) are done. E4 (Memory
+Depth) is next. See the [CV7 index](cv7-intelligence-depth/index.md) and
 [draft-analysis.md](cv7-intelligence-depth/draft-analysis.md) for the
-territorial analysis, success metrics, and resolved planning-phase
-decisions.
+territorial analysis, success metrics, and resolved planning-phase decisions.
+
+## CV8 — Runtime Expansion: Codex and Gemini CLI
+
+Draft. CV8 extends Mirror Mind beyond Claude Code and Pi into two additional
+coding-agent runtimes. Codex is intentionally first; Gemini CLI comes second
+after Codex lessons are folded back into the runtime adapter contract. See the
+[CV8 index](cv8-runtime-expansion/index.md).
 
 ---
 
