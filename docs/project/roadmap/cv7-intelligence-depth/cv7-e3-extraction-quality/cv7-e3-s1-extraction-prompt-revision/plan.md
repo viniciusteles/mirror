@@ -2,7 +2,7 @@
 
 # CV7.E3.S1 — Extraction prompt revision (single-pass, eval-driven)
 
-**Status:** Planned
+**Status:** Done
 **Epic:** CV7.E3 — Extraction Quality
 **Requires:** CV7.E1 (eval harness), CV7.E2 (reception now in place)
 **Goal:** Rewrite `EXTRACTION_PROMPT` with explicit quality rules, shadow discipline,

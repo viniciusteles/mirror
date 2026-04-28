@@ -2,7 +2,7 @@
 
 # CV7.E2.S1 — Reception MVP
 
-**Status:** Planned
+**Status:** Done
 **Epic:** CV7.E2 — Reception & Conditional Composition
 **Requires:** CV7.E1 (observability substrate)
 **Goal:** A `reception()` function classifies each Mirror Mode turn in one LLM call

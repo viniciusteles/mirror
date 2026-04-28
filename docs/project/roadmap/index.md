@@ -23,7 +23,7 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV4](cv4-framework-user-separation/index.md) | Framework/User Separation | ✅ Done |
 | [CV5](cv5-multisession-safety/index.md) | Multisession Safety | ✅ Done |
 | [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | ✅ Done |
-| [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | Planning |
+| [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | In Progress |
 
 ---
 
@@ -63,12 +63,11 @@ instead of placeholders.
 
 ## CV7 — Intelligence Depth
 
-Planning. CV7 invests in the intelligence layer of the mirror: pipeline
-observability + evals (E1), reception and conditional composition (E2),
-extraction quality (E3), and memory depth including hybrid search,
-honest reinforcement, consolidation as integration, and shadow as a
-structural layer (E4). See the [CV7 index](cv7-intelligence-depth/index.md)
-and [draft-analysis.md](cv7-intelligence-depth/draft-analysis.md) for the
+In progress. E1 (Pipeline Observability & Evals) and E2 (Reception &
+Conditional Composition) are done. E3 (Extraction Quality) is in progress —
+S1 (extraction prompt revision) is done. See the
+[CV7 index](cv7-intelligence-depth/index.md) and
+[draft-analysis.md](cv7-intelligence-depth/draft-analysis.md) for the
 territorial analysis, success metrics, and resolved planning-phase
 decisions.
 

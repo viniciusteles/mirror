@@ -9,6 +9,72 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-28 — CV7.E3.S1 complete: Extraction prompt revision
+
+Rewrote `EXTRACTION_PROMPT` with four structural improvements over the
+CV0-era prompt:
+
+1. **Quality bar shift** — "prefer 0–3 memories of real signal over 5
+   mediocre ones" replaces the vague upper bound that invited quota-filling
+   with trivial observations.
+2. **Explicit negative examples** — small talk, immediately-answered
+   questions, technical details without insight, obvious facts, anything the
+   user would not want to find in search six months from now.
+3. **Shadow discipline rule** — `layer=shadow` now requires positive evidence
+   of avoidance, contradiction, or circling. "When in doubt between ego and
+   shadow, use ego."
+4. **Standalone content rule** — each memory's `content` must make sense
+   without the conversation; no pronouns without antecedents.
+
+Eval updated: `tension-shadow` tightened to require `layer=shadow`;
+`mixed-conversation` and `shadow-layer-discipline` probes added.
+
+**New extraction baseline (7 probes, THRESHOLD=0.80): 7/7 PASS**
+
+| Probe | Result | Notes |
+|-------|--------|-------|
+| engineering-decision | PASS | 2 memories (was 4) — fewer, higher signal |
+| existential-reflection | PASS | 3 memories |
+| tension-shadow | PASS | 1 memory, pattern/shadow (shadow discipline working) |
+| trivial-no-memory | PASS | 0 memories |
+| commitment | PASS | 3 memories |
+| mixed-conversation | PASS | 1 memory, decision/ego (small talk suppressed) |
+| shadow-layer-discipline | PASS | 1 memory, pattern/shadow |
+
+874 tests pass.
+
+---
+
+### 2026-04-28 — CV7.E2 complete: Reception & Conditional Composition
+
+All three stories shipped. Reception is now the canonical routing source
+for persona and journey when `MEMORY_RECEPTION=1`.
+
+**S1 — Reception MVP**
+`reception()` in `src/memory/intelligence/reception.py` classifies each
+Mirror Mode turn in one LLM call and returns four axes: `personas`,
+`journey`, `touches_identity`, `touches_shadow`. Storage-free pattern,
+`ReceptionResult.empty()` fallback on any failure. `MEMORY_RECEPTION=1`
+feature flag. `evals/reception.py` added: 12 probes, baseline 10/12 (0.83)
+PASS.
+
+**S2 — Conditional composition**
+`load_mirror_context()` accepts `touches_identity: bool = True`. When
+`False`, `self/soul` and `ego/identity` are omitted — only `ego/behavior`
+and `user/identity` load. Signal flows: reception → `_resolve_defaults()`
+→ `load()` → `load_mirror_context()`. All existing callers unaffected
+(default `True`).
+
+**S3 — Reception as canonical routing source**
+Restructured `_resolve_defaults()` so reception runs before sticky
+defaults. Priority order: explicit args → reception → sticky fallback →
+keyword/embedding detection. Reception can now override a session sticky
+when the turn clearly belongs to a different persona.
+
+874 tests pass.
+
+---
+
 ### 2026-04-28 — CV7.E1 complete: Pipeline Observability & Evals
 
 All five stories shipped. E1 baseline is established.
@@ -429,7 +495,10 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV7 (planned): Intelligence Depth** — extraction prompt tuning, richer Jungian/shadow layering behavior, reinforcement tuning, hybrid search weighting improvements, and broader memory signal/noise quality work.
+- **CV7.E3.S2 (next):** Two-pass extraction — `extract_candidates()` → `curate_against_existing()`. The curator receives a compact view of existing memories tagged similarly and decides merge/keep/drop. Depends on E3.S1 (done).
+- **CV7.E3.S3 (parallel):** Per-conversation summary — 3–4 sentences produced alongside memories and stored on the conversation row; used by `mm-recall` and as reranking input.
+- **CV7.E3.S4:** Generated descriptors for personas/journeys/identity layers (storage shape decision required).
+- **CV7.E4:** Memory Depth — hybrid search, reinforcement, consolidation, shadow structural layer.
 - **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:
   1. **Quick win (pending).** Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`) that also open a fresh client on every call. Each hook invocation today runs bootstrap + migrations once per helper call; a shared client would halve or third that cost for common hook paths.
   2. **Structural.** Introduce a per-process `MemoryClient` cache keyed by `db_path` (lazy singleton) for library helpers in `hooks/` and `cli/conversation_logger.py`. Long-lived callers (Pi extension, shell hooks wired into one process) would reuse a single connection instead of paying bootstrap cost on every call. See [Decisions](../project/decisions.md) for the split between one-shot CLI entry points (process exit reclaims fds, no change needed) and library functions called from Python (where caching matters).

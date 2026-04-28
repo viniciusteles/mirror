@@ -3,7 +3,7 @@
 # CV7.E2 — Reception & Conditional Composition
 
 **Epic:** A small reception step classifies each turn; the system prompt loads only what reception activates
-**Status:** Planned
+**Status:** Done
 **Depends on:** CV7.E1 (observability + evals)
 **Prerequisite for:** CV7.E3, CV7.E4
 
