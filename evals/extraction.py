@@ -16,6 +16,7 @@ from memory.intelligence.extraction import (
     curate_against_existing,
     extract_memories,
     generate_conversation_summary,
+    generate_descriptor,
 )
 from memory.models import ExtractedMemory, Memory, Message
 
@@ -326,6 +327,26 @@ def _probe_two_pass_dedup() -> tuple[bool, str]:
     return passed, notes
 
 
+def _probe_descriptor_quality() -> tuple[bool, str]:
+    """Descriptor for engineer persona is on-domain and concise."""
+    engineer_content = (
+        "I am the engineer. My role is to be a pair-programming driver for code, "
+        "architecture decisions, debugging, and software engineering tasks. "
+        "I honor XP values: communication, simplicity, feedback, courage, and respect. "
+        "In practice: TDD, DRY, low coupling, high cohesion, meaningful names."
+    )
+    descriptor = generate_descriptor(engineer_content, layer="persona", key="engineer")
+    notes = f"{len(descriptor)} chars: {descriptor[:100]}"
+
+    is_non_empty = bool(descriptor)
+    is_concise = len(descriptor) <= 200
+    domain_words = ["code", "engineer", "technical", "architecture", "debug", "software"]
+    is_on_domain = any(w in descriptor.lower() for w in domain_words)
+
+    passed = is_non_empty and is_concise and is_on_domain
+    return passed, notes
+
+
 def _probe_conversation_summary() -> tuple[bool, str]:
     """LLM-generated summary of a substantive conversation is coherent and on-topic."""
     messages = _msgs(
@@ -416,5 +437,10 @@ PROBES: list[EvalProbe] = [
         id="conversation-summary",
         description="LLM summary of a substantive conversation is coherent and on-topic",
         run=_probe_conversation_summary,
+    ),
+    EvalProbe(
+        id="descriptor-quality",
+        description="generated descriptor for engineer persona is on-domain and concise",
+        run=_probe_descriptor_quality,
     ),
 ]

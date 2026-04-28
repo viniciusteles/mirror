@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from memory.models import Identity
+from memory.models import Identity, IdentityDescriptor
 from memory.storage.base import ConnectionBacked
 
 
@@ -78,3 +78,40 @@ class IdentityStore(ConnectionBacked):
         cursor = self.conn.execute("DELETE FROM identity WHERE layer = ? AND key = ?", (layer, key))
         self.conn.commit()
         return cursor.rowcount > 0
+
+    # --- Descriptors ---
+
+    def upsert_descriptor(self, layer: str, key: str, descriptor: str) -> None:
+        """Insert or replace the routing descriptor for (layer, key)."""
+        from memory.models import _now
+
+        self.conn.execute(
+            """
+            INSERT INTO identity_descriptors (layer, key, descriptor, generated_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(layer, key) DO UPDATE SET
+                descriptor   = excluded.descriptor,
+                generated_at = excluded.generated_at
+            """,
+            (layer, key, descriptor, _now()),
+        )
+        self.conn.commit()
+
+    def get_descriptor(self, layer: str, key: str) -> IdentityDescriptor | None:
+        """Return the descriptor for (layer, key), or None if absent."""
+        row = self.conn.execute(
+            "SELECT layer, key, descriptor, generated_at FROM identity_descriptors"
+            " WHERE layer = ? AND key = ?",
+            (layer, key),
+        ).fetchone()
+        if not row:
+            return None
+        return IdentityDescriptor(layer=row[0], key=row[1], descriptor=row[2], generated_at=row[3])
+
+    def get_descriptors_by_layer(self, layer: str) -> dict[str, str]:
+        """Return {key: descriptor} for all descriptors of a given layer."""
+        rows = self.conn.execute(
+            "SELECT key, descriptor FROM identity_descriptors WHERE layer = ? ORDER BY key",
+            (layer,),
+        ).fetchall()
+        return {row[0]: row[1] for row in rows}

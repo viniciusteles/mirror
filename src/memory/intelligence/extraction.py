@@ -10,6 +10,7 @@ from memory.intelligence.llm_router import LLMResponse, send_to_model
 from memory.intelligence.prompts import (
     CONVERSATION_SUMMARY_PROMPT,
     CURATION_PROMPT,
+    DESCRIPTOR_PROMPT,
     EXTRACTION_PROMPT,
     JOURNAL_CLASSIFICATION_PROMPT,
     TASK_EXTRACTION_PROMPT,
@@ -83,6 +84,37 @@ def extract_memories(
             continue
 
     return memories
+
+
+def generate_descriptor(
+    content: str,
+    layer: str,
+    key: str,
+    on_llm_call: Callable[[LLMResponse], None] | None = None,
+) -> str:
+    """Generate a routing-optimized 1-2 sentence descriptor for a persona or journey.
+
+    Returns plain text stripped of whitespace.
+    Returns '' on empty content or any LLM failure.
+    """
+    if not content.strip():
+        return ""
+
+    prompt = DESCRIPTOR_PROMPT.format(layer=layer, key=key) + content
+
+    try:
+        response = send_to_model(
+            EXTRACTION_MODEL,
+            [{"role": "user", "content": prompt}],
+            temperature=0.2,
+        )
+    except Exception:
+        return ""
+
+    if on_llm_call:
+        on_llm_call(response)
+
+    return response.content.strip()
 
 
 def generate_conversation_summary(

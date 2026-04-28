@@ -180,6 +180,33 @@ Return ONLY a JSON object, no markdown:
 ## User message
 """
 
+DESCRIPTOR_PROMPT = """You are generating a routing descriptor for Mirror Mind.
+
+A routing descriptor is 1-2 sentences that tell a classifier exactly when to
+activate this entity. It must be written for routing accuracy, not for depth
+or voice.
+
+## Rules
+
+- For a **persona**: name the action domains and task types this persona handles.
+  Lead with verbs and domains. Example: "Handles code review, architecture
+  decisions, debugging, and software engineering tasks."
+- For a **journey**: name what the journey is about and when a user's message
+  is in scope. Example: "Active work on the Mirror Mind infrastructure —
+  Python backend, memory system, skills, and identity architecture."
+- Maximum 150 characters. One or two sentences. Plain text only.
+- Do not mention Mirror Mind, AI, or meta-system references.
+- Do not start with the entity name or slug.
+
+## Entity
+
+Layer: {layer}
+Key: {key}
+
+## Full content
+
+"""
+
 CONVERSATION_SUMMARY_PROMPT = """You are the memory system for Mirror Mind, a Jungian mirror AI.
 
 Write a 3-4 sentence summary of the conversation below. Use flowing prose, not a list.

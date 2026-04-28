@@ -9,6 +9,44 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-28 — CV7.E3 complete: Extraction Quality
+
+All four stories shipped. E3 is done.
+
+**S4 — Generated descriptors (sidecar table)**
+
+Adds routing-optimized 1-2 sentence descriptors for personas and journeys,
+stored in a new `identity_descriptors` sidecar table keyed by `(layer, key)`.
+
+`identity_descriptors` table: `(layer, key)` primary key, `descriptor TEXT`,
+`generated_at TEXT`. Added to `schema.py` and `migrations.py` (007).
+
+`IdentityDescriptor` dataclass in `models.py`. Storage methods on
+`IdentityStore`: `upsert_descriptor`, `get_descriptor`, `get_descriptors_by_layer`
+(the hot path: one query per layer returns `{key: descriptor}`).
+
+`DESCRIPTOR_PROMPT` in `prompts.py`: adapts rules for persona vs journey;
+150-char max; no meta-system references.
+
+`generate_descriptor(content, layer, key, on_llm_call)` in `extraction.py`:
+plain text output; returns `""` on empty content or LLM failure.
+
+`mirror.py` reception: loads descriptors via `get_descriptors_by_layer` (one
+query per layer before building the candidate list); uses descriptor when
+present, falls back to `content[:200]` when absent. No flag needed.
+
+`python -m memory descriptor generate [--layer L] [--key K]`: generates and
+stores descriptors via LLM. Default: all personas + all journeys.
+`python -m memory descriptor list [--layer L]`: shows stored descriptors.
+
+Eval: `descriptor-quality` probe added to `evals/extraction.py` (10 total).
+Tests: 7 unit tests for `generate_descriptor`; 6 storage contract tests in
+`test_identity_descriptor.py`.
+
+905 tests pass. ruff clean.
+
+---
+
 ### 2026-04-28 — CV7.E3.S3 complete: Per-conversation summary
 
 Replaces the naive message-concatenation stored in `Conversation.summary`
@@ -567,8 +605,7 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV7.E3.S4 (next):** Generated descriptors for personas/journeys/identity layers (storage shape decision required).
-- **CV7.E4:** Memory Depth — hybrid search, reinforcement, consolidation, shadow structural layer.
+- **CV7.E4 (next):** Memory Depth — hybrid search, reinforcement, consolidation, shadow structural layer.
 - **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:
   1. **Quick win (pending).** Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`) that also open a fresh client on every call. Each hook invocation today runs bootstrap + migrations once per helper call; a shared client would halve or third that cost for common hook paths.
   2. **Structural.** Introduce a per-process `MemoryClient` cache keyed by `db_path` (lazy singleton) for library helpers in `hooks/` and `cli/conversation_logger.py`. Long-lived callers (Pi extension, shell hooks wired into one process) would reuse a single connection instead of paying bootstrap cost on every call. See [Decisions](../project/decisions.md) for the split between one-shot CLI entry points (process exit reclaims fds, no change needed) and library functions called from Python (where caching matters).

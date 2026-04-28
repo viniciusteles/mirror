@@ -193,6 +193,23 @@ def _migrate_create_llm_calls(conn: sqlite3.Connection) -> None:
     )
 
 
+def _migrate_create_identity_descriptors(conn: sqlite3.Connection) -> None:
+    """Create the identity_descriptors sidecar table if it does not yet exist."""
+    if _table_exists(conn, "identity_descriptors"):
+        return
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS identity_descriptors (
+            layer        TEXT NOT NULL,
+            key          TEXT NOT NULL,
+            descriptor   TEXT NOT NULL,
+            generated_at TEXT NOT NULL,
+            PRIMARY KEY (layer, key)
+        );
+        """
+    )
+
+
 MigrationApply = Callable[[sqlite3.Connection], None]
 
 
@@ -203,6 +220,7 @@ MIGRATIONS: list[tuple[str, MigrationApply]] = [
     ("004_tasks_temporal_fields", _migrate_tasks_temporal_fields),
     ("005_travessia_to_journey", _migrate_travessia_to_journey),
     ("006_create_llm_calls", _migrate_create_llm_calls),
+    ("007_create_identity_descriptors", _migrate_create_identity_descriptors),
 ]
 
 

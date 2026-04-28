@@ -14,6 +14,7 @@ from memory.intelligence.extraction import (
     extract_week_plan,
     format_transcript,
     generate_conversation_summary,
+    generate_descriptor,
 )
 from memory.intelligence.llm_router import LLMResponse
 from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Memory, Message
@@ -756,5 +757,56 @@ class TestGenerateConversationSummary:
         mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
         callback = MagicMock()
         generate_conversation_summary([], on_llm_call=callback)
+        mock_send.assert_not_called()
+        callback.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# generate_descriptor
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateDescriptor:
+    def test_empty_content_returns_empty_without_llm_call(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        result = generate_descriptor("", layer="persona", key="engineer")
+        assert result == ""
+        mock_send.assert_not_called()
+
+    def test_whitespace_only_content_returns_empty(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        result = generate_descriptor("   ", layer="persona", key="engineer")
+        assert result == ""
+        mock_send.assert_not_called()
+
+    def test_non_empty_content_returns_llm_response(self, mocker):
+        _make_send_to_model_mock(mocker, "Handles code review and debugging.")
+        result = generate_descriptor("I am the engineer.", layer="persona", key="engineer")
+        assert result == "Handles code review and debugging."
+
+    def test_response_whitespace_stripped(self, mocker):
+        _make_send_to_model_mock(mocker, "  Handles engineering tasks.  \n")
+        result = generate_descriptor("content", layer="persona", key="engineer")
+        assert result == "Handles engineering tasks."
+
+    def test_llm_exception_returns_empty_string(self, mocker):
+        mocker.patch(
+            "memory.intelligence.extraction.send_to_model",
+            side_effect=RuntimeError("network error"),
+        )
+        result = generate_descriptor("content", layer="persona", key="engineer")
+        assert result == ""
+
+    def test_on_llm_call_invoked_when_llm_runs(self, mocker):
+        _make_send_to_model_mock(mocker, "Handles engineering.")
+        callback = MagicMock()
+        generate_descriptor("content", layer="persona", key="engineer", on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_for_empty_content(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        callback = MagicMock()
+        generate_descriptor("", layer="persona", key="engineer", on_llm_call=callback)
         mock_send.assert_not_called()
         callback.assert_not_called()

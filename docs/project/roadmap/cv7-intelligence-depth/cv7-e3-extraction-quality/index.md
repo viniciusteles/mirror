@@ -3,7 +3,7 @@
 # CV7.E3 — Extraction Quality
 
 **Epic:** Memory extracted from conversations is fewer, sharper, deduplicated; descriptors for routing are generated and curated
-**Status:** In Progress
+**Status:** Done
 **Depends on:** CV7.E1 (so extraction changes are eval-measurable), CV7.E2 (so extraction sees richer per-turn signals)
 **Prerequisite for:** CV7.E4 (search/reinforcement need clean signal)
 
@@ -65,7 +65,7 @@ This epic invests in extraction quality on three axes:
 | CV7.E3.S1 | Extraction prompt revision (single-pass first, eval-driven) | Done |
 | CV7.E3.S2 | Two-pass extraction (candidate + curate-against-existing) | Done |
 | CV7.E3.S3 | Per-conversation summary alongside memories | Done |
-| CV7.E3.S4 | Generated descriptors for personas / journeys / identity layers | Planned |
+| CV7.E3.S4 | Generated descriptors for personas / journeys / identity layers | Done |
 
 ---
 

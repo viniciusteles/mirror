@@ -155,6 +155,16 @@ class ExtractedMemory(_DomainModel):
 
 
 @dataclass
+class IdentityDescriptor:
+    """Routing-optimized descriptor for a persona or journey stored in the sidecar table."""
+
+    layer: str
+    key: str
+    descriptor: str
+    generated_at: str
+
+
+@dataclass
 class ReceptionResult:
     """Output of the reception classifier for one Mirror Mode turn."""
 

@@ -50,6 +50,9 @@ Commands:
   consult              Ask other LLMs through OpenRouter with Mirror context
                        Usage: python -m memory consult <family> [tier] "question" [--persona P] [--journey J] [--org] [--mirror-home PATH]
                               python -m memory consult credits
+  descriptor           Generate and list routing descriptors for personas and journeys
+                       Usage: python -m memory descriptor generate [--layer LAYER] [--key KEY]
+                              python -m memory descriptor list [--layer LAYER]
   eval                 Run a named eval probe set (hits real LLM — costs money, not for CI)
                        Usage: python -m memory eval <name>
 """
@@ -179,6 +182,11 @@ def main() -> None:
         from memory.cli.migrate_legacy import main as _migrate_legacy_main
 
         _migrate_legacy_main()
+
+    elif command == "descriptor":
+        from memory.cli.descriptor import main as _descriptor_main
+
+        _descriptor_main(sys.argv[2:])
 
     elif command == "eval":
         from evals.runner import main as _eval_main

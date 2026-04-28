@@ -83,23 +83,30 @@ def _resolve_defaults(
         from memory.intelligence.reception import reception
 
         raw_personas = mem.store.get_identity_by_layer("persona")
+        persona_descriptors = mem.store.get_descriptors_by_layer("persona")
         personas_meta = []
         for ident in raw_personas:
             try:
                 meta = json.loads(ident.metadata) if ident.metadata else {}
             except (json.JSONDecodeError, TypeError):
                 meta = {}
+            description = persona_descriptors.get(ident.key) or (ident.content or "")[:200]
             personas_meta.append(
                 {
                     "slug": ident.key,
-                    "description": (ident.content or "")[:200],
+                    "description": description,
                     "routing_keywords": meta.get("routing_keywords") or [],
                 }
             )
 
         raw_journeys = mem.store.get_identity_by_layer("journey")
+        journey_descriptors = mem.store.get_descriptors_by_layer("journey")
         journeys_meta = [
-            {"slug": j.key, "description": (j.content or "")[:200]} for j in raw_journeys
+            {
+                "slug": j.key,
+                "description": journey_descriptors.get(j.key) or (j.content or "")[:200],
+            }
+            for j in raw_journeys
         ]
 
         llm_logger = None

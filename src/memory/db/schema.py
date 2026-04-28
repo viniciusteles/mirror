@@ -128,6 +128,14 @@ CREATE TABLE IF NOT EXISTS attachments (
 CREATE INDEX IF NOT EXISTS idx_attachments_journey ON attachments(journey_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_attachments_journey_name ON attachments(journey_id, name);
 
+CREATE TABLE IF NOT EXISTS identity_descriptors (
+    layer        TEXT NOT NULL,
+    key          TEXT NOT NULL,
+    descriptor   TEXT NOT NULL,
+    generated_at TEXT NOT NULL,
+    PRIMARY KEY (layer, key)
+);
+
 CREATE TABLE IF NOT EXISTS llm_calls (
     id TEXT PRIMARY KEY,
     role TEXT NOT NULL,
