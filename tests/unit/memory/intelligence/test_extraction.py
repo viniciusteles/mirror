@@ -1,19 +1,20 @@
 """Unit tests for memory.intelligence.extraction."""
 
 import json
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 import pytest
 
 from memory.intelligence.extraction import (
-    ExtractedTask,
+    _parse_json_response,
     classify_journal_entry,
     extract_memories,
     extract_tasks,
     extract_week_plan,
     format_transcript,
 )
-from memory.models import ExtractedMemory, ExtractedWeekItem, Message
+from memory.intelligence.llm_router import LLMResponse
+from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Message
 
 pytestmark = pytest.mark.unit
 
@@ -31,20 +32,49 @@ def sample_messages():
     ]
 
 
-def _make_llm_mock(mocker, content: str) -> MagicMock:
-    """Patch extraction.OpenAI to return `content` as the LLM response."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = content
+def _make_send_to_model_mock(mocker, content: str) -> MagicMock:
+    """Patch extraction.send_to_model to return `content` as the LLM response."""
+    mock_response = LLMResponse(
+        model="google/gemini-2.5-flash-lite",
+        content=content,
+        prompt_tokens=10,
+        completion_tokens=5,
+        latency_ms=100,
+        prompt="[mocked prompt]",
+    )
+    return mocker.patch(
+        "memory.intelligence.extraction.send_to_model", return_value=mock_response
+    )
 
-    mock_completion = MagicMock()
-    mock_completion.choices = [mock_choice]
 
-    mock_instance = MagicMock()
-    mock_instance.chat.completions.create.return_value = mock_completion
+# ---------------------------------------------------------------------------
+# _parse_json_response
+# ---------------------------------------------------------------------------
 
-    mocker.patch("memory.intelligence.extraction.OpenAI", return_value=mock_instance)
-    mocker.patch("memory.intelligence.extraction.OPENROUTER_API_KEY", "test-key")
-    return mock_instance
+
+class TestParseJsonResponse:
+    def test_parses_clean_json_list(self):
+        assert _parse_json_response("[1, 2, 3]") == [1, 2, 3]
+
+    def test_parses_clean_json_dict(self):
+        assert _parse_json_response('{"a": 1}') == {"a": 1}
+
+    def test_strips_markdown_fencing(self):
+        raw = '```json\n[{"x": 1}]\n```'
+        assert _parse_json_response(raw) == [{"x": 1}]
+
+    def test_strips_fencing_without_language_tag(self):
+        raw = '```\n{"a": 1}\n```'
+        assert _parse_json_response(raw) == {"a": 1}
+
+    def test_returns_none_for_invalid_json(self):
+        assert _parse_json_response("not json at all") is None
+
+    def test_returns_none_for_empty_string(self):
+        assert _parse_json_response("") is None
+
+    def test_returns_none_for_whitespace_only(self):
+        assert _parse_json_response("   ") is None
 
 
 # ---------------------------------------------------------------------------
@@ -99,7 +129,7 @@ class TestExtractMemories:
         payload = json.dumps(
             [{"title": "T", "content": "C", "memory_type": "insight", "layer": "ego", "tags": []}]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages)
         assert len(result) == 1
         assert isinstance(result[0], ExtractedMemory)
@@ -116,7 +146,7 @@ class TestExtractMemories:
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages)
         assert result[0].title == "Tít"
         assert result[0].content == "Cont"
@@ -125,12 +155,12 @@ class TestExtractMemories:
         assert result[0].tags == ["a"]
 
     def test_invalid_json_returns_empty_list(self, mocker, sample_messages):
-        _make_llm_mock(mocker, "not valid json")
+        _make_send_to_model_mock(mocker, "not valid json")
         result = extract_memories(sample_messages)
         assert result == []
 
     def test_non_list_json_returns_empty_list(self, mocker, sample_messages):
-        _make_llm_mock(mocker, '{"key": "value"}')
+        _make_send_to_model_mock(mocker, '{"key": "value"}')
         result = extract_memories(sample_messages)
         assert result == []
 
@@ -150,7 +180,7 @@ class TestExtractMemories:
             )
             + "\n```"
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages)
         assert len(result) == 1
 
@@ -167,7 +197,7 @@ class TestExtractMemories:
                 {"title": "Missing type"},  # invalid
             ]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages)
         assert len(result) == 1
         assert result[0].title == "Valid"
@@ -176,7 +206,7 @@ class TestExtractMemories:
         payload = json.dumps(
             [{"title": "T", "content": "C", "memory_type": "insight", "layer": "ego", "tags": []}]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages, persona="mentor")
         assert result[0].persona == "mentor"
 
@@ -193,7 +223,7 @@ class TestExtractMemories:
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages, persona="mentor")
         assert result[0].persona == "writer"
 
@@ -201,9 +231,9 @@ class TestExtractMemories:
         payload = json.dumps(
             [{"title": "T", "content": "C", "memory_type": "insight", "layer": "ego", "tags": []}]
         )
-        _make_llm_mock(mocker, payload)
-        result = extract_memories(sample_messages, journey="reflexo")
-        assert result[0].journey == "reflexo"
+        _make_send_to_model_mock(mocker, payload)
+        result = extract_memories(sample_messages, journey="mirror")
+        assert result[0].journey == "mirror"
 
     def test_journey_not_overwritten(self, mocker, sample_messages):
         payload = json.dumps(
@@ -214,13 +244,13 @@ class TestExtractMemories:
                     "memory_type": "insight",
                     "layer": "ego",
                     "tags": [],
-                    "journey": "outro",
+                    "journey": "other",
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
-        result = extract_memories(sample_messages, journey="reflexo")
-        assert result[0].journey == "outro"
+        _make_send_to_model_mock(mocker, payload)
+        result = extract_memories(sample_messages, journey="mirror")
+        assert result[0].journey == "other"
 
     def test_stale_llm_journey_key_is_rejected(self, mocker, sample_messages):
         payload = json.dumps(
@@ -235,14 +265,33 @@ class TestExtractMemories:
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_memories(sample_messages)
         assert result == []
 
-    def test_prompt_requests_english_journey_key(self, mocker, sample_messages):
-        mock_client = _make_llm_mock(mocker, "[]")
+    def test_on_llm_call_invoked_with_response(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "[]")
+        callback = MagicMock()
+        extract_memories(sample_messages, on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_when_none(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "[]")
+        # Should not raise even with no callback
+        result = extract_memories(sample_messages, on_llm_call=None)
+        assert result == []
+
+    def test_on_llm_call_skipped_for_empty_messages(self):
+        callback = MagicMock()
+        extract_memories([], on_llm_call=callback)
+        callback.assert_not_called()
+
+    def test_prompt_contains_english_journey_key(self, mocker, sample_messages):
+        mock_send = _make_send_to_model_mock(mocker, "[]")
         extract_memories(sample_messages)
-        prompt_content = mock_client.chat.completions.create.call_args[1]["messages"][0]["content"]
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
         assert '"journey": "..." or null' in prompt_content
         assert '"travessia"' not in prompt_content
 
@@ -261,7 +310,7 @@ class TestExtractTasks:
         payload = json.dumps(
             [
                 {
-                    "title": "Fazer X",
+                    "title": "Do X",
                     "due_date": "2026-04-15",
                     "journey": None,
                     "stage": None,
@@ -269,40 +318,24 @@ class TestExtractTasks:
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
         assert len(result) == 1
         assert isinstance(result[0], ExtractedTask)
 
     def test_title_field_mapped(self, mocker, sample_messages):
         payload = json.dumps(
-            [
-                {
-                    "title": "Fazer X",
-                    "due_date": None,
-                    "journey": None,
-                    "stage": None,
-                    "context": None,
-                }
-            ]
+            [{"title": "Do X", "due_date": None, "journey": None, "stage": None, "context": None}]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
-        assert result[0].title == "Fazer X"
+        assert result[0].title == "Do X"
 
     def test_due_date_field_mapped(self, mocker, sample_messages):
         payload = json.dumps(
-            [
-                {
-                    "title": "T",
-                    "due_date": "2026-04-15",
-                    "journey": None,
-                    "stage": None,
-                    "context": None,
-                }
-            ]
+            [{"title": "T", "due_date": "2026-04-15", "journey": None, "stage": None, "context": None}]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
         assert result[0].due_date == "2026-04-15"
 
@@ -310,57 +343,34 @@ class TestExtractTasks:
         payload = json.dumps(
             [{"title": "T", "due_date": None, "journey": None, "stage": None, "context": None}]
         )
-        _make_llm_mock(mocker, payload)
-        result = extract_tasks(sample_messages, journey="reflexo")
-        assert result[0].journey == "reflexo"
+        _make_send_to_model_mock(mocker, payload)
+        result = extract_tasks(sample_messages, journey="mirror")
+        assert result[0].journey == "mirror"
 
     def test_accepts_english_journey_from_llm(self, mocker, sample_messages):
         payload = json.dumps(
-            [
-                {
-                    "title": "Do X",
-                    "due_date": None,
-                    "journey": "reflexo",
-                    "stage": None,
-                    "context": None,
-                }
-            ]
+            [{"title": "Do X", "due_date": None, "journey": "mirror", "stage": None, "context": None}]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
-        assert result[0].journey == "reflexo"
+        assert result[0].journey == "mirror"
 
     def test_stale_llm_journey_key_does_not_set_journey(self, mocker, sample_messages):
         payload = json.dumps(
-            [
-                {
-                    "title": "Do X",
-                    "due_date": None,
-                    "travessia": "legacy",
-                    "stage": None,
-                    "context": None,
-                }
-            ]
+            [{"title": "Do X", "due_date": None, "travessia": "legacy", "stage": None, "context": None}]
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
         assert result[0].journey is None
 
-    def test_prompt_requests_english_journey_key(self, mocker, sample_messages):
-        mock_client = _make_llm_mock(mocker, "[]")
-        extract_tasks(sample_messages)
-        prompt_content = mock_client.chat.completions.create.call_args[1]["messages"][0]["content"]
-        assert '"journey": "slug" or null' in prompt_content
-        assert '"travessia"' not in prompt_content
-
     def test_invalid_json_returns_empty_list(self, mocker, sample_messages):
-        _make_llm_mock(mocker, "garbage")
+        _make_send_to_model_mock(mocker, "garbage")
         result = extract_tasks(sample_messages)
         assert result == []
 
     def test_item_missing_title_skipped(self, mocker, sample_messages):
         payload = json.dumps([{"due_date": "2026-04-15"}])  # no title
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
         assert result == []
 
@@ -368,21 +378,33 @@ class TestExtractTasks:
         payload = (
             "```json\n"
             + json.dumps(
-                [
-                    {
-                        "title": "T",
-                        "due_date": None,
-                        "journey": None,
-                        "stage": None,
-                        "context": None,
-                    }
-                ]
+                [{"title": "T", "due_date": None, "journey": None, "stage": None, "context": None}]
             )
             + "\n```"
         )
-        _make_llm_mock(mocker, payload)
+        _make_send_to_model_mock(mocker, payload)
         result = extract_tasks(sample_messages)
         assert len(result) == 1
+
+    def test_on_llm_call_invoked_with_response(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "[]")
+        callback = MagicMock()
+        extract_tasks(sample_messages, on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_when_none(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "[]")
+        result = extract_tasks(sample_messages, on_llm_call=None)
+        assert result == []
+
+    def test_prompt_contains_english_journey_key(self, mocker, sample_messages):
+        mock_send = _make_send_to_model_mock(mocker, "[]")
+        extract_tasks(sample_messages)
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
+        assert '"journey": "slug" or null' in prompt_content
+        assert '"travessia"' not in prompt_content
 
 
 # ---------------------------------------------------------------------------
@@ -395,7 +417,7 @@ class TestExtractWeekPlan:
         payload = json.dumps(
             [
                 {
-                    "title": "Reunião",
+                    "title": "Meeting",
                     "due_date": "2026-04-14",
                     "scheduled_at": None,
                     "time_hint": None,
@@ -404,87 +426,47 @@ class TestExtractWeekPlan:
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
-        result = extract_week_plan("Tenho reunião amanhã", [])
+        _make_send_to_model_mock(mocker, payload)
+        result = extract_week_plan("I have a meeting tomorrow", [])
         assert len(result) == 1
         assert isinstance(result[0], ExtractedWeekItem)
 
     def test_today_injected_into_prompt(self, mocker):
         import re
 
-        mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content="[]"))]
-        )
-        mocker.patch("memory.intelligence.extraction.OpenAI", return_value=mock_client)
-        mocker.patch("memory.intelligence.extraction.OPENROUTER_API_KEY", "test-key")
-
-        extract_week_plan("texto", [])
-        call_args = mock_client.chat.completions.create.call_args
-        prompt_content = call_args[1]["messages"][0]["content"]
-        # Prompt deve conter uma data no formato YYYY-MM-DD
+        mock_send = _make_send_to_model_mock(mocker, "[]")
+        extract_week_plan("text", [])
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
         assert re.search(r"\d{4}-\d{2}-\d{2}", prompt_content)
 
     def test_weekday_english_name_in_prompt(self, mocker):
-
-        mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content="[]"))]
-        )
-        mocker.patch("memory.intelligence.extraction.OpenAI", return_value=mock_client)
-        mocker.patch("memory.intelligence.extraction.OPENROUTER_API_KEY", "test-key")
-
-        extract_week_plan("texto", [])
-        call_args = mock_client.chat.completions.create.call_args
-        prompt_content = call_args[1]["messages"][0]["content"]
-        weekdays = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ]
+        mock_send = _make_send_to_model_mock(mocker, "[]")
+        extract_week_plan("text", [])
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
+        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         assert any(day in prompt_content for day in weekdays)
 
     def test_journey_context_formatted_in_prompt(self, mocker):
-        mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content="[]"))]
-        )
-        mocker.patch("memory.intelligence.extraction.OpenAI", return_value=mock_client)
-        mocker.patch("memory.intelligence.extraction.OPENROUTER_API_KEY", "test-key")
-
-        extract_week_plan("texto", [{"slug": "reflexo", "description": "projeto de reflexão"}])
-        call_args = mock_client.chat.completions.create.call_args
-        prompt_content = call_args[1]["messages"][0]["content"]
-        assert "reflexo" in prompt_content
+        mock_send = _make_send_to_model_mock(mocker, "[]")
+        extract_week_plan("text", [{"slug": "mirror", "description": "mirror project"}])
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
+        assert "mirror" in prompt_content
 
     def test_empty_journey_context_shows_fallback(self, mocker):
-        mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content="[]"))]
-        )
-        mocker.patch("memory.intelligence.extraction.OpenAI", return_value=mock_client)
-        mocker.patch("memory.intelligence.extraction.OPENROUTER_API_KEY", "test-key")
-
-        extract_week_plan("texto", [])
-        call_args = mock_client.chat.completions.create.call_args
-        prompt_content = call_args[1]["messages"][0]["content"]
+        mock_send = _make_send_to_model_mock(mocker, "[]")
+        extract_week_plan("text", [])
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
         assert "no active journeys" in prompt_content
 
     def test_week_plan_prompt_requests_english_journey_key(self, mocker):
-        mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content="[]"))]
-        )
-        mocker.patch("memory.intelligence.extraction.OpenAI", return_value=mock_client)
-        mocker.patch("memory.intelligence.extraction.OPENROUTER_API_KEY", "test-key")
-
+        mock_send = _make_send_to_model_mock(mocker, "[]")
         extract_week_plan("text", [])
-        call_args = mock_client.chat.completions.create.call_args
-        prompt_content = call_args[1]["messages"][0]["content"]
+        messages_arg = mock_send.call_args[0][1]
+        prompt_content = messages_arg[0]["content"]
         assert '"journey": "slug" or null' in prompt_content
         assert '"travessia"' not in prompt_content
 
@@ -492,7 +474,7 @@ class TestExtractWeekPlan:
         payload = json.dumps(
             [
                 {
-                    "title": "Reunião",
+                    "title": "Meeting",
                     "due_date": "2026-04-14",
                     "scheduled_at": None,
                     "time_hint": None,
@@ -501,24 +483,36 @@ class TestExtractWeekPlan:
                 }
             ]
         )
-        _make_llm_mock(mocker, payload)
-        result = extract_week_plan("Tenho reunião amanhã", [])
+        _make_send_to_model_mock(mocker, payload)
+        result = extract_week_plan("I have a meeting tomorrow", [])
         assert result == []
 
     def test_invalid_json_returns_empty_list(self, mocker):
-        _make_llm_mock(mocker, "invalid json")
-        result = extract_week_plan("texto", [])
+        _make_send_to_model_mock(mocker, "invalid json")
+        result = extract_week_plan("text", [])
         assert result == []
 
     def test_non_list_json_returns_empty_list(self, mocker):
-        _make_llm_mock(mocker, '{"key": "value"}')
-        result = extract_week_plan("texto", [])
+        _make_send_to_model_mock(mocker, '{"key": "value"}')
+        result = extract_week_plan("text", [])
         assert result == []
 
     def test_invalid_item_skipped(self, mocker):
-        payload = json.dumps([{"title": "Sem due_date"}])  # missing required due_date
-        _make_llm_mock(mocker, payload)
-        result = extract_week_plan("texto", [])
+        payload = json.dumps([{"title": "No due_date"}])  # missing required due_date
+        _make_send_to_model_mock(mocker, payload)
+        result = extract_week_plan("text", [])
+        assert result == []
+
+    def test_on_llm_call_invoked_with_response(self, mocker):
+        _make_send_to_model_mock(mocker, "[]")
+        callback = MagicMock()
+        extract_week_plan("text", [], on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_when_none(self, mocker):
+        _make_send_to_model_mock(mocker, "[]")
+        result = extract_week_plan("text", [], on_llm_call=None)
         assert result == []
 
 
@@ -529,52 +523,64 @@ class TestExtractWeekPlan:
 
 class TestClassifyJournalEntry:
     def test_returns_dict_with_required_keys(self, mocker):
-        _make_llm_mock(mocker, '{"title": "T", "layer": "ego", "tags": []}')
-        result = classify_journal_entry("texto")
+        _make_send_to_model_mock(mocker, '{"title": "T", "layer": "ego", "tags": []}')
+        result = classify_journal_entry("text")
         assert "title" in result
         assert "layer" in result
         assert "tags" in result
 
     def test_title_from_llm(self, mocker):
-        _make_llm_mock(mocker, '{"title": "Crise às 3h", "layer": "shadow", "tags": ["medo"]}')
-        result = classify_journal_entry("texto")
-        assert result["title"] == "Crise às 3h"
+        _make_send_to_model_mock(mocker, '{"title": "Crisis at 3am", "layer": "shadow", "tags": ["fear"]}')
+        result = classify_journal_entry("text")
+        assert result["title"] == "Crisis at 3am"
 
     def test_layer_from_llm(self, mocker):
-        _make_llm_mock(mocker, '{"title": "T", "layer": "shadow", "tags": []}')
-        result = classify_journal_entry("texto")
+        _make_send_to_model_mock(mocker, '{"title": "T", "layer": "shadow", "tags": []}')
+        result = classify_journal_entry("text")
         assert result["layer"] == "shadow"
 
     def test_tags_list_from_llm(self, mocker):
-        _make_llm_mock(mocker, '{"title": "T", "layer": "ego", "tags": ["medo", "clareza"]}')
-        result = classify_journal_entry("texto")
-        assert result["tags"] == ["medo", "clareza"]
+        _make_send_to_model_mock(mocker, '{"title": "T", "layer": "ego", "tags": ["fear", "clarity"]}')
+        result = classify_journal_entry("text")
+        assert result["tags"] == ["fear", "clarity"]
 
     def test_invalid_json_fallback_uses_content_prefix(self, mocker):
-        content = "Entrada de diário muito longa que deve ser truncada no título"
-        _make_llm_mock(mocker, "not valid json")
+        content = "A long journal entry that should be truncated in the title fallback"
+        _make_send_to_model_mock(mocker, "not valid json")
         result = classify_journal_entry(content)
         assert result["title"] == content[:60]
 
     def test_invalid_json_fallback_layer_is_ego(self, mocker):
-        _make_llm_mock(mocker, "not valid json")
-        result = classify_journal_entry("texto")
+        _make_send_to_model_mock(mocker, "not valid json")
+        result = classify_journal_entry("text")
         assert result["layer"] == "ego"
 
     def test_invalid_json_fallback_tags_is_empty(self, mocker):
-        _make_llm_mock(mocker, "not valid json")
-        result = classify_journal_entry("texto")
+        _make_send_to_model_mock(mocker, "not valid json")
+        result = classify_journal_entry("text")
         assert result["tags"] == []
 
     def test_missing_title_uses_content_prefix(self, mocker):
-        content = "Texto sem título no retorno do LLM"
-        _make_llm_mock(mocker, '{"layer": "ego", "tags": []}')
+        content = "Text without title in LLM response"
+        _make_send_to_model_mock(mocker, '{"layer": "ego", "tags": []}')
         result = classify_journal_entry(content)
         assert result["title"] == content[:60]
 
     def test_markdown_fencing_cleaned(self, mocker):
-        payload = '```json\n{"title": "T", "layer": "self", "tags": ["propósito"]}\n```'
-        _make_llm_mock(mocker, payload)
-        result = classify_journal_entry("texto")
+        payload = '```json\n{"title": "T", "layer": "self", "tags": ["purpose"]}\n```'
+        _make_send_to_model_mock(mocker, payload)
+        result = classify_journal_entry("text")
         assert result["title"] == "T"
         assert result["layer"] == "self"
+
+    def test_on_llm_call_invoked_with_response(self, mocker):
+        _make_send_to_model_mock(mocker, '{"title": "T", "layer": "ego", "tags": []}')
+        callback = MagicMock()
+        classify_journal_entry("text", on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_when_none(self, mocker):
+        _make_send_to_model_mock(mocker, '{"title": "T", "layer": "ego", "tags": []}')
+        result = classify_journal_entry("text", on_llm_call=None)
+        assert result["title"] == "T"

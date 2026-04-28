@@ -79,3 +79,31 @@ class TestRunMigrations:
             row[0] for row in db_conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         assert "attachments" in tables
+
+    def test_llm_calls_table_created_by_migration_006(self):
+        """Migration 006 creates llm_calls on a legacy DB that lacks it."""
+        conn = _fresh_conn()
+        run_migrations(conn)
+        tables = {
+            row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        assert "llm_calls" in tables
+
+    def test_llm_calls_migration_idempotent_on_schema_db(self, db_conn):
+        """Migration 006 is a no-op when llm_calls already exists from SCHEMA."""
+        run_migrations(db_conn)  # llm_calls already exists via SCHEMA
+        run_migrations(db_conn)  # second run must not raise
+        count = db_conn.execute(
+            "SELECT COUNT(*) FROM _migrations WHERE id = '006_create_llm_calls'"
+        ).fetchone()[0]
+        assert count == 1
+
+    def test_llm_calls_table_has_expected_columns(self, db_conn):
+        run_migrations(db_conn)
+        cols = {row[1] for row in db_conn.execute("PRAGMA table_info(llm_calls)")}
+        expected = {
+            "id", "role", "model", "prompt", "response",
+            "prompt_tokens", "completion_tokens", "latency_ms", "cost_usd",
+            "conversation_id", "session_id", "called_at",
+        }
+        assert expected.issubset(cols)

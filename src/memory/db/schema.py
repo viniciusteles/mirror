@@ -127,4 +127,23 @@ CREATE TABLE IF NOT EXISTS attachments (
 
 CREATE INDEX IF NOT EXISTS idx_attachments_journey ON attachments(journey_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_attachments_journey_name ON attachments(journey_id, name);
+
+CREATE TABLE IF NOT EXISTS llm_calls (
+    id TEXT PRIMARY KEY,
+    role TEXT NOT NULL,
+    model TEXT NOT NULL,
+    prompt TEXT NOT NULL,
+    response TEXT NOT NULL,
+    prompt_tokens INTEGER,
+    completion_tokens INTEGER,
+    latency_ms INTEGER,
+    cost_usd REAL,
+    conversation_id TEXT REFERENCES conversations(id),
+    session_id TEXT,
+    called_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_llm_calls_conversation ON llm_calls(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_llm_calls_role ON llm_calls(role);
+CREATE INDEX IF NOT EXISTS idx_llm_calls_called_at ON llm_calls(called_at);
 """

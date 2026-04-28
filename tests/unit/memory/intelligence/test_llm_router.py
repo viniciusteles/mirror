@@ -158,6 +158,20 @@ class TestSendToModel:
         assert call_kwargs["temperature"] == 0.1
         assert call_kwargs["max_tokens"] == 100
 
+    def test_latency_ms_is_non_negative_integer(self, mock_openai_client):
+        result = send_to_model("m", [{"role": "user", "content": "hi"}])
+        assert isinstance(result.latency_ms, int)
+        assert result.latency_ms >= 0
+
+    def test_prompt_is_non_empty_string(self, mock_openai_client):
+        result = send_to_model("m", [{"role": "user", "content": "hi"}])
+        assert isinstance(result.prompt, str)
+        assert len(result.prompt) > 0
+
+    def test_prompt_contains_message_content(self, mock_openai_client):
+        result = send_to_model("m", [{"role": "user", "content": "hello world"}])
+        assert "hello world" in result.prompt
+
 
 # ---------------------------------------------------------------------------
 # fetch_generation_cost

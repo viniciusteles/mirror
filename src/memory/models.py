@@ -153,6 +153,24 @@ class ExtractedMemory(_DomainModel):
     persona: str | None = None
 
 
+class ExtractedTask:
+    """Task extracted by the LLM from a conversation."""
+
+    def __init__(
+        self,
+        title: str,
+        due_date=None,
+        journey=None,
+        stage=None,
+        context=None,
+    ):
+        self.title = title
+        self.due_date = due_date
+        self.journey = journey
+        self.stage = stage
+        self.context = context
+
+
 class SearchResult(NamedTuple):
     """Search result supporting attributes and tuple unpacking."""
 

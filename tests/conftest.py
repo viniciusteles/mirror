@@ -46,20 +46,22 @@ def mock_embeddings(mocker):
 
 @pytest.fixture
 def mock_extraction(mocker):
-    """Mocka o cliente OpenAI dentro do módulo extraction. Nenhuma chamada a LLM."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = (
-        '[{"title":"Insight de teste","content":"Conteúdo do teste",'
-        '"memory_type":"insight","layer":"ego","tags":["teste"]}]'
-    )
-    mock_completion = MagicMock()
-    mock_completion.choices = [mock_choice]
+    """Mocks send_to_model inside the extraction module. No real LLM calls."""
+    from memory.intelligence.llm_router import LLMResponse
 
-    mock_openai_instance = MagicMock()
-    mock_openai_instance.chat.completions.create.return_value = mock_completion
-
-    mocker.patch(
-        "memory.intelligence.extraction.OpenAI",
-        return_value=mock_openai_instance,
+    mock_response = LLMResponse(
+        model="google/gemini-2.5-flash-lite",
+        content=(
+            '[{"title":"Test insight","content":"Test content",'
+            '"memory_type":"insight","layer":"ego","tags":["test"]}]'
+        ),
+        prompt_tokens=10,
+        completion_tokens=5,
+        latency_ms=50,
+        prompt="[mocked prompt]",
     )
-    return mock_openai_instance
+    mock_send = mocker.patch(
+        "memory.intelligence.extraction.send_to_model",
+        return_value=mock_response,
+    )
+    return mock_send

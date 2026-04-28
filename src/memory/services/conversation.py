@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from memory.config import LOG_LLM_CALLS
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
 from memory.intelligence.extraction import extract_memories, extract_tasks
+from memory.intelligence.llm_router import LLMResponse
 from memory.models import Conversation, ConversationSummary, Memory, Message
 from memory.storage.store import Store
 
@@ -123,12 +125,30 @@ class ConversationService:
         except Exception:
             pass
 
+        # Build LLM logger closure when observability is enabled.
+        def _make_logger(role: str):
+            if not LOG_LLM_CALLS:
+                return None
+            def _log(response: LLMResponse) -> None:
+                self.store.log_llm_call(
+                    role=role,
+                    model=response.model,
+                    prompt=response.prompt or "",
+                    response_text=response.content,
+                    prompt_tokens=response.prompt_tokens,
+                    completion_tokens=response.completion_tokens,
+                    latency_ms=response.latency_ms,
+                    conversation_id=conversation_id,
+                )
+            return _log
+
         # Extract memories through the LLM.
         extracted = extract_memories(
             messages,
             persona=conv.persona if conv else None,
             journey=conv.journey if conv else None,
             user_name=user_name,
+            on_llm_call=_make_logger("extraction"),
         )
 
         # Extract tasks through the LLM.
@@ -137,6 +157,7 @@ class ConversationService:
                 messages,
                 journey=conv.journey if conv else None,
                 user_name=user_name,
+                on_llm_call=_make_logger("task_extraction"),
             )
             for et in extracted_tasks:
                 existing = self.tasks.find_tasks(et.title, et.journey)

@@ -166,6 +166,33 @@ def _migrate_travessia_to_journey(conn: sqlite3.Connection) -> None:
         )
 
 
+def _migrate_create_llm_calls(conn: sqlite3.Connection) -> None:
+    """Create the llm_calls table if it does not yet exist."""
+    if _table_exists(conn, "llm_calls"):
+        return
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS llm_calls (
+            id TEXT PRIMARY KEY,
+            role TEXT NOT NULL,
+            model TEXT NOT NULL,
+            prompt TEXT NOT NULL,
+            response TEXT NOT NULL,
+            prompt_tokens INTEGER,
+            completion_tokens INTEGER,
+            latency_ms INTEGER,
+            cost_usd REAL,
+            conversation_id TEXT REFERENCES conversations(id),
+            session_id TEXT,
+            called_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_llm_calls_conversation ON llm_calls(conversation_id);
+        CREATE INDEX IF NOT EXISTS idx_llm_calls_role ON llm_calls(role);
+        CREATE INDEX IF NOT EXISTS idx_llm_calls_called_at ON llm_calls(called_at);
+        """
+    )
+
+
 MigrationApply = Callable[[sqlite3.Connection], None]
 
 
@@ -175,6 +202,7 @@ MIGRATIONS: list[tuple[str, MigrationApply]] = [
     ("003_create_tasks", _migrate_create_tasks),
     ("004_tasks_temporal_fields", _migrate_tasks_temporal_fields),
     ("005_travessia_to_journey", _migrate_travessia_to_journey),
+    ("006_create_llm_calls", _migrate_create_llm_calls),
 ]
 
 

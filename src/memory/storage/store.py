@@ -11,6 +11,7 @@ from memory.db import get_connection
 from memory.storage.attachments import AttachmentStore
 from memory.storage.conversations import ConversationStore
 from memory.storage.identity import IdentityStore
+from memory.storage.llm_calls import LLMCallStore
 from memory.storage.memories import MemoryStore
 from memory.storage.messages import MessageStore
 from memory.storage.runtime_sessions import RuntimeSessionStore
@@ -25,6 +26,7 @@ class Store(
     IdentityStore,
     AttachmentStore,
     TaskStore,
+    LLMCallStore,
 ):
     def __init__(self, conn: sqlite3.Connection | None = None):
         self.conn = conn or get_connection()

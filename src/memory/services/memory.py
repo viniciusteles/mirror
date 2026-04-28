@@ -2,7 +2,9 @@
 
 import json
 
+from memory.config import LOG_LLM_CALLS
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
+from memory.intelligence.llm_router import LLMResponse
 from memory.intelligence.search import MemorySearch
 from memory.models import Memory, MemorySummary, SearchResult
 from memory.storage.store import Store
@@ -112,7 +114,19 @@ class MemoryService:
         from memory.intelligence.extraction import classify_journal_entry
 
         if not title or not layer or not tags:
-            classification = classify_journal_entry(content)
+            llm_logger = None
+            if LOG_LLM_CALLS:
+                def llm_logger(response: LLMResponse) -> None:
+                    self.store.log_llm_call(
+                        role="journal_classification",
+                        model=response.model,
+                        prompt=response.prompt or "",
+                        response_text=response.content,
+                        prompt_tokens=response.prompt_tokens,
+                        completion_tokens=response.completion_tokens,
+                        latency_ms=response.latency_ms,
+                    )
+            classification = classify_journal_entry(content, on_llm_call=llm_logger)
             title = title or classification["title"]
             layer = layer or classification["layer"]
             tags = tags or classification["tags"]

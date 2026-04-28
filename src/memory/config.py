@@ -219,3 +219,6 @@ SEARCH_WEIGHTS = {
 
 # Recência — half-life em dias
 RECENCY_HALF_LIFE_DAYS = 90
+
+# Observability — set MEMORY_LOG_LLM_CALLS=1 to write every LLM call to llm_calls table
+LOG_LLM_CALLS = os.getenv("MEMORY_LOG_LLM_CALLS", "") == "1"

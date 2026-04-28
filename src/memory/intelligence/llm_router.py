@@ -1,6 +1,7 @@
 """LLM router for sending messages to models through OpenRouter."""
 
 import json
+import time
 import urllib.request
 from dataclasses import dataclass
 from typing import cast
@@ -23,6 +24,8 @@ class LLMResponse:
     completion_tokens: int | None = None
     total_cost: float | None = None
     generation_id: str | None = None
+    latency_ms: int | None = None
+    prompt: str | None = None
 
 
 @dataclass
@@ -68,12 +71,16 @@ def send_to_model(
         base_url=OPENROUTER_BASE_URL,
     )
 
+    prompt_str = json.dumps(messages, ensure_ascii=False)
+
+    t0 = time.perf_counter()
     response = client.chat.completions.create(
         model=model,
         messages=cast(list[ChatCompletionMessageParam], messages),
         temperature=temperature,
         max_tokens=max_tokens,
     )
+    latency_ms = int((time.perf_counter() - t0) * 1000)
 
     content = (response.choices[0].message.content or "").strip()
 
@@ -94,6 +101,8 @@ def send_to_model(
         completion_tokens=completion_tokens,
         total_cost=total_cost,
         generation_id=generation_id,
+        latency_ms=latency_ms,
+        prompt=prompt_str,
     )
 
 

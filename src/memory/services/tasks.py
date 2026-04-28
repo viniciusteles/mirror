@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from memory.config import LOG_LLM_CALLS
+from memory.intelligence.llm_router import LLMResponse
 from memory.models import Task
 from memory.storage.store import Store
 
@@ -96,7 +98,20 @@ class TaskService:
             desc = t.content[:200] if t.content else ""
             journey_context.append({"slug": t.key, "description": desc})
 
-        items = extract_week_plan(text, journey_context)
+        llm_logger = None
+        if LOG_LLM_CALLS:
+            def llm_logger(response: LLMResponse) -> None:
+                self.store.log_llm_call(
+                    role="week_plan",
+                    model=response.model,
+                    prompt=response.prompt or "",
+                    response_text=response.content,
+                    prompt_tokens=response.prompt_tokens,
+                    completion_tokens=response.completion_tokens,
+                    latency_ms=response.latency_ms,
+                )
+
+        items = extract_week_plan(text, journey_context, on_llm_call=llm_logger)
 
         # Check similarity with existing tasks.
         result = []
