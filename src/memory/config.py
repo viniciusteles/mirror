@@ -230,3 +230,7 @@ RECEPTION_ENABLED = os.getenv("MEMORY_RECEPTION", "") == "1"
 # Two-pass extraction — set MEMORY_TWO_PASS=1 to enable curation against existing memories
 # When disabled (default), extraction is single-pass unchanged.
 TWO_PASS_ENABLED = os.getenv("MEMORY_TWO_PASS", "") == "1"
+
+# Conversation summary — set MEMORY_SUMMARIZE=1 to generate LLM summaries per conversation
+# When disabled (default), a naive message concatenation is stored instead.
+SUMMARIZE_ENABLED = os.getenv("MEMORY_SUMMARIZE", "") == "1"

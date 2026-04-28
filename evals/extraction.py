@@ -12,7 +12,11 @@ Requires OPENROUTER_API_KEY. Costs a few cents per run.
 from __future__ import annotations
 
 from evals.types import EvalProbe
-from memory.intelligence.extraction import curate_against_existing, extract_memories
+from memory.intelligence.extraction import (
+    curate_against_existing,
+    extract_memories,
+    generate_conversation_summary,
+)
 from memory.models import ExtractedMemory, Memory, Message
 
 THRESHOLD = 0.8
@@ -322,6 +326,47 @@ def _probe_two_pass_dedup() -> tuple[bool, str]:
     return passed, notes
 
 
+def _probe_conversation_summary() -> tuple[bool, str]:
+    """LLM-generated summary of a substantive conversation is coherent and on-topic."""
+    messages = _msgs(
+        ("user", "Hey, how's it going?"),
+        ("assistant", "Doing well. What's on your mind?"),
+        (
+            "user",
+            "I've been thinking about our pricing model. We charge per seat but "
+            "I think we should move to usage-based. Per-seat is killing us with "
+            "smaller customers who don't want to commit upfront.",
+        ),
+        (
+            "assistant",
+            "Usage-based aligns cost to value delivered. What does the migration look like?",
+        ),
+        (
+            "user",
+            "We'd grandfather existing customers for 12 months and launch the new "
+            "model for new signups immediately. I've decided to move forward — "
+            "announcing it to the team next week.",
+        ),
+        (
+            "assistant",
+            "Clean decision. The 12-month window gives you time to learn without "
+            "burning existing relationships.",
+        ),
+    )
+    summary = generate_conversation_summary(messages, user_name="User")
+    notes = f"{len(summary)} chars: {summary[:120]}..."
+
+    is_non_empty = bool(summary)
+    is_reasonable_length = 20 < len(summary) < 600
+    is_on_topic = any(w in summary.lower() for w in ["pric", "usage", "seat", "model"])
+    is_standalone = (
+        "we discussed" not in summary.lower() and "the conversation" not in summary.lower()
+    )
+
+    passed = is_non_empty and is_reasonable_length and is_on_topic and is_standalone
+    return passed, notes
+
+
 # ---------------------------------------------------------------------------
 # Probe registry
 # ---------------------------------------------------------------------------
@@ -366,5 +411,10 @@ PROBES: list[EvalProbe] = [
         id="two-pass-dedup",
         description="curation pass drops near-duplicate; novel candidate survives",
         run=_probe_two_pass_dedup,
+    ),
+    EvalProbe(
+        id="conversation-summary",
+        description="LLM summary of a substantive conversation is coherent and on-topic",
+        run=_probe_conversation_summary,
     ),
 ]

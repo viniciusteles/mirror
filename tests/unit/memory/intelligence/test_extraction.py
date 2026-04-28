@@ -13,6 +13,7 @@ from memory.intelligence.extraction import (
     extract_tasks,
     extract_week_plan,
     format_transcript,
+    generate_conversation_summary,
 )
 from memory.intelligence.llm_router import LLMResponse
 from memory.models import ExtractedMemory, ExtractedTask, ExtractedWeekItem, Memory, Message
@@ -710,5 +711,50 @@ class TestCurateAgainstExisting:
         mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
         callback = MagicMock()
         curate_against_existing([_make_candidate()], [], on_llm_call=callback)
+        mock_send.assert_not_called()
+        callback.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# generate_conversation_summary
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateConversationSummary:
+    def test_empty_messages_returns_empty_string_without_llm_call(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        result = generate_conversation_summary([])
+        assert result == ""
+        mock_send.assert_not_called()
+
+    def test_non_empty_messages_returns_llm_response(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "This is a summary.")
+        result = generate_conversation_summary(sample_messages)
+        assert result == "This is a summary."
+
+    def test_response_whitespace_stripped(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "  Summary with whitespace.  \n")
+        result = generate_conversation_summary(sample_messages)
+        assert result == "Summary with whitespace."
+
+    def test_llm_exception_returns_empty_string(self, mocker, sample_messages):
+        mocker.patch(
+            "memory.intelligence.extraction.send_to_model",
+            side_effect=RuntimeError("timeout"),
+        )
+        result = generate_conversation_summary(sample_messages)
+        assert result == ""
+
+    def test_on_llm_call_invoked_when_llm_runs(self, mocker, sample_messages):
+        _make_send_to_model_mock(mocker, "Summary text.")
+        callback = MagicMock()
+        generate_conversation_summary(sample_messages, on_llm_call=callback)
+        callback.assert_called_once()
+        assert isinstance(callback.call_args[0][0], LLMResponse)
+
+    def test_on_llm_call_not_invoked_for_empty_messages(self, mocker):
+        mock_send = mocker.patch("memory.intelligence.extraction.send_to_model")
+        callback = MagicMock()
+        generate_conversation_summary([], on_llm_call=callback)
         mock_send.assert_not_called()
         callback.assert_not_called()

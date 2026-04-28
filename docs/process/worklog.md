@@ -9,6 +9,40 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-28 — CV7.E3.S3 complete: Per-conversation summary
+
+Replaces the naive message-concatenation stored in `Conversation.summary`
+with an LLM-generated 3-4 sentence prose summary.
+
+**`CONVERSATION_SUMMARY_PROMPT`** encodes four rules: open with the main
+topic, include the key decision/insight if any, note emotional tone only
+when clearly significant, standalone prose (no "we discussed").
+
+**`generate_conversation_summary(messages, user_name, on_llm_call)`** in
+`extraction.py`. Plain text output (not JSON). Returns `""` on empty
+messages or LLM failure (fail safe).
+
+**`MEMORY_SUMMARIZE=1`** feature flag. Default off. When enabled,
+`_run_extraction()` calls the LLM summarizer; falls back to naive
+concatenation on empty return. Naive concatenation extracted into private
+`_naive_summary()` helper. Summary stored in `Conversation.summary`
+(up to 1000 chars, up from 500) and used as the embedding input.
+
+**`mm-recall`** now displays the summary when present, before the `---`
+separator.
+
+**Eval** -- `conversation-summary` probe added to `evals/extraction.py`
+(9 probes total). Verifies: non-empty, 20-600 chars, on-topic (pricing
+terminology), standalone (no "we discussed").
+
+**Tests** -- 6 unit tests for `generate_conversation_summary()`: empty
+messages short-circuit, LLM response returned, whitespace stripped,
+LLM exception returns `""`, callback behavior.
+
+892 tests pass. ruff clean.
+
+---
+
 ### 2026-04-28 — CV7.E3.S2 complete: Two-pass extraction
 
 Adds a curation pass that deduplicates candidate memories against the
@@ -533,8 +567,7 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV7.E3.S3 (next):** Per-conversation summary — 3–4 sentences produced alongside memories and stored on the conversation row; used by `mm-recall` and as reranking input. Independent of S1/S2.
-- **CV7.E3.S4:** Generated descriptors for personas/journeys/identity layers (storage shape decision required).
+- **CV7.E3.S4 (next):** Generated descriptors for personas/journeys/identity layers (storage shape decision required).
 - **CV7.E4:** Memory Depth — hybrid search, reinforcement, consolidation, shadow structural layer.
 - **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:
   1. **Quick win (pending).** Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`) that also open a fresh client on every call. Each hook invocation today runs bootstrap + migrations once per helper call; a shared client would halve or third that cost for common hook paths.

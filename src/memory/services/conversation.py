@@ -4,9 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from memory.config import LOG_LLM_CALLS, TWO_PASS_ENABLED
+from memory.config import LOG_LLM_CALLS, SUMMARIZE_ENABLED, TWO_PASS_ENABLED
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
-from memory.intelligence.extraction import curate_against_existing, extract_memories, extract_tasks
+from memory.intelligence.extraction import (
+    curate_against_existing,
+    extract_memories,
+    extract_tasks,
+    generate_conversation_summary,
+)
 from memory.intelligence.llm_router import LLMResponse
 from memory.models import Conversation, ConversationSummary, Memory, Message
 from memory.storage.store import Store
@@ -14,6 +19,12 @@ from memory.storage.store import Store
 if TYPE_CHECKING:
     from memory.services.memory import MemoryService
     from memory.services.tasks import TaskService
+
+
+def _naive_summary(messages: list[Message]) -> str:
+    """Fallback summary: first 2000 chars of joined message content."""
+    parts = [msg.content[:500] for msg in messages if msg.role in ("user", "assistant")]
+    return " ".join(parts)[:2000]
 
 
 class ConversationService:
@@ -193,19 +204,24 @@ class ConversationService:
         except Exception:
             pass  # Task extraction failure should not block memory extraction.
 
-        # Generate a conversation summary for embedding.
-        summary_parts = []
-        for msg in messages:
-            if msg.role in ("user", "assistant"):
-                summary_parts.append(msg.content[:500])
-        summary_text = " ".join(summary_parts)[:2000]
+        # Generate a conversation summary for embedding and storage.
+        if SUMMARIZE_ENABLED:
+            summary_text = generate_conversation_summary(
+                messages,
+                user_name=user_name,
+                on_llm_call=_make_logger("summary"),
+            )
+            if not summary_text:
+                summary_text = _naive_summary(messages)
+        else:
+            summary_text = _naive_summary(messages)
 
         if summary_text:
             summary_emb = generate_embedding(summary_text)
             self.store.store_conversation_embedding(
                 conversation_id, embedding_to_bytes(summary_emb)
             )
-            self.store.update_conversation(conversation_id, summary=summary_text[:500])
+            self.store.update_conversation(conversation_id, summary=summary_text[:1000])
 
         # Persist extracted memories with embeddings.
         stored_memories = []

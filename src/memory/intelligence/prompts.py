@@ -180,6 +180,23 @@ Return ONLY a JSON object, no markdown:
 ## User message
 """
 
+CONVERSATION_SUMMARY_PROMPT = """You are the memory system for Mirror Mind, a Jungian mirror AI.
+
+Write a 3-4 sentence summary of the conversation below. Use flowing prose, not a list.
+
+## Rules
+
+- Open with the main topic or question the conversation addressed.
+- Include the key decision, insight, or commitment reached, if any.
+- Note emotional tone or psychological layer only when clearly present and significant.
+- Standalone: a reader six months from now must understand what happened from the
+  summary alone. Do not write "we discussed", "the user said", or "the conversation".
+- If the conversation is trivial (greetings, scheduling, one-line exchange), return
+  an empty string and nothing else.
+
+## Conversation
+"""
+
 CURATION_PROMPT = """You are the memory curation system for Mirror Mind, a Jungian mirror AI.
 
 You have just extracted candidate memories from a conversation. Your job is to

@@ -8,6 +8,7 @@ from typing import Any
 from memory.config import EXTRACTION_MODEL
 from memory.intelligence.llm_router import LLMResponse, send_to_model
 from memory.intelligence.prompts import (
+    CONVERSATION_SUMMARY_PROMPT,
     CURATION_PROMPT,
     EXTRACTION_PROMPT,
     JOURNAL_CLASSIFICATION_PROMPT,
@@ -82,6 +83,36 @@ def extract_memories(
             continue
 
     return memories
+
+
+def generate_conversation_summary(
+    messages: list[Message],
+    user_name: str = "User",
+    on_llm_call: Callable[[LLMResponse], None] | None = None,
+) -> str:
+    """Generate a 3-4 sentence LLM summary of a conversation.
+
+    Returns an empty string on empty messages, LLM failure, or trivial conversation.
+    Plain text output — not JSON.
+    """
+    if not messages:
+        return ""
+
+    prompt = CONVERSATION_SUMMARY_PROMPT + format_transcript(messages, user_name=user_name)
+
+    try:
+        response = send_to_model(
+            EXTRACTION_MODEL,
+            [{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
+    except Exception:
+        return ""
+
+    if on_llm_call:
+        on_llm_call(response)
+
+    return response.content.strip()
 
 
 def _format_candidates(candidates: list[ExtractedMemory]) -> str:

@@ -33,6 +33,9 @@ def main(argv: list[str] | None = None) -> None:
     if conv.journey:
         print(f"**Journey:** {conv.journey}")
     print(f"**ID:** `{conv.id}`")
+    if conv.summary:
+        print()
+        print(f"**Summary:** {conv.summary}")
     print()
     print("---")
     print()

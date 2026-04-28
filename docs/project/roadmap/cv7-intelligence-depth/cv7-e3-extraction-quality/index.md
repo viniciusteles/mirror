@@ -64,7 +64,7 @@ This epic invests in extraction quality on three axes:
 |------|-------|--------|
 | CV7.E3.S1 | Extraction prompt revision (single-pass first, eval-driven) | Done |
 | CV7.E3.S2 | Two-pass extraction (candidate + curate-against-existing) | Done |
-| CV7.E3.S3 | Per-conversation summary alongside memories | Planned |
+| CV7.E3.S3 | Per-conversation summary alongside memories | Done |
 | CV7.E3.S4 | Generated descriptors for personas / journeys / identity layers | Planned |
 
 ---
