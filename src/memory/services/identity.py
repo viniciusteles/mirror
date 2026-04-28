@@ -124,19 +124,32 @@ class IdentityService:
         journey: str | None = None,
         org: bool = False,
         query: str | None = None,
+        touches_identity: bool = True,
     ) -> str:
         """Load formatted identity context for prompt injection.
 
         Returns text with === layer/key === sections.
+
+        Args:
+            touches_identity: When False, the deep identity layers (self/soul and
+                ego/identity) are omitted. Set by the reception classifier for
+                operational/technical turns that do not require full self context.
+                Defaults to True to preserve behaviour for callers that do not
+                use reception.
         """
         constraints = self.get_identity("ego", "constraints")
 
         sections = [
-            ("self/soul", self.get_identity("self", "soul")),
             ("ego/behavior", self.get_identity("ego", "behavior")),
-            ("ego/identity", self.get_identity("ego", "identity")),
             ("user/identity", self.get_identity("user", "identity")),
         ]
+
+        if touches_identity:
+            sections = [
+                ("self/soul", self.get_identity("self", "soul")),
+                *sections,
+                ("ego/identity", self.get_identity("ego", "identity")),
+            ]
 
         if org:
             sections.append(

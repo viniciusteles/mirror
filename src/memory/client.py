@@ -199,8 +199,15 @@ class MemoryClient:
     def get_identity(self, layer=None, key=None) -> str | list[Identity] | None:
         return self.identity.get_identity(layer, key)
 
-    def load_mirror_context(self, persona=None, journey=None, org: bool = False, query=None) -> str:
-        return self.identity.load_mirror_context(persona, journey, org, query)
+    def load_mirror_context(
+        self,
+        persona=None,
+        journey=None,
+        org: bool = False,
+        query=None,
+        touches_identity: bool = True,
+    ) -> str:
+        return self.identity.load_mirror_context(persona, journey, org, query, touches_identity)
 
     def load_full_identity(self) -> str:
         return self.identity.load_full_identity()

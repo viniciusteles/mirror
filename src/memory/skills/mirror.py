@@ -46,11 +46,17 @@ def _resolve_defaults(
     persona: str | None,
     query: str | None,
     session_id: str | None,
-) -> tuple[str | None, str | None, list | None]:
+) -> tuple[str | None, str | None, list | None, bool]:
+    """Resolve routing defaults. Returns (persona, journey, detected, touches_identity).
+
+    touches_identity is True when reception is disabled (load full context) or when
+    the reception classifier signals an identity-touching turn.
+    """
     """Resolve explicit + sticky + detected mirror defaults."""
     resolved_persona = persona
     resolved_journey = journey
     detected: list | None = None
+    touches_identity: bool = True  # default: load full context when reception is off
 
     runtime_session = mem.store.get_runtime_session(session_id) if session_id else None
 
@@ -114,8 +120,8 @@ def _resolve_defaults(
             resolved_persona = result.personas[0]
         if result.journey and resolved_journey is None:
             resolved_journey = result.journey
-        # touches_identity and touches_shadow are available for S2 composition gating;
-        # not yet consumed here.
+        touches_identity = result.touches_identity
+        # touches_shadow available for E4.S4 shadow layer gating.
 
     # Keyword/embedding detection as fallback when reception is off or returned empty.
     if resolved_persona is None and query:
@@ -128,7 +134,7 @@ def _resolve_defaults(
         if detected:
             resolved_journey = detected[0][0]
 
-    return resolved_persona, resolved_journey, detected
+    return resolved_persona, resolved_journey, detected, touches_identity
 
 
 def load(
@@ -147,7 +153,7 @@ def load(
     """
     mem = MemoryClient(env=env)
 
-    resolved_persona, resolved_journey, detected = _resolve_defaults(
+    resolved_persona, resolved_journey, detected, touches_identity = _resolve_defaults(
         mem,
         journey=journey,
         persona=persona,
@@ -160,6 +166,7 @@ def load(
         journey=resolved_journey,
         org=org,
         query=query,
+        touches_identity=touches_identity,
     )
 
     _persist_global_sticky_defaults(
