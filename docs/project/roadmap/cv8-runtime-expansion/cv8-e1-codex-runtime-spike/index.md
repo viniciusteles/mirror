@@ -48,7 +48,7 @@ that automatic Mirror Mode is not available.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV8.E1.S1 | Inspect Codex extension, command, hook, and transcript capabilities | Draft |
+| [CV8.E1.S1](cv8-e1-s1-codex-capabilities/index.md) | Inspect Codex extension, command, hook, and transcript capabilities | Draft |
 | CV8.E1.S2 | Map Codex lifecycle to the Mirror runtime contract | Draft |
 | CV8.E1.S3 | Decide Codex target parity level and document limitations | Draft |
 | CV8.E1.S4 | Draft Codex implementation plan and test guide | Draft |
