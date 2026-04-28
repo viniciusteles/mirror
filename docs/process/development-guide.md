@@ -139,4 +139,58 @@ accumulate? What can we clean now? Deferring everything creates invisible load.
 
 ---
 
+---
+
+## Evals
+
+Evals live in `evals/`, separate from `tests/`. They hit real LLM APIs, cost a
+few cents per run, and are non-deterministic. **Do not add them to CI.**
+
+The failure semantics are different from tests: a failing eval means *behavior
+drifted*, not *code broke*. A passing eval does not mean code is correct —
+it means the LLM is behaving within the expected envelope for that probe set.
+
+**When to run:**
+- Before changing any prompt in `src/memory/intelligence/prompts.py`
+- Before shipping any change that touches extraction, routing, or reception logic
+- After a model change in `src/memory/config.py`
+- Before closing any CV7 story that modifies LLM behavior
+
+**How to run:**
+
+```bash
+uv run python -m memory eval extraction
+uv run python -m memory eval routing          # available after CV7.E1.S3
+uv run python -m memory eval proportionality  # available after CV7.E1.S3
+```
+
+Exit code 0 means the probe score met the threshold. Exit code 1 means it did
+not — investigate which probes failed before shipping.
+
+**How to add a new eval:**
+
+1. Create `evals/<name>.py`
+2. Define `PROBES: list[EvalProbe]` and `THRESHOLD: float`
+3. Each probe has an `id`, a `description`, and a `run() -> tuple[bool, str]`
+   callable that returns `(passed, notes)`
+4. The `run()` function calls real intelligence functions — no mocking
+5. Document the intent of each probe in its `description`
+
+Example:
+
+```python
+from evals.types import EvalProbe
+
+THRESHOLD = 0.8
+
+def _my_probe() -> tuple[bool, str]:
+    result = some_intelligence_function(inputs)
+    passed = meets_expected_shape(result)
+    return passed, f"{len(result)} items returned"
+
+PROBES = [
+    EvalProbe(id="my-case", description="...", run=_my_probe),
+]
+```
+
 **See also:** [Principles](../product/principles.md) · [Worklog](worklog.md)

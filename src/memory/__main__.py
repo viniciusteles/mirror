@@ -49,6 +49,8 @@ Commands:
   consult              Ask other LLMs through OpenRouter with Mirror context
                        Usage: python -m memory consult <family> [tier] "question" [--persona P] [--journey J] [--org] [--mirror-home PATH]
                               python -m memory consult credits
+  eval                 Run a named eval probe set (hits real LLM — costs money, not for CI)
+                       Usage: python -m memory eval <name>
 """
 
 
@@ -176,6 +178,11 @@ def main() -> None:
         from memory.cli.migrate_legacy import main as _migrate_legacy_main
 
         _migrate_legacy_main()
+
+    elif command == "eval":
+        from evals.runner import main as _eval_main
+
+        sys.exit(_eval_main(sys.argv[2:]))
 
     else:
         print(f"Unknown command: {command}\n")
