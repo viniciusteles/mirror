@@ -83,3 +83,89 @@ def test_count_memories_by_type_returns_grouped_counts(store):
     counts = dict(store.count_memories_by_type())
 
     assert counts == {"decision": 1, "insight": 2}
+
+
+# ---------------------------------------------------------------------------
+# fts_search
+# ---------------------------------------------------------------------------
+
+
+class TestFtsSearch:
+    def test_returns_matching_memory_by_title_word(self, store):
+        store.create_memory(
+            Memory(
+                title="Python refactoring decision",
+                content="We split the module.",
+                memory_type="decision",
+            )
+        )
+        results = store.fts_search("Python")
+        ids = [r[0] for r in results]
+        assert any(ids), "Expected at least one FTS result"
+
+    def test_returns_empty_for_no_match(self, store):
+        store.create_memory(
+            Memory(title="Irrelevant memory", content="Nothing here.", memory_type="insight")
+        )
+        results = store.fts_search("xyznonexistent")
+        assert results == []
+
+    def test_rank_scores_descend(self, store):
+        store.create_memory(
+            Memory(
+                title="pricing pricing pricing", content="Lots of pricing.", memory_type="decision"
+            )
+        )
+        store.create_memory(
+            Memory(title="pricing once", content="Other content.", memory_type="decision")
+        )
+        results = store.fts_search("pricing")
+        scores = [s for _, s in results]
+        assert scores == sorted(scores, reverse=True)
+
+    def test_respects_layer_filter(self, store):
+        store.create_memory(
+            Memory(
+                title="auth refactor",
+                content="Split auth module.",
+                memory_type="decision",
+                layer="ego",
+            )
+        )
+        store.create_memory(
+            Memory(
+                title="auth insight", content="Auth is hard.", memory_type="insight", layer="self"
+            )
+        )
+        results = store.fts_search("auth", layer="self")
+        ids = [r[0] for r in results]
+        assert len(ids) == 1
+
+    def test_respects_journey_filter(self, store):
+        store.create_memory(
+            Memory(
+                title="mirror build",
+                content="Build step.",
+                memory_type="decision",
+                journey="mirror",
+            )
+        )
+        store.create_memory(
+            Memory(
+                title="mirror plan", content="Plan step.", memory_type="decision", journey="other"
+            )
+        )
+        results = store.fts_search("mirror", journey="mirror")
+        assert len(results) == 1
+
+    def test_new_memory_is_found_by_fts(self, store):
+        store.create_memory(
+            Memory(title="unique_term_xyz", content="Content.", memory_type="insight")
+        )
+        results = store.fts_search("unique_term_xyz")
+        assert len(results) == 1
+
+    def test_graceful_on_malformed_query(self, store):
+        # FTS5 may raise OperationalError on syntax errors; should return []
+        results = store.fts_search('AND OR NOT ""')
+        assert isinstance(results, list)

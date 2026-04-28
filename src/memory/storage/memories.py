@@ -1,9 +1,23 @@
 """Memory persistence operations."""
 
+import sqlite3
 from datetime import datetime, timezone
 
 from memory.models import Memory, MemorySummary
 from memory.storage.base import ConnectionBacked
+
+
+def _fts_query(query: str) -> str:
+    """Convert a natural language query to a safe FTS5 MATCH expression.
+
+    Each whitespace-delimited word is individually double-quoted, producing
+    an AND-of-terms search that avoids FTS5 operator interpretation.
+    """
+    words = [w.replace('"', "") for w in query.split()]
+    words = [w for w in words if w]
+    if not words:
+        return ""
+    return " ".join(f'"{w}"' for w in words)
 
 
 class MemoryStore(ConnectionBacked):
@@ -131,6 +145,53 @@ class MemoryStore(ConnectionBacked):
             (memory_id,),
         ).fetchone()
         return row["cnt"] if row else 0
+
+    def fts_search(
+        self,
+        query: str,
+        memory_type: str | None = None,
+        layer: str | None = None,
+        journey: str | None = None,
+        limit: int = 100,
+    ) -> list[tuple[str, float]]:
+        """Full-text search using FTS5 BM25 ranking.
+
+        Returns (memory_id, rank_score) pairs where rank_score = 1/(1+rank).
+        Returns [] gracefully when the FTS table does not exist or query fails.
+        """
+        safe_q = _fts_query(query)
+        if not safe_q:
+            return []
+
+        conditions: list[str] = []
+        params: list = [safe_q]
+        if memory_type:
+            conditions.append("m.memory_type = ?")
+            params.append(memory_type)
+        if layer:
+            conditions.append("m.layer = ?")
+            params.append(layer)
+        if journey:
+            conditions.append("m.journey = ?")
+            params.append(journey)
+
+        where_extra = (" AND " + " AND ".join(conditions)) if conditions else ""
+        params.append(limit)
+
+        try:
+            rows = self.conn.execute(
+                f"""SELECT m.id
+                    FROM memories_fts f
+                    JOIN memories m ON m.rowid = f.rowid
+                    WHERE memories_fts MATCH ?{where_extra}
+                    ORDER BY bm25(memories_fts)
+                    LIMIT ?""",
+                params,
+            ).fetchall()
+        except sqlite3.OperationalError:
+            return []
+
+        return [(row[0], 1.0 / (1.0 + i)) for i, row in enumerate(rows)]
 
     # --- Conversation Embeddings ---
 

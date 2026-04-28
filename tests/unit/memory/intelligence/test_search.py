@@ -3,7 +3,8 @@
 import numpy as np
 import pytest
 
-from memory.intelligence.search import cosine_similarity, hybrid_score, recency_score
+from memory.intelligence.search import cosine_similarity, hybrid_score, mmr_dedupe, recency_score
+from memory.models import Memory
 
 
 class TestCosineSimilarity:
@@ -108,3 +109,59 @@ class TestHybridScore:
     def test_returns_float(self):
         result = hybrid_score(0.5, 0.5, 1, 0.5)
         assert isinstance(result, float)
+
+
+# ---------------------------------------------------------------------------
+# mmr_dedupe
+# ---------------------------------------------------------------------------
+
+
+def _make_memory(title: str = "T") -> Memory:
+    return Memory(memory_type="insight", layer="ego", title=title, content="Content.")
+
+
+class TestMmrDedupe:
+    def test_empty_input_returns_empty(self):
+        assert mmr_dedupe([], limit=5, threshold=0.92) == []
+
+    def test_returns_up_to_limit(self):
+        candidates = [
+            (_make_memory(), 0.9, np.array([1.0, 0.0])),
+            (_make_memory(), 0.8, np.array([0.0, 1.0])),
+            (_make_memory(), 0.7, np.array([0.5, 0.5])),
+        ]
+        result = mmr_dedupe(candidates, limit=2, threshold=0.92)
+        assert len(result) == 2
+
+    def test_near_duplicate_suppressed(self):
+        # Two nearly identical embeddings — second should be suppressed.
+        base = np.array([1.0, 0.0, 0.0])
+        near_dup = np.array([0.999, 0.001, 0.0])
+        near_dup = near_dup / np.linalg.norm(near_dup)
+        different = np.array([0.0, 1.0, 0.0])
+        candidates = [
+            (_make_memory("A"), 0.9, base),
+            (_make_memory("B"), 0.85, near_dup),  # near-duplicate of A
+            (_make_memory("C"), 0.7, different),
+        ]
+        result = mmr_dedupe(candidates, limit=5, threshold=0.92)
+        titles = [sr.memory.title for sr in result]
+        assert "A" in titles
+        assert "B" not in titles  # suppressed
+        assert "C" in titles
+
+    def test_diverse_candidates_all_kept(self):
+        candidates = [
+            (_make_memory("A"), 0.9, np.array([1.0, 0.0, 0.0])),
+            (_make_memory("B"), 0.8, np.array([0.0, 1.0, 0.0])),
+            (_make_memory("C"), 0.7, np.array([0.0, 0.0, 1.0])),
+        ]
+        result = mmr_dedupe(candidates, limit=10, threshold=0.92)
+        assert len(result) == 3
+
+    def test_fewer_candidates_than_limit_returns_all(self):
+        candidates = [
+            (_make_memory(), 0.9, np.array([1.0, 0.0])),
+        ]
+        result = mmr_dedupe(candidates, limit=5, threshold=0.92)
+        assert len(result) == 1

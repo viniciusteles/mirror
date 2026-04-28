@@ -128,6 +128,31 @@ CREATE TABLE IF NOT EXISTS attachments (
 CREATE INDEX IF NOT EXISTS idx_attachments_journey ON attachments(journey_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_attachments_journey_name ON attachments(journey_id, name);
 
+CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
+    title,
+    content,
+    context,
+    content=memories,
+    content_rowid=rowid
+);
+
+CREATE TRIGGER IF NOT EXISTS memories_fts_ai AFTER INSERT ON memories BEGIN
+    INSERT INTO memories_fts(rowid, title, content, context)
+    VALUES (NEW.rowid, NEW.title, NEW.content, COALESCE(NEW.context, ''));
+END;
+
+CREATE TRIGGER IF NOT EXISTS memories_fts_ad AFTER DELETE ON memories BEGIN
+    INSERT INTO memories_fts(memories_fts, rowid, title, content, context)
+    VALUES ('delete', OLD.rowid, OLD.title, OLD.content, COALESCE(OLD.context, ''));
+END;
+
+CREATE TRIGGER IF NOT EXISTS memories_fts_au AFTER UPDATE ON memories BEGIN
+    INSERT INTO memories_fts(memories_fts, rowid, title, content, context)
+    VALUES ('delete', OLD.rowid, OLD.title, OLD.content, COALESCE(OLD.context, ''));
+    INSERT INTO memories_fts(rowid, title, content, context)
+    VALUES (NEW.rowid, NEW.title, NEW.content, COALESCE(NEW.context, ''));
+END;
+
 CREATE TABLE IF NOT EXISTS identity_descriptors (
     layer        TEXT NOT NULL,
     key          TEXT NOT NULL,

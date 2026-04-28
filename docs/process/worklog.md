@@ -9,6 +9,40 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-28 — CV7.E4.S1 complete: Hybrid search 2.0
+
+Adds FTS5 full-text lexical search as a new signal in the hybrid scorer and
+MMR deduplication to suppress near-identical results from the ranked list.
+
+**`memories_fts` FTS5 table** (`schema.py`, migration 008): external content
+table referencing `memories` via rowid. Three triggers (`ai`, `ad`, `au`)
+keep the FTS index in sync with every insert, update, and delete. Migration
+skips on fresh databases (SCHEMA handles it); populates from existing rows
+on existing databases. Migration 008 is idempotent.
+
+**`fts_search(query, memory_type, layer, journey, limit)`** on `MemoryStore`:
+converts the query to a safe FTS5 expression (per-word double-quoting avoids
+operator injection), joins back to `memories` to apply structured filters,
+returns `(memory_id, rank_score)` pairs where `rank_score = 1/(1+rank)`.
+Degrades gracefully to `[]` on any `sqlite3.OperationalError`.
+
+**Updated `SEARCH_WEIGHTS`** in `config.py`: added `lexical: 0.15`;
+rebalanced to sum to 1.0 (semantic 0.50, recency 0.15, reinforcement 0.10,
+relevance 0.10, lexical 0.15). Added `MMR_DEDUP_THRESHOLD = 0.92`.
+
+**`mmr_dedupe(candidates, limit, threshold)`** in `search.py`: Maximal
+Marginal Relevance pass. Iterates candidates in score order; suppresses any
+candidate whose max cosine similarity to already-selected results meets or
+exceeds threshold. Returns up to `limit` SearchResult values.
+
+**Updated `MemorySearch.search()`**: FTS5 rank scores fetched once per
+search call; added to the hybrid score via lexical weight; MMR dedup applied
+before logging access and returning results.
+
+917 tests pass. ruff clean.
+
+---
+
 ### 2026-04-28 — CV7.E3 complete: Extraction Quality
 
 All four stories shipped. E3 is done.
@@ -605,7 +639,9 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV7.E4 (next):** Memory Depth — hybrid search, reinforcement, consolidation, shadow structural layer.
+- **CV7.E4.S2 (next):** Honest reinforcement — use vs retrieval, decay, schema migration (`last_accessed_at`, `use_count`, `readiness_state`).
+- **CV7.E4.S3:** Consolidation as integration (`mm-consolidate` skill).
+- **CV7.E4.S4:** Shadow as structural layer (shadow identity layer + readiness states + `mm-shadow` skill).
 - **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:
   1. **Quick win (pending).** Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`) that also open a fresh client on every call. Each hook invocation today runs bootstrap + migrations once per helper call; a shared client would halve or third that cost for common hook paths.
   2. **Structural.** Introduce a per-process `MemoryClient` cache keyed by `db_path` (lazy singleton) for library helpers in `hooks/` and `cli/conversation_logger.py`. Long-lived callers (Pi extension, shell hooks wired into one process) would reuse a single connection instead of paying bootstrap cost on every call. See [Decisions](../project/decisions.md) for the split between one-shot CLI entry points (process exit reclaims fds, no change needed) and library functions called from Python (where caching matters).

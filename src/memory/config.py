@@ -209,13 +209,18 @@ LLM_FAMILIES = {
     },
 }
 
-# Busca híbrida — pesos
+# Hybrid search weights (sum = 1.0)
 SEARCH_WEIGHTS = {
-    "semantic": 0.6,
-    "recency": 0.2,
-    "reinforcement": 0.1,
-    "relevance": 0.1,
+    "semantic": 0.50,
+    "recency": 0.15,
+    "reinforcement": 0.10,
+    "relevance": 0.10,
+    "lexical": 0.15,  # FTS5 rank-based score
 }
+
+# MMR deduplication threshold — candidates with cosine similarity >= this to any
+# already-selected result are suppressed. 0.92 = conservative, near-identical only.
+MMR_DEDUP_THRESHOLD = float(os.getenv("MEMORY_DEDUP_THRESHOLD", "0.92"))
 
 # Recência — half-life em dias
 RECENCY_HALF_LIFE_DAYS = 90

@@ -193,6 +193,50 @@ def _migrate_create_llm_calls(conn: sqlite3.Connection) -> None:
     )
 
 
+def _migrate_create_memories_fts(conn: sqlite3.Connection) -> None:
+    """Create the memories_fts FTS5 table, triggers, and initial population.
+
+    Skipped on fresh databases where `memories` does not exist yet — SCHEMA
+    creates memories_fts alongside the other tables in that case.
+    """
+    if _table_exists(conn, "memories_fts"):
+        return
+    if not _table_exists(conn, "memories"):
+        # Fresh database: SCHEMA will create memories_fts when it runs after migrations.
+        return
+    conn.executescript(
+        """
+        CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
+            title,
+            content,
+            context,
+            content=memories,
+            content_rowid=rowid
+        );
+
+        CREATE TRIGGER IF NOT EXISTS memories_fts_ai AFTER INSERT ON memories BEGIN
+            INSERT INTO memories_fts(rowid, title, content, context)
+            VALUES (NEW.rowid, NEW.title, NEW.content, COALESCE(NEW.context, ''));
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS memories_fts_ad AFTER DELETE ON memories BEGIN
+            INSERT INTO memories_fts(memories_fts, rowid, title, content, context)
+            VALUES ('delete', OLD.rowid, OLD.title, OLD.content, COALESCE(OLD.context, ''));
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS memories_fts_au AFTER UPDATE ON memories BEGIN
+            INSERT INTO memories_fts(memories_fts, rowid, title, content, context)
+            VALUES ('delete', OLD.rowid, OLD.title, OLD.content, COALESCE(OLD.context, ''));
+            INSERT INTO memories_fts(rowid, title, content, context)
+            VALUES (NEW.rowid, NEW.title, NEW.content, COALESCE(NEW.context, ''));
+        END;
+
+        INSERT INTO memories_fts(rowid, title, content, context)
+        SELECT rowid, title, content, COALESCE(context, '') FROM memories;
+        """
+    )
+
+
 def _migrate_create_identity_descriptors(conn: sqlite3.Connection) -> None:
     """Create the identity_descriptors sidecar table if it does not yet exist."""
     if _table_exists(conn, "identity_descriptors"):
@@ -221,6 +265,7 @@ MIGRATIONS: list[tuple[str, MigrationApply]] = [
     ("005_travessia_to_journey", _migrate_travessia_to_journey),
     ("006_create_llm_calls", _migrate_create_llm_calls),
     ("007_create_identity_descriptors", _migrate_create_identity_descriptors),
+    ("008_create_memories_fts", _migrate_create_memories_fts),
 ]
 
 

@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 
 import numpy as np
 
-from memory.config import RECENCY_HALF_LIFE_DAYS, SEARCH_WEIGHTS
+from memory.config import MMR_DEDUP_THRESHOLD, RECENCY_HALF_LIFE_DAYS, SEARCH_WEIGHTS
 from memory.intelligence.embeddings import bytes_to_embedding, generate_embedding
-from memory.models import SearchResult
+from memory.models import Memory, SearchResult
 from memory.storage.store import Store
 
 
@@ -47,6 +47,33 @@ def hybrid_score(
     )
 
 
+def mmr_dedupe(
+    candidates: list[tuple[Memory, float, np.ndarray]],
+    limit: int,
+    threshold: float,
+) -> list[SearchResult]:
+    """Maximal Marginal Relevance deduplication.
+
+    Iterates candidates in score order. A candidate is suppressed when its
+    cosine similarity to any already-selected result meets or exceeds `threshold`.
+    Returns up to `limit` SearchResult values.
+    """
+    selected: list[SearchResult] = []
+    selected_embeddings: list[np.ndarray] = []
+
+    for mem, score, emb in candidates:
+        if selected_embeddings:
+            max_sim = max(cosine_similarity(emb, s) for s in selected_embeddings)
+            if max_sim >= threshold:
+                continue
+        selected.append(SearchResult(mem, score))
+        selected_embeddings.append(emb)
+        if len(selected) >= limit:
+            break
+
+    return selected
+
+
 class MemorySearch:
     def __init__(self, store: Store):
         self.store = store
@@ -59,13 +86,12 @@ class MemorySearch:
         layer: str | None = None,
         journey: str | None = None,
     ) -> list[SearchResult]:
-        """Search memories by hybrid similarity and return SearchResult values."""
+        """Search memories using hybrid scoring (semantic + lexical + recency + reinforcement)
+        with MMR deduplication."""
         query_embedding = generate_embedding(query)
 
-        # Load all memories with embeddings.
+        # Load all memories with embeddings and apply filters.
         all_memories = self.store.get_all_memories_with_embeddings()
-
-        # Filter.
         if memory_type:
             all_memories = [m for m in all_memories if m.memory_type == memory_type]
         if layer:
@@ -73,21 +99,32 @@ class MemorySearch:
         if journey:
             all_memories = [m for m in all_memories if m.journey == journey]
 
-        scored = []
+        # Lexical pass: FTS5 rank scores keyed by memory id.
+        fts_lookup = dict(
+            self.store.fts_search(query, memory_type=memory_type, layer=layer, journey=journey)
+        )
+
+        # Score every candidate.
+        lexical_weight = SEARCH_WEIGHTS.get("lexical", 0.0)
+        candidates: list[tuple] = []
         for mem in all_memories:
             if mem.embedding is None:
                 continue
-            mem_embedding = bytes_to_embedding(mem.embedding)
-            sem_score = cosine_similarity(query_embedding, mem_embedding)
-            rec_score = recency_score(mem.created_at)
+            emb = bytes_to_embedding(mem.embedding)
+            sem = cosine_similarity(query_embedding, emb)
+            rec = recency_score(mem.created_at)
             access_count = self.store.get_access_count(mem.id)
-            score = hybrid_score(sem_score, rec_score, access_count, mem.relevance_score)
-            scored.append(SearchResult(mem, score))
+            score = hybrid_score(sem, rec, access_count, mem.relevance_score)
+            score += lexical_weight * fts_lookup.get(mem.id, 0.0)
+            candidates.append((mem, score, emb))
 
-        scored.sort(key=lambda x: x[1], reverse=True)
+        candidates.sort(key=lambda x: x[1], reverse=True)
+
+        # MMR deduplication.
+        results = mmr_dedupe(candidates, limit=limit, threshold=MMR_DEDUP_THRESHOLD)
 
         # Log access for returned memories.
-        for mem, _ in scored[:limit]:
-            self.store.log_access(mem.id, context=query[:200])
+        for sr in results:
+            self.store.log_access(sr.memory.id, context=query[:200])
 
-        return scored[:limit]
+        return results
