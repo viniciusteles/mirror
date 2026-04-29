@@ -23,7 +23,7 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV4](cv4-framework-user-separation/index.md) | Framework/User Separation | ✅ Done |
 | [CV5](cv5-multisession-safety/index.md) | Multisession Safety | ✅ Done |
 | [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | ✅ Done |
-| [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | In Progress |
+| [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | ✅ Done |
 | [CV8](cv8-runtime-expansion/index.md) | Runtime Expansion: Codex and Gemini CLI | Draft |
 
 ---

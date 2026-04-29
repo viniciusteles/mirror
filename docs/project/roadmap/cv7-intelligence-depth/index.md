@@ -2,7 +2,7 @@
 
 # CV7 — Intelligence Depth
 
-**Status:** In Progress
+**Status:** Done
 **Goal:** Improve the quality and depth of what the mirror remembers, how it routes a turn, what it puts in front of the model, and what it cultivates over time — without abandoning the principle that every token in the prompt must earn its place.
 
 ---
@@ -43,7 +43,7 @@ reconstruction (`mirror-mind`) and the broader field, lives in
 | [CV7.E1](cv7-e1-observability/index.md) | Pipeline Observability & Evals | Every LLM call is logged and inspectable; behavior can be evaluated across versions, models, and prompt revisions | Done |
 | [CV7.E2](cv7-e2-reception/index.md) | Reception & Conditional Composition | A small reception step classifies each turn (persona, journey, identity-touch, shadow-touch); the system prompt loads only what reception activates | Done |
 | [CV7.E3](cv7-e3-extraction-quality/index.md) | Extraction Quality | Memory extracted from conversations is fewer, sharper, deduplicated against existing memory; descriptors for routing are generated and curated | Done |
-| [CV7.E4](cv7-e4-memory-depth/index.md) | Memory Depth: Search, Reinforcement, Shadow | Hybrid retrieval scales beyond in-process scan; reinforcement reflects use, not just retrieval; consolidation promotes raw memories into structural identity content; shadow is a structural layer with readiness states | Planned |
+| [CV7.E4](cv7-e4-memory-depth/index.md) | Memory Depth: Search, Reinforcement, Shadow | Hybrid retrieval scales beyond in-process scan; reinforcement reflects use, not just retrieval; consolidation promotes raw memories into structural identity content; shadow is a structural layer with readiness states | Done |
 
 ---
 

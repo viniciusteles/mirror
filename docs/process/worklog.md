@@ -9,6 +9,43 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — CV7.E4 complete: Memory Depth (S4 — Shadow as structural cultivation)
+
+Four pieces completing the shadow architecture decided in the 2026-04-26
+therapist session.
+
+**Shadow composition wiring:** `touches_shadow` now propagates from
+reception through `_resolve_defaults()` → `load()` →
+`load_mirror_context()` → identity service. The shadow layer composes
+asymmetrically: only when `touches_shadow=True` AND `identity.shadow`
+has content. Composition includes a provenance framing line.
+
+**`propose_shadow_observations()`** in `intelligence/shadow.py`: scans
+shadow-candidate memories (layer=shadow or type=tension/pattern,
+readiness_state in observed/candidate), loads existing structural shadow
+content for dedup, calls the LLM once with the full pool.
+`SHADOW_SCAN_PROMPT` encodes: ground in evidence, don't duplicate
+existing structural content, return [] when insufficient. Fail-open.
+
+**`get_shadow_candidate_memories()`** added to `MemoryStore`: one query
+for all shadow-candidate memories.
+
+**Bug fixed:** `create_memory()` INSERT now explicitly sets `use_count`
+and `readiness_state` from the model — previously always used DB defaults.
+
+**mm-shadow CLI**: scan / apply / reject / list / show.
+On apply: writes to `identity.shadow.profile`, sources → `acknowledged`,
+provenance recorded in `consolidations` table (action=`shadow_observation`).
+
+**Skills**: `mm-shadow` (Pi) and `mm:shadow` (Claude Code).
+
+CV7.E4 fully done: S1 (hybrid search) + S2 (honest reinforcement) +
+S3 (consolidation) + S4 (shadow). CV7 is complete.
+
+997 tests pass. ruff clean. CI green on Python 3.10 and 3.12.
+
+---
+
 ### 2026-04-29 — CV7.E4.S3 complete: Consolidation as integration
 
 The move from "the mirror remembers" to "the mirror grows". Raw extracted
