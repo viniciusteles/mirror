@@ -103,7 +103,7 @@ The only honest limitation: `SessionEnd` is best-effort. Extraction defers to ne
 | Code | Epic | User-visible outcome | Status |
 |------|------|----------------------|--------|
 | [CV8.E1](cv8-e1-gemini-cli-runtime-spike/index.md) | Gemini CLI Runtime Spike | Gemini CLI capabilities fully mapped; target parity L4 confirmed | Done |
-| [CV8.E2](cv8-e2-gemini-cli-runtime-implementation/index.md) | Gemini CLI Runtime Implementation | Gemini CLI can run Mirror Mind through shell hooks over the Python core | Draft |
+| [CV8.E2](cv8-e2-gemini-cli-runtime-implementation/index.md) | Gemini CLI Runtime Implementation | Gemini CLI can run Mirror Mind through shell hooks over the Python core | Done |
 | [CV8.E3](cv8-e3-gemini-cli-operational-validation/index.md) | Gemini CLI Operational Validation & Docs | Gemini CLI integration is smoke-tested, documented, and safe against production DB leakage | Draft |
 | [CV8.E4](cv8-e4-runtime-adapter-hardening/index.md) | Runtime Adapter Hardening | Lessons from Gemini CLI are folded into reusable runtime guidance before Codex work starts | Draft |
 | [CV8.E5](cv8-e5-codex-runtime-spike/index.md) | Codex Runtime Spike | We know exactly what Codex exposes and what parity level is realistic | Draft |

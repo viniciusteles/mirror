@@ -786,9 +786,36 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ---
 
+## Done
+
+### 2026-04-29 — CV8.E2 complete: Gemini CLI runtime implementation
+
+Four shell hooks + settings.json + 19 skill symlinks.
+
+**Hooks** (`.gemini/hooks/`, registered in `.gemini/settings.json`):
+- `session-start.sh` → `SessionStart`: `conversation-logger session-start`
+- `log-user.sh` → `BeforeAgent`: `log-user --interface gemini_cli` + conditional
+  `mirror load --context-only` returning identity block as `additionalContext`
+- `log-assistant.sh` → `AfterAgent`: `log-assistant --interface gemini_cli`
+- `session-end.sh` → `SessionEnd` (best-effort): `session-end-pi` + `backup --silent`
+
+Session ID via `$GEMINI_SESSION_ID` env var — no stdin parsing needed.
+Skill invocations (prompts starting with `/`) skip logging in `BeforeAgent`.
+
+**Skills** (`.gemini/skills/mm-*/`): 19 symlinks pointing to `.pi/skills/mm-*/`.
+Same SKILL.md format — one source of truth for both runtimes. Verified with
+`gemini skills list` — all 19 discovered and enabled.
+
+**No Python changes** — `interface` is a free-text field; `gemini_cli` passes
+through unchanged. 997 tests still pass.
+
+Runtime interface doc updated: Gemini CLI added as third runtime.
+
+---
+
 ## Next
 
-- **CV8.E2 (next):** Gemini CLI Runtime Implementation — hook scripts, `settings.json`,
+- **CV8.E3 (next):** Gemini CLI Operational Validation & Docs — hook scripts, `settings.json`,
   `gemini_cli` interface label in Python, and `.gemini/skills/mm-*/SKILL.md` surface.
   See [CV8.E2 index](../project/roadmap/cv8-runtime-expansion/cv8-e2-gemini-cli-runtime-implementation/index.md).
 - **CV8.E3:** Gemini CLI Operational Validation & Docs — smoke test, isolated DB, README/REFERENCE updates.

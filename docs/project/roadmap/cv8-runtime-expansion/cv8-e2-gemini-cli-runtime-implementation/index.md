@@ -3,7 +3,7 @@
 # CV8.E2 — Gemini CLI Runtime Implementation
 
 **Epic:** Add a Gemini CLI runtime adapter that calls the shared Python core without duplicating Mirror Mind behavior
-**Status:** Draft
+**Status:** Done
 **Depends on:** CV8.E1 Gemini CLI Runtime Spike
 
 ---
@@ -42,12 +42,12 @@ calls. They must not own Mirror Mind behavior.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV8.E2.S1 | Add `gemini_cli` interface support in Python CLI and reporting surfaces | Draft |
-| CV8.E2.S2 | Implement session lifecycle hooks (session-start, session-end) | Draft |
-| CV8.E2.S3 | Implement per-turn logging hooks (BeforeAgent, AfterAgent) | Draft |
-| CV8.E2.S4 | Implement Mirror Mode context injection via BeforeAgent | Draft |
-| CV8.E2.S5 | Add `.gemini/skills/mm-*/SKILL.md` command surface | Draft |
-| CV8.E2.S6 | Add Builder Mode skill | Draft |
+| CV8.E2.S1 | Add `gemini_cli` interface support in Python CLI and reporting surfaces | Done (no-op — free-text field) |
+| CV8.E2.S2 | Implement session lifecycle hooks (session-start, session-end) | Done |
+| CV8.E2.S3 | Implement per-turn logging hooks (BeforeAgent, AfterAgent) | Done |
+| CV8.E2.S4 | Implement Mirror Mode context injection via BeforeAgent | Done |
+| CV8.E2.S5 | Add `.gemini/skills/mm-*/SKILL.md` command surface | Done (19 symlinks) |
+| CV8.E2.S6 | Add Builder Mode skill | Done (mm-build symlinked) |
 
 ---
 
