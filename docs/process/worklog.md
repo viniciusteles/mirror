@@ -9,7 +9,7 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
-### 2026-04-29 — Gemini CLI hooks tolerate missing `GEMINI_SESSION_ID`
+### 2026-04-29 — v0.5.1 released: Gemini CLI hooks tolerate missing `GEMINI_SESSION_ID`
 
 Fixed the Gemini CLI hook integration after real runtime use showed that
 `GEMINI_SESSION_ID` may be absent even though `session_id` is present in the
