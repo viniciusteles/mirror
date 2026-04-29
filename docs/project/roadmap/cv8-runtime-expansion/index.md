@@ -94,7 +94,7 @@ native SKILL.md discovery (`.gemini/skills/`) together satisfy every parity requ
 The only honest limitation: `SessionEnd` is best-effort. Extraction defers to next
 `SessionStart` — the same model used by Pi, already battle-tested.
 
-**Codex target:** TBD after CV8.E1.
+**Codex target: L3.** No lifecycle hooks exist. L1 via wrapper script + JSONL backfill at session end. L2 via `.agents/skills/mm-*/SKILL.md` native discovery. L3 via `AGENTS.md` static injection + explicit `mm-mirror` skill invocation (same model as Pi). L4 not achievable without hook support.
 
 ---
 
@@ -106,7 +106,7 @@ The only honest limitation: `SessionEnd` is best-effort. Extraction defers to ne
 | [CV8.E2](cv8-e2-gemini-cli-runtime-implementation/index.md) | Gemini CLI Runtime Implementation | Gemini CLI can run Mirror Mind through shell hooks over the Python core | Done |
 | [CV8.E3](cv8-e3-gemini-cli-operational-validation/index.md) | Gemini CLI Operational Validation & Docs | Gemini CLI integration is smoke-tested, documented, and safe against production DB leakage | Done |
 | [CV8.E4](cv8-e4-runtime-adapter-hardening/index.md) | Runtime Adapter Hardening | Lessons from Gemini CLI are folded into reusable runtime guidance before Codex work starts | Done |
-| [CV8.E5](cv8-e5-codex-runtime-spike/index.md) | Codex Runtime Spike | We know exactly what Codex exposes and what parity level is realistic | Draft |
+| [CV8.E5](cv8-e5-codex-runtime-spike/index.md) | Codex Runtime Spike | We know exactly what Codex exposes and what parity level is realistic | Done |
 | [CV8.E6](cv8-e6-codex-runtime-implementation/index.md) | Codex Runtime Implementation | Codex can run Mirror Mind through a thin adapter over the Python core | Draft |
 | [CV8.E7](cv8-e7-codex-operational-validation/index.md) | Codex Operational Validation & Docs | Codex integration is smoke-tested, documented, and safe against production DB leakage | Draft |
 

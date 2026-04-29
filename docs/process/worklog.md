@@ -872,9 +872,44 @@ prediction matrix included.
 
 ---
 
+### 2026-04-29 — CV8.E5 complete: Codex runtime spike — L3 parity
+
+Inspected Codex 0.125.0 against the hardened Mirror Mind runtime contract.
+
+**Central finding: no lifecycle hooks.** Codex has no SessionStart, BeforeAgent,
+AfterAgent, or SessionEnd hook system. This bounds the parity level to L3.
+
+**Session ID:** embedded in the JSONL filename
+(`~/.codex/sessions/YYYY/MM/DD/rollout-<timestamp>-<uuid>.jsonl`) and in
+`session_meta.payload.id`. Not available as an env var. Post-hoc extraction
+required.
+
+**Transcript:** full session JSONL. User turns: `event_msg` with
+`type: user_message`. Assistant turns: `event_msg` with `type: agent_message`.
+Parseable for backfill — same model as Claude Code, triggered by wrapper.
+
+**Skills:** native SKILL.md at `.agents/skills/<name>/SKILL.md` (project-level)
+and `~/.codex/skills/` (global). Same format as Pi. Confirmed via
+`codex debug prompt-input`. L2 is a symlink operation.
+
+**Context injection:** `AGENTS.md` loaded hierarchically at session start
+(global `~/.codex/AGENTS.md` + project `AGENTS.md`, concatenated). Static —
+injected once, not per-turn. Mirror Mode uses explicit skill invocation (Pi model).
+
+**Target parity: L3** (with wrapper script):
+- L1: wrapper → session-start + JSONL backfill + session-end-pi
+- L2: `.agents/skills/mm-*/` symlinks
+- L3: `AGENTS.md` + explicit `mm-mirror` skill
+- L4: not achievable (no hook support)
+
+Implementation plan produced for E6: `backfill-codex-session` CLI command,
+`scripts/codex-mirror.sh` wrapper, skill symlinks, `AGENTS.md`.
+
+---
+
 ## Next
 
-- **CV8.E5 (next):** Codex Runtime Spike — hook scripts, `settings.json`,
+- **CV8.E6 (next):** Codex Runtime Implementation — hook scripts, `settings.json`,
   `gemini_cli` interface label in Python, and `.gemini/skills/mm-*/SKILL.md` surface.
   See [CV8.E2 index](../project/roadmap/cv8-runtime-expansion/cv8-e2-gemini-cli-runtime-implementation/index.md).
 - **CV8.E3:** Gemini CLI Operational Validation & Docs — smoke test, isolated DB, README/REFERENCE updates.
