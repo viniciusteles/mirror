@@ -127,7 +127,9 @@ class TestHybridScore:
         from memory.config import SEARCH_WEIGHTS
 
         score = hybrid_score(1.0, 1.0, 1.0, 1.0)
-        expected = sum(SEARCH_WEIGHTS[k] for k in ("semantic", "recency", "reinforcement", "relevance"))
+        expected = sum(
+            SEARCH_WEIGHTS[k] for k in ("semantic", "recency", "reinforcement", "relevance")
+        )
         assert abs(score - expected) < 1e-9
 
 

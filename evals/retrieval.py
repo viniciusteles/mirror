@@ -110,7 +110,10 @@ def _probe_retrieval_weight_caps_at_retrieval_weight() -> tuple[bool, str]:
     )
     # Should be close to RETRIEVAL_WEIGHT * 1.0 (decay ≈ 1 for 0 days)
     passed = abs(max_retrieval - REINFORCEMENT_RETRIEVAL_WEIGHT) < 0.01
-    return passed, f"max_retrieval_score={max_retrieval:.6f} expected≈{REINFORCEMENT_RETRIEVAL_WEIGHT:.6f}"
+    return (
+        passed,
+        f"max_retrieval_score={max_retrieval:.6f} expected≈{REINFORCEMENT_RETRIEVAL_WEIGHT:.6f}",
+    )
 
 
 def _probe_hybrid_score_incorporates_reinforcement() -> tuple[bool, str]:
@@ -133,7 +136,13 @@ def _probe_readiness_default() -> tuple[bool, str]:
     """New Memory instances default to 'observed' readiness state."""
     from memory.models import Memory
 
-    mem = Memory(memory_type="insight", layer="ego", title="t", content="c", created_at="2026-01-01T00:00:00Z")
+    mem = Memory(
+        memory_type="insight",
+        layer="ego",
+        title="t",
+        content="c",
+        created_at="2026-01-01T00:00:00Z",
+    )
     passed = mem.readiness_state == "observed"
     return passed, f"readiness_state='{mem.readiness_state}' (expected 'observed')"
 
@@ -142,7 +151,13 @@ def _probe_use_count_default_zero() -> tuple[bool, str]:
     """New Memory instances default use_count to 0."""
     from memory.models import Memory
 
-    mem = Memory(memory_type="insight", layer="ego", title="t", content="c", created_at="2026-01-01T00:00:00Z")
+    mem = Memory(
+        memory_type="insight",
+        layer="ego",
+        title="t",
+        content="c",
+        created_at="2026-01-01T00:00:00Z",
+    )
     passed = mem.use_count == 0
     return passed, f"use_count={mem.use_count} (expected 0)"
 
