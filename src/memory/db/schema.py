@@ -38,7 +38,10 @@ CREATE TABLE IF NOT EXISTS memories (
     created_at TEXT NOT NULL,
     relevance_score REAL DEFAULT 1.0,
     embedding BLOB,
-    metadata TEXT
+    metadata TEXT,
+    last_accessed_at TEXT,
+    use_count INTEGER NOT NULL DEFAULT 0,
+    readiness_state TEXT NOT NULL DEFAULT 'observed'
 );
 
 CREATE TABLE IF NOT EXISTS conversation_embeddings (

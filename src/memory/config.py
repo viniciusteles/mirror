@@ -225,6 +225,15 @@ MMR_DEDUP_THRESHOLD = float(os.getenv("MEMORY_DEDUP_THRESHOLD", "0.92"))
 # Recência — half-life em dias
 RECENCY_HALF_LIFE_DAYS = 90
 
+# Reinforcement honest (CV7.E4.S2)
+# Half-life for retrieval signal decay — a memory last accessed this many days ago
+# has its retrieval signal halved. 180 days ≈ 6 months.
+REINFORCEMENT_DECAY_DAYS = int(os.getenv("MEMORY_REINFORCEMENT_DECAY_DAYS", "180"))
+# Weight of use_count signal within the reinforcement component (0-1).
+# Remainder (1 - USE_WEIGHT) goes to the retrieval signal.
+REINFORCEMENT_USE_WEIGHT = float(os.getenv("MEMORY_REINFORCEMENT_USE_WEIGHT", "0.7"))
+REINFORCEMENT_RETRIEVAL_WEIGHT = float(os.getenv("MEMORY_REINFORCEMENT_RETRIEVAL_WEIGHT", "0.3"))
+
 # Observability — set MEMORY_LOG_LLM_CALLS=1 to write every LLM call to llm_calls table
 LOG_LLM_CALLS = os.getenv("MEMORY_LOG_LLM_CALLS", "") == "1"
 

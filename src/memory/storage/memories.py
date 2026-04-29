@@ -137,6 +137,24 @@ class MemoryStore(ConnectionBacked):
             "INSERT INTO memory_access_log (memory_id, accessed_at, access_context) VALUES (?, ?, ?)",
             (memory_id, now, context),
         )
+        # Cache the last access time on the memory row for fast decay computation.
+        self.conn.execute(
+            "UPDATE memories SET last_accessed_at = ? WHERE id = ?",
+            (now, memory_id),
+        )
+        self.conn.commit()
+
+    def log_use(self, memory_id: str) -> None:
+        """Increment use_count — called when a memory was explicitly referenced in a response.
+
+        Distinct from log_access (retrieval): a memory can be retrieved many times
+        but only used when the model actually draws on it in a response. Use is the
+        stronger signal in honest reinforcement scoring.
+        """
+        self.conn.execute(
+            "UPDATE memories SET use_count = use_count + 1 WHERE id = ?",
+            (memory_id,),
+        )
         self.conn.commit()
 
     def get_access_count(self, memory_id: str) -> int:

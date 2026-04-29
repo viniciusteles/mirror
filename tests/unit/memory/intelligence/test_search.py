@@ -84,30 +84,31 @@ class TestRecencyScore:
 
 class TestHybridScore:
     def test_all_max_inputs_return_one(self):
-        score = hybrid_score(semantic=1.0, recency=1.0, access_count=0, relevance=1.0)
+        # All signals at 1.0; weights sum to 1.0 → score == 1.0
+        score = hybrid_score(semantic=1.0, recency=1.0, reinforcement=1.0, relevance=1.0)
         assert score <= 1.0
 
     def test_all_zero_inputs_return_zero(self):
-        score = hybrid_score(semantic=0.0, recency=0.0, access_count=0, relevance=0.0)
+        score = hybrid_score(semantic=0.0, recency=0.0, reinforcement=0.0, relevance=0.0)
         assert score == pytest.approx(0.0)
 
     def test_higher_semantic_yields_higher_score(self):
-        low = hybrid_score(semantic=0.1, recency=0.5, access_count=0, relevance=0.5)
-        high = hybrid_score(semantic=0.9, recency=0.5, access_count=0, relevance=0.5)
+        low = hybrid_score(semantic=0.1, recency=0.5, reinforcement=0.0, relevance=0.5)
+        high = hybrid_score(semantic=0.9, recency=0.5, reinforcement=0.0, relevance=0.5)
         assert high > low
 
-    def test_higher_access_count_yields_higher_score(self):
-        low = hybrid_score(semantic=0.5, recency=0.5, access_count=0, relevance=0.5)
-        high = hybrid_score(semantic=0.5, recency=0.5, access_count=100, relevance=0.5)
+    def test_higher_reinforcement_yields_higher_score(self):
+        low = hybrid_score(semantic=0.5, recency=0.5, reinforcement=0.0, relevance=0.5)
+        high = hybrid_score(semantic=0.5, recency=0.5, reinforcement=0.8, relevance=0.5)
         assert high > low
 
-    def test_reinforcement_caps_at_one(self):
-        # access_count=10^6 should not blow up the score
-        score = hybrid_score(semantic=1.0, recency=1.0, access_count=1_000_000, relevance=1.0)
+    def test_reinforcement_bounded(self):
+        # reinforcement=1.0 should not blow up the score
+        score = hybrid_score(semantic=1.0, recency=1.0, reinforcement=1.0, relevance=1.0)
         assert score <= 1.01  # tiny slack for floating point
 
     def test_returns_float(self):
-        result = hybrid_score(0.5, 0.5, 1, 0.5)
+        result = hybrid_score(0.5, 0.5, 0.5, 0.5)
         assert isinstance(result, float)
 
 

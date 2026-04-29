@@ -171,6 +171,15 @@ class MemoryClient:
     def get_timeline(self, start: str, end: str) -> list[Memory]:
         return self.memories.get_timeline(start, end)
 
+    def log_use(self, memory_id: str) -> None:
+        """Mark a memory as used in a response (increments use_count).
+
+        Use is distinct from retrieval: a memory can be retrieved many times
+        but should only be marked used when the model explicitly draws on it.
+        Use is the stronger signal in honest reinforcement scoring.
+        """
+        self.store.log_use(memory_id)
+
     # --- Journal ---
 
     def add_journal(

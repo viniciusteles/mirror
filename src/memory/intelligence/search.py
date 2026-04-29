@@ -5,7 +5,14 @@ from datetime import datetime, timezone
 
 import numpy as np
 
-from memory.config import MMR_DEDUP_THRESHOLD, RECENCY_HALF_LIFE_DAYS, SEARCH_WEIGHTS
+from memory.config import (
+    MMR_DEDUP_THRESHOLD,
+    RECENCY_HALF_LIFE_DAYS,
+    REINFORCEMENT_DECAY_DAYS,
+    REINFORCEMENT_RETRIEVAL_WEIGHT,
+    REINFORCEMENT_USE_WEIGHT,
+    SEARCH_WEIGHTS,
+)
 from memory.intelligence.embeddings import bytes_to_embedding, generate_embedding
 from memory.models import Memory, SearchResult
 from memory.storage.store import Store
@@ -30,15 +37,54 @@ def recency_score(created_at: str) -> float:
     return math.exp(-math.log(2) * days_ago / RECENCY_HALF_LIFE_DAYS)
 
 
+def reinforcement_score(
+    access_count: int,
+    use_count: int,
+    last_accessed_at: str | None,
+) -> float:
+    """Honest reinforcement: use vs retrieval with time decay.
+
+    Distinguishes two signals:
+    - use_count: how many times the model explicitly drew on this memory in a
+      response. Stronger signal, no decay (a used memory remains relevant).
+    - access_count: how many times the memory was retrieved (injected into
+      context). Weaker signal, decayed by time since last access — a memory
+      retrieved once in 2024 should not stay reinforced forever.
+
+    Weights are configurable via REINFORCEMENT_USE_WEIGHT and
+    REINFORCEMENT_RETRIEVAL_WEIGHT (see config.py).
+    """
+    use_signal = min(1.0, use_count / 5.0)
+
+    retrieval_raw = min(1.0, math.log1p(access_count) / 3.0)
+    if access_count > 0 and last_accessed_at:
+        try:
+            last = datetime.fromisoformat(last_accessed_at.rstrip("Z"))
+        except ValueError:
+            last = None
+    else:
+        last = None
+
+    if last is not None:
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        days = max(0.0, (now - last).total_seconds() / 86400)
+        decay = math.exp(-math.log(2) * days / REINFORCEMENT_DECAY_DAYS)
+        retrieval_signal = retrieval_raw * decay
+    else:
+        # access_count == 0 → retrieval_raw == 0; no last_accessed_at → no decay applied.
+        retrieval_signal = retrieval_raw
+
+    return REINFORCEMENT_USE_WEIGHT * use_signal + REINFORCEMENT_RETRIEVAL_WEIGHT * retrieval_signal
+
+
 def hybrid_score(
     semantic: float,
     recency: float,
-    access_count: int,
+    reinforcement: float,
     relevance: float,
 ) -> float:
     """Combine signals with configurable weights."""
     w = SEARCH_WEIGHTS
-    reinforcement = min(1.0, math.log1p(access_count) / 3.0)
     return (
         w["semantic"] * semantic
         + w["recency"] * recency
@@ -114,7 +160,8 @@ class MemorySearch:
             sem = cosine_similarity(query_embedding, emb)
             rec = recency_score(mem.created_at)
             access_count = self.store.get_access_count(mem.id)
-            score = hybrid_score(sem, rec, access_count, mem.relevance_score)
+            reinf = reinforcement_score(access_count, mem.use_count, mem.last_accessed_at)
+            score = hybrid_score(sem, rec, reinf, mem.relevance_score)
             score += lexical_weight * fts_lookup.get(mem.id, 0.0)
             candidates.append((mem, score, emb))
 

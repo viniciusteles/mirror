@@ -86,6 +86,9 @@ class Memory(_DomainModel):
     relevance_score: float = 1.0
     embedding: bytes | None = None
     metadata: str | None = None
+    last_accessed_at: str | None = None
+    use_count: int = 0
+    readiness_state: str = "observed"
 
 
 class Identity(BaseModel):

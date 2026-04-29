@@ -254,6 +254,31 @@ def _migrate_create_identity_descriptors(conn: sqlite3.Connection) -> None:
     )
 
 
+def _migrate_memories_reinforcement_columns(conn: sqlite3.Connection) -> None:
+    """Add last_accessed_at, use_count, and readiness_state to the memories table.
+
+    Introduced in CV7.E4.S2 (honest reinforcement) to distinguish use from
+    retrieval and enable time-decayed reinforcement scoring.
+
+    - last_accessed_at: timestamp of the last retrieval, cached for fast decay
+    - use_count: incremented when the memory was explicitly referenced in a response
+    - readiness_state: Jungian progression state (observed → integrated)
+    """
+    if not _table_exists(conn, "memories"):
+        # Fresh database: SCHEMA already includes these columns.
+        return
+    existing = _table_columns(conn, "memories")
+    if "last_accessed_at" not in existing:
+        conn.execute("ALTER TABLE memories ADD COLUMN last_accessed_at TEXT")
+    if "use_count" not in existing:
+        conn.execute("ALTER TABLE memories ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0")
+    if "readiness_state" not in existing:
+        conn.execute(
+            "ALTER TABLE memories ADD COLUMN readiness_state TEXT NOT NULL DEFAULT 'observed'"
+        )
+    conn.commit()
+
+
 MigrationApply = Callable[[sqlite3.Connection], None]
 
 
@@ -266,6 +291,7 @@ MIGRATIONS: list[tuple[str, MigrationApply]] = [
     ("006_create_llm_calls", _migrate_create_llm_calls),
     ("007_create_identity_descriptors", _migrate_create_identity_descriptors),
     ("008_create_memories_fts", _migrate_create_memories_fts),
+    ("009_memories_reinforcement_columns", _migrate_memories_reinforcement_columns),
 ]
 
 
