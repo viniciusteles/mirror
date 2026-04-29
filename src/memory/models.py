@@ -91,6 +91,30 @@ class Memory(_DomainModel):
     readiness_state: str = "observed"
 
 
+class Consolidation(_DomainModel):
+    """A consolidation proposal: a cluster of related memories with a proposed action.
+
+    Actions:
+    - 'merge': distill the cluster into one sharper memory
+    - 'identity_update': update a structural identity layer (ego, self) with the pattern
+    - 'shadow_candidate': mark the cluster as shadow material for the mm-shadow pass
+
+    Status lifecycle: pending → accepted | rejected
+    """
+
+    id: str = Field(default_factory=lambda: _uuid())
+    action: str  # 'merge' | 'identity_update' | 'shadow_candidate'
+    proposal: str  # full LLM-generated proposal text (markdown)
+    result: str | None = None  # content actually written (accepted or user-edited)
+    source_memory_ids: str  # JSON-encoded list of Memory.id values
+    target_layer: str | None = None  # 'ego', 'self', 'shadow'
+    target_key: str | None = None  # 'behavior', 'soul', etc.
+    rationale: str | None = None  # one-sentence LLM rationale
+    status: str = "pending"  # 'pending' | 'accepted' | 'rejected'
+    created_at: str = Field(default_factory=lambda: _now())
+    reviewed_at: str | None = None
+
+
 class Identity(BaseModel):
     id: str = Field(default_factory=lambda: _uuid())
     layer: str  # 'self', 'ego', 'user', 'organization', 'persona'

@@ -9,6 +9,7 @@ import sqlite3
 
 from memory.db import get_connection
 from memory.storage.attachments import AttachmentStore
+from memory.storage.consolidations import ConsolidationStore
 from memory.storage.conversations import ConversationStore
 from memory.storage.identity import IdentityStore
 from memory.storage.llm_calls import LLMCallStore
@@ -27,6 +28,7 @@ class Store(
     AttachmentStore,
     TaskStore,
     LLMCallStore,
+    ConsolidationStore,
 ):
     def __init__(self, conn: sqlite3.Connection | None = None):
         self.conn = conn or get_connection()

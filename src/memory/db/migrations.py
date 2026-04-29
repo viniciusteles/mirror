@@ -279,6 +279,36 @@ def _migrate_memories_reinforcement_columns(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+def _migrate_create_consolidations(conn: sqlite3.Connection) -> None:
+    """Create the consolidations table introduced in CV7.E4.S3.
+
+    Tracks consolidation proposals (merge / identity_update / shadow_candidate)
+    with full provenance: source memory IDs, proposed content, user decision,
+    and the resulting content that was written to the identity layer.
+    """
+    if _table_exists(conn, "consolidations"):
+        return
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS consolidations (
+            id TEXT PRIMARY KEY,
+            action TEXT NOT NULL,
+            proposal TEXT NOT NULL,
+            result TEXT,
+            source_memory_ids TEXT NOT NULL,
+            target_layer TEXT,
+            target_key TEXT,
+            rationale TEXT,
+            status TEXT NOT NULL DEFAULT 'pending',
+            created_at TEXT NOT NULL,
+            reviewed_at TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_consolidations_status ON consolidations(status);
+        CREATE INDEX IF NOT EXISTS idx_consolidations_created ON consolidations(created_at);
+        """
+    )
+
+
 MigrationApply = Callable[[sqlite3.Connection], None]
 
 
@@ -292,6 +322,7 @@ MIGRATIONS: list[tuple[str, MigrationApply]] = [
     ("007_create_identity_descriptors", _migrate_create_identity_descriptors),
     ("008_create_memories_fts", _migrate_create_memories_fts),
     ("009_memories_reinforcement_columns", _migrate_memories_reinforcement_columns),
+    ("010_create_consolidations", _migrate_create_consolidations),
 ]
 
 

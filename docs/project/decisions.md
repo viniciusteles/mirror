@@ -77,6 +77,38 @@ consumption come back together — or neither.
 
 ---
 
+### Consolidation promotion mechanism: manual-by-acknowledgment for S3
+
+**Date:** 2026-04-29
+**Reference:** [CV7.E4.S3](roadmap/cv7-intelligence-depth/cv7-e4-memory-depth/index.md), [CV7 §5.4 and §6 of draft-analysis](roadmap/cv7-intelligence-depth/draft-analysis.md)
+**Source:** Engineering planning pass — the E4 index and draft-analysis both flag this as the highest-leverage decision in CV7.
+
+**Decision: manual-by-acknowledgment.**
+
+The three options were:
+- **Auto-by-repetition**: system automatically promotes a memory when access_count or use_count crosses a threshold
+- **Manual-by-acknowledgment**: user reviews proposals and explicitly accepts, edits, or rejects
+- **Hybrid**: auto-surface candidates, require explicit acknowledgment to promote
+
+**Why manual-by-acknowledgment for S3:**
+
+1. **We don't know what the promotion mechanism wants to be.** The draft-analysis says this explicitly. Auto-by-repetition needs calibration data we don't have: which threshold? which signals? Implementing auto before we have data from real consolidation sessions means tuning blind — the same anti-pattern CV7.E1 was designed to prevent.
+
+2. **Consolidation is not memory hygiene; it is integration.** The Jungian frame matters here. Promoting a pattern into structural identity (or shadow) is a meaningful act — it changes how the mirror will respond to future conversations. That act deserves human judgment, at least until we understand the failure modes.
+
+3. **Provenance is safer with explicit acknowledgment.** When a user accepts a proposal, they know what entered the structural layer and why. When the system auto-promotes, the user has no clear moment of ownership. Confusion about "why does the mirror believe X" is a high-cost failure.
+
+**How it works in S3:**
+- `mm-consolidate scan` clusters similar memories and calls an LLM to propose one of: merge, identity_update, or shadow_candidate
+- Proposals are stored in the `consolidations` table with `status='pending'`
+- User reviews each proposal in conversation and issues `mm-consolidate apply <id>` or `mm-consolidate reject <id>`
+- On acceptance: identity is updated, source memories advance to `readiness_state='acknowledged'`, provenance is preserved
+- On rejection: proposal is marked `rejected`, memories stay at their current state
+
+**Hybrid deferred:** The hybrid approach (auto-surface + manual acknowledgment) is what S3 implements — scan is automatic, promotion is not. Full auto-by-repetition (skip the review loop) is a future extension once we have data from real sessions showing which proposals users consistently accept.
+
+---
+
 ### English domain language is complete and tagged
 
 **Date:** 2026-04-17  

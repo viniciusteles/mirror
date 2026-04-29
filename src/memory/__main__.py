@@ -55,6 +55,8 @@ Commands:
                               python -m memory descriptor list [--layer LAYER]
   eval                 Run a named eval probe set (hits real LLM — costs money, not for CI)
                        Usage: python -m memory eval <name>
+  consolidate          Scan memories for patterns and manage consolidation proposals
+                       Usage: python -m memory consolidate <scan|apply|reject|list> [args]
 """
 
 
@@ -192,6 +194,11 @@ def main() -> None:
         from evals.runner import main as _eval_main
 
         sys.exit(_eval_main(sys.argv[2:]))
+
+    elif command == "consolidate":
+        from memory.cli.consolidate_cmd import main as _consolidate_main
+
+        _consolidate_main(sys.argv[2:])
 
     else:
         print(f"Unknown command: {command}\n")

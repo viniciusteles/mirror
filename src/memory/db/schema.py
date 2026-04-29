@@ -164,6 +164,23 @@ CREATE TABLE IF NOT EXISTS identity_descriptors (
     PRIMARY KEY (layer, key)
 );
 
+CREATE TABLE IF NOT EXISTS consolidations (
+    id TEXT PRIMARY KEY,
+    action TEXT NOT NULL,            -- 'merge' | 'identity_update' | 'shadow_candidate'
+    proposal TEXT NOT NULL,          -- LLM-generated proposal (full markdown text)
+    result TEXT,                     -- content actually written (accepted as-is or user-edited)
+    source_memory_ids TEXT NOT NULL, -- JSON array of Memory.id values
+    target_layer TEXT,               -- 'ego', 'self', 'shadow' (for identity_update)
+    target_key TEXT,                 -- 'behavior', 'soul', etc. (for identity_update)
+    rationale TEXT,                  -- one-sentence LLM rationale for the chosen action
+    status TEXT NOT NULL DEFAULT 'pending', -- 'pending' | 'accepted' | 'rejected'
+    created_at TEXT NOT NULL,
+    reviewed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_consolidations_status ON consolidations(status);
+CREATE INDEX IF NOT EXISTS idx_consolidations_created ON consolidations(created_at);
+
 CREATE TABLE IF NOT EXISTS llm_calls (
     id TEXT PRIMARY KEY,
     role TEXT NOT NULL,

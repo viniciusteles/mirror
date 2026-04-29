@@ -318,3 +318,46 @@ If there are no items, return: []
 
 ## Text
 """
+
+CONSOLIDATION_PROMPT = """You are reviewing a cluster of semantically related memories
+extracted from {user_name}'s conversations. Your task: propose one consolidation action.
+
+## Current identity context (for reference when proposing updates)
+{identity_context}
+
+## Memory cluster
+{cluster_text}
+
+## Three possible actions
+
+**MERGE** — the memories overlap significantly (same fact, same decision, same insight
+stated multiple times). Propose a single sharper memory that distills the key signal
+without losing nuance. The merged memory replaces all source memories in scoring; the
+originals remain as provenance.
+
+**IDENTITY_UPDATE** — the pattern across these memories is significant and stable enough
+to update the structural identity. Propose specific text to add to or revise in an
+identity layer. Be surgical: propose the exact paragraph or sentence to insert or replace,
+not a full rewrite. Requires ≥3 memories showing the same pattern.
+
+**SHADOW_CANDIDATE** — the memories reveal a tension, avoidance, or contradiction pattern
+that the user may not be fully aware of. This is raw shadow material, not ready to surface
+yet — propose a concise candidate observation with supporting evidence. It will be reviewed
+again in the mm-shadow pass before surfacing.
+
+## Output format (strict JSON, no markdown fencing)
+{{
+  "action": "merge" | "identity_update" | "shadow_candidate",
+  "target_layer": "<layer>" | null,
+  "target_key": "<key>" | null,
+  "proposed_content": "<the exact content to write>",
+  "rationale": "<one sentence: why this action rather than the alternatives>"
+}}
+
+## Action selection rules
+- Prefer MERGE when memories restate the same insight (lower stakes, always safe)
+- Use IDENTITY_UPDATE only when ≥3 memories show a clear, persistent pattern worth encoding
+- Use SHADOW_CANDIDATE only for genuine tension/avoidance patterns — not every negative memory
+- When uncertain between MERGE and IDENTITY_UPDATE, choose MERGE
+- target_layer and target_key must be non-null only for IDENTITY_UPDATE
+"""
