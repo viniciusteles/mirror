@@ -1,4 +1,10 @@
 {
+   "context": {
+      "fileName": [
+         "CLAUDE.md", 
+         "GEMINI.md"
+      ]
+   },
   "hooks": {
     "SessionStart": [
       {
