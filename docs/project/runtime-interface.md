@@ -215,8 +215,9 @@ Claude no longer relies on a repo-local `mm:review-copy` compatibility skill;
 | Session end + backup | `.gemini/hooks/session-end.sh` | `SessionEnd` (best-effort) |
 
 Hook files are registered in `.gemini/settings.json`. Session ID is available
-as `$GEMINI_SESSION_ID` in every hook environment. Mirror Mode injection uses
-`BeforeAgent` `hookSpecificOutput.additionalContext` — automatic per-turn
+in hook stdin and may also be available as `$GEMINI_SESSION_ID` depending on the
+installed Gemini CLI version. Hooks must support both. Mirror Mode injection
+uses `BeforeAgent` `hookSpecificOutput.additionalContext` — automatic per-turn
 injection without explicit user invocation.
 
 Skills are discovered from `.gemini/skills/mm-*/SKILL.md` (symlinked from
@@ -383,15 +384,18 @@ the constraint.
 | Runtime | Session ID source |
 |---|---|
 | Claude Code | `session_id` field in JSON stdin |
-| Gemini CLI | `session_id` in JSON stdin **and** `$GEMINI_SESSION_ID` env var |
+| Gemini CLI | `session_id` in JSON stdin; `$GEMINI_SESSION_ID` when provided by the installed CLI version |
 | Pi | TypeScript `session.id` from extension context |
 
-**Preference for shell-hook runtimes:** use the env var form when available.
-It requires no subprocess to extract and is available throughout the script.
+**Preference for shell-hook runtimes:** use the env var form when available,
+but always fall back to stdin. It requires no subprocess to extract and is
+available throughout the script, but runtime versions may differ in whether the
+env var is populated.
 
 **For new shell-hook runtimes:** check whether the runtime injects a session ID
-as an env var. If yes, prefer it. If no, parse it from stdin once and store in
-a shell variable at the top of the script.
+as an env var. If yes, prefer it. In all cases, parse it from stdin as a
+fallback and store the resolved value in a shell variable at the top of the
+script.
 
 ---
 

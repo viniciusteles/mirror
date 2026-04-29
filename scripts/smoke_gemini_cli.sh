@@ -45,7 +45,9 @@ mkdir -p "$SMOKE_HOME"
 export DB_PATH="$SMOKE_DB"
 export MEMORY_ENV="production"  # exercises the same code path as real usage
 export GEMINI_PROJECT_DIR="$ROOT_DIR"
-export GEMINI_SESSION_ID="$FAKE_SESSION_ID"
+# Do not export GEMINI_SESSION_ID here. Real Gemini versions may omit it even
+# when session_id is present in the hook payload; the hooks must support both.
+unset GEMINI_SESSION_ID
 
 cd "$ROOT_DIR"
 
@@ -101,7 +103,11 @@ echo
 # ── 5. SessionEnd ────────────────────────────────────────────────────────────
 
 echo "── 5. SessionEnd hook ──"
-OUTPUT=$(bash .gemini/hooks/session-end.sh </dev/null 2>/dev/null)
+PAYLOAD=$(cat <<EOF
+{"session_id":"$FAKE_SESSION_ID","transcript_path":"/tmp/t.json","cwd":"$ROOT_DIR","hook_event_name":"SessionEnd","timestamp":"2026-01-01T00:00:03Z","reason":"smoke"}
+EOF
+)
+OUTPUT=$(printf '%s' "$PAYLOAD" | bash .gemini/hooks/session-end.sh 2>/dev/null)
 echo "   output: $OUTPUT"
 [[ "$OUTPUT" == "{}" ]] || { echo "FAIL: expected {}, got: $OUTPUT"; exit 1; }
 echo "   OK"

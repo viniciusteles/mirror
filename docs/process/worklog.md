@@ -9,6 +9,14 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — Gemini CLI hooks tolerate missing `GEMINI_SESSION_ID`
+
+Fixed the Gemini CLI hook integration after real runtime use showed that
+`GEMINI_SESSION_ID` may be absent even though `session_id` is present in the
+hook JSON payload. `log-user.sh`, `log-assistant.sh`, and `session-end.sh` now
+prefer the environment variable when present and fall back to stdin. The Gemini
+smoke test now unsets `GEMINI_SESSION_ID` to guard this path explicitly.
+
 ### 2026-04-29 — CV8.E1 complete: Gemini CLI spike — L4 full parity confirmed
 
 Inspected Gemini CLI 0.38.2 (installed via Homebrew) against the Mirror Mind

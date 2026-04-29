@@ -17,7 +17,16 @@ set -euo pipefail
 
 cd "${GEMINI_PROJECT_DIR}" 2>/dev/null || cd "$(dirname "$0")/../.." || exit 0
 
-uv run python -m memory conversation-logger session-end-pi "${GEMINI_SESSION_ID}" 2>/dev/null || true
+INPUT=$(cat)
+SESSION_ID="${GEMINI_SESSION_ID:-}"
+if [[ -z "$SESSION_ID" ]]; then
+  SESSION_ID=$(printf '%s' "$INPUT" | python3 -c \
+    "import sys,json; d=json.load(sys.stdin); print(d.get('session_id',''))" 2>/dev/null || echo "")
+fi
+
+if [[ -n "$SESSION_ID" ]]; then
+  uv run python -m memory conversation-logger session-end-pi "${SESSION_ID}" 2>/dev/null || true
+fi
 uv run python -m memory backup --silent 2>/dev/null || true
 
 echo '{}'
