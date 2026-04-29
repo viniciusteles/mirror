@@ -13,10 +13,12 @@ cd "${CODEX_PROJECT_DIR:-$PWD}"
 uv run python -m memory conversation-logger session-start >/dev/null 2>&1 || true
 
 # 2. Run Codex (blocks until user exits)
-# Use 'command codex' to avoid calling this script recursively if it's named 'codex'
-# in some PATHs, though here we named it codex-mirror.sh.
+# Temporarily disable `set -e` so Mirror Mind can still run wrapper cleanup
+# when Codex exits non-zero, for example after an MCP startup failure.
+set +e
 codex "$@"
 EXIT_CODE=$?
+set -e
 
 # 3. Find JSONL written after our marker (for this cwd)
 # Codex writes sessions to ~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl
