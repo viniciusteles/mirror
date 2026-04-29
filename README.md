@@ -42,8 +42,9 @@ Historically, **Claude Code was the initial harness** used in Alisson's original
 
 ## How it works
 
-Mirror Mind now supports two runtimes:
+Mirror Mind now supports three runtimes:
 - **Pi** — the preferred interface today, because it makes the mirror multi-model and less tied to a single provider/runtime
+- **Gemini CLI** — fully supported with the same shell-hook model as Claude Code; L4 full parity
 - **Claude Code** — the original interface used by Alisson's first implementation, still supported as an alternative
 
 Mirror Mind separates repository templates from live user identity:
@@ -55,6 +56,8 @@ examples/extensions/          → Reference extensions (e.g. review-copy)
 tests/                        → Automated tests
 .claude/skills/               → Operational skills (Claude Code)
 .pi/skills/                   → Operational skills (Pi)
+.gemini/hooks/                → Lifecycle hooks (Gemini CLI)
+.gemini/skills/               → Operational skills (Gemini CLI — symlinked from .pi/skills/)
 ~/.mirror/<user>/identity/    → Real user-owned identity (outside the repo)
 ~/.mirror/<user>/memory.db    → Runtime source of truth (outside the repo)
 ```
@@ -80,15 +83,17 @@ Mirror Mind requires accounts at two separate services before anything works:
 Create an account, add credits, and generate an API key. OpenRouter handles everything the memory system needs: generating embeddings to index and search your memories (using OpenAI’s text-embedding-3-small model behind the scenes), extracting memories from conversations via Gemini Flash, and the `/mm-consult` command to query other models. Cost is very low — a few cents per session.
 
 **2. An AI provider subscription — to run the mirror**
-Mirror Mind is a framework; the actual AI conversation runs through Pi or Claude Code:
-- **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
+Mirror Mind is a framework; the actual AI conversation runs through Pi, Gemini CLI, or Claude Code:
 - **Pi** is model-agnostic — you can configure any supported model, but you need access to whichever one you choose
+- **Gemini CLI** uses Gemini models; requires a Google account (free tier available)
+- **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
 
 One account for infrastructure, one for the conversation interface. Both are required.
 
 ## Prerequisites
 
 - [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) — preferred runtime (multi-model, not locked to one provider)
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported runtime (`brew install gemini-cli`)
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — supported alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager
@@ -203,6 +208,7 @@ This loads identity from the active user home into the memory database. The mirr
 
 If you are already inside a runtime, you can also seed there:
 - Pi: `/mm-seed`
+- Gemini CLI: `/mm-seed` (via skill)
 - Claude Code: `/mm:seed`
 
 ### 6. Start using
@@ -219,6 +225,23 @@ Open Pi in this project and use commands such as:
 ```
 
 Pi is the preferred runtime because it makes Mirror Mind effectively multi-model.
+
+**Gemini CLI**
+
+```bash
+gemini
+```
+
+Skills are discovered automatically. The mirror logs conversations, injects
+identity context in Mirror Mode, and runs backups — all without explicit
+invocation. Use the same `/mm-*` commands as Pi:
+
+```text
+/mm-mirror
+/mm-journeys
+/mm-journey <slug>
+/mm-consult ...
+```
 
 **Alternative: Claude Code**
 
@@ -239,8 +262,8 @@ Claude Code is still fully supported, but it is now the secondary runtime rather
 
 ## Commands
 
-| Pi | Claude Code | What it does |
-|----|-------------|--------------|
+| Pi / Gemini CLI | Claude Code | What it does |
+|-----------------|-------------|--------------|
 | `/mm-mirror` | `/mm:mirror` | Mirror Mode — loads identity, persona, attachments and responds as you |
 | `/mm-build` | `/mm:build` | Builder Mode — loads journey context and project docs |
 | `/mm-consult` | `/mm:consult` | Consult other LLMs via OpenRouter with mirror context |

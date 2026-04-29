@@ -22,15 +22,17 @@ Mirror Mind requires accounts at two separate services before anything works:
 Create an account, add credits, and generate an API key. OpenRouter handles everything the memory system needs: generating embeddings to index and search your memories (using OpenAI’s text-embedding-3-small model behind the scenes), extracting memories from conversations via Gemini Flash, and the `/mm-consult` command to query other models. Cost is very low — a few cents per session.
 
 **2. An AI provider subscription — to run the mirror**
-Mirror Mind is a framework; the actual AI conversation runs through Pi or Claude Code:
-- **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
+Mirror Mind is a framework; the actual AI conversation runs through Pi, Gemini CLI, or Claude Code:
 - **Pi** is model-agnostic — you can configure any supported model, but you need access to whichever one you choose
+- **Gemini CLI** uses Gemini models; requires a Google account (free tier available)
+- **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
 
 One account for infrastructure, one for the conversation interface. Both are required.
 
 ## Prerequisites
 
 - [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) — preferred runtime (multi-model)
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported runtime (`brew install gemini-cli`)
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — supported alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager
@@ -155,6 +157,7 @@ This loads YAML files from the active user home into the database. The mirror re
 
 If you are already inside a runtime, the equivalent interactive entry points are:
 - Pi: `/mm-seed`
+- Gemini CLI: `/mm-seed` (via skill)
 - Claude Code: `/mm:seed`
 
 ---
@@ -173,6 +176,24 @@ Open Pi in this project and use the mirror through commands such as:
 ```
 
 Pi is the preferred runtime because it lets Mirror Mind work across models more naturally.
+
+### Gemini CLI
+
+```bash
+gemini
+```
+
+Skills are discovered automatically from `.gemini/skills/`. The mirror logs
+conversations in the background, injects identity context automatically in
+Mirror Mode via the `BeforeAgent` hook, and runs backups on session end.
+Use the same `/mm-*` commands as Pi:
+
+```text
+/mm-mirror
+/mm-journeys
+/mm-journey <journey-slug>
+/mm-consult ...
+```
 
 ### Alternative: Claude Code
 

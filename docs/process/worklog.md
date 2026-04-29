@@ -813,9 +813,34 @@ Runtime interface doc updated: Gemini CLI added as third runtime.
 
 ---
 
+### 2026-04-29 — CV8.E3 complete: Gemini CLI operational validation
+
+Smoke test, production DB safety proof, and public docs updated.
+
+**Smoke test** (`scripts/smoke_gemini_cli.sh`): isolated DB (`DB_PATH` override),
+simulates all four hook events, inspects `interface='gemini_cli'` rows, verifies
+user and assistant message content, confirms production DB checksum is unchanged.
+All checks pass.
+
+**Session-start fix:** hook was printing the Python status line to stdout before
+the JSON object, which violated Gemini's hook contract. Fixed to redirect all
+Python output to `/dev/null`.
+
+**Docs updated:**
+- README: three runtimes, Gemini CLI in prerequisites, commands table now says
+  "Pi / Gemini CLI", start-using section includes Gemini CLI
+- Getting Started: three runtimes, prerequisites, Gemini CLI start section
+- Runtime Interface Contract: Gemini CLI reference implementation table added
+- mm-help skill: description updated to mention both Pi and Gemini CLI
+
+**Final parity: L4 Full Parity.** All five levels satisfied. One honest limitation
+(SessionEnd best-effort) documented and mitigated by deferred extraction.
+
+---
+
 ## Next
 
-- **CV8.E3 (next):** Gemini CLI Operational Validation & Docs — hook scripts, `settings.json`,
+- **CV8.E4 (next):** Runtime Adapter Hardening — fold Gemini CLI lessons into the runtime contract before Codex work starts — hook scripts, `settings.json`,
   `gemini_cli` interface label in Python, and `.gemini/skills/mm-*/SKILL.md` surface.
   See [CV8.E2 index](../project/roadmap/cv8-runtime-expansion/cv8-e2-gemini-cli-runtime-implementation/index.md).
 - **CV8.E3:** Gemini CLI Operational Validation & Docs — smoke test, isolated DB, README/REFERENCE updates.
