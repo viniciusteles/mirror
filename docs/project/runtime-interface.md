@@ -345,4 +345,137 @@ uv run python -m memory backup --silent
 
 ---
 
-**See also:** [CV2 Runtime Portability](roadmap/cv2-runtime-portability/index.md) · [Briefing](briefing.md)
+## Runtime Adapter Patterns
+
+Patterns extracted from building Claude Code, Pi, and Gemini CLI. A new
+runtime should read this section before the reference implementations.
+
+---
+
+### Stdout purity (shell-hook runtimes)
+
+**Rule:** A shell hook's stdout must contain exactly one JSON object — nothing
+else. Not a status line, not a debug print, not a partial JSON. Any non-JSON
+byte on stdout before the final object will break parsing silently or visibly
+depending on the runtime.
+
+**In practice:** redirect all Python CLI output to `/dev/null` or `2>/dev/null`,
+never to stdout.
+
+```bash
+# Correct
+uv run python -m memory conversation-logger session-start >/dev/null 2>&1 || true
+echo '{}'
+
+# Wrong — status line leaks to stdout before the JSON
+uv run python -m memory conversation-logger session-start 2>/dev/null
+echo '{}'
+```
+
+Found live in Gemini CLI integration. Claude Code's `Stop` hook does not use a
+JSON envelope, so this class of bug was invisible there until Gemini CLI exposed
+the constraint.
+
+---
+
+### Session ID delivery
+
+| Runtime | Session ID source |
+|---|---|
+| Claude Code | `session_id` field in JSON stdin |
+| Gemini CLI | `session_id` in JSON stdin **and** `$GEMINI_SESSION_ID` env var |
+| Pi | TypeScript `session.id` from extension context |
+
+**Preference for shell-hook runtimes:** use the env var form when available.
+It requires no subprocess to extract and is available throughout the script.
+
+**For new shell-hook runtimes:** check whether the runtime injects a session ID
+as an env var. If yes, prefer it. If no, parse it from stdin once and store in
+a shell variable at the top of the script.
+
+---
+
+### Extraction models
+
+| Model | Command | Runtimes | Tradeoff |
+|---|---|---|---|
+| Immediate | `session-end` (reads JSON stdin with `transcript_path`) | Claude Code | Best memory freshness; requires transcript access |
+| Deferred | `session-end-pi <session_id>` | Pi, Gemini CLI | Resilient to best-effort session end; extraction at next session start |
+
+Use **immediate** when the runtime can supply a `transcript_path` at session end.
+Use **deferred** when session end is best-effort or the runtime lacks transcript access.
+
+For new runtimes: inspect whether the runtime provides a stable transcript path
+at session end. If yes, `session-end` gives better extraction timing. If no,
+`session-end-pi` is the safe default.
+
+---
+
+### Mirror Mode injection models
+
+| Model | Mechanism | Runtimes | UX |
+|---|---|---|---|
+| Automatic per-turn | `BeforeAgent` `additionalContext` | Gemini CLI | Best UX — no user action; latency cost on every turn |
+| Hook-conditional | `UserPromptSubmit` inject when mirror state active | Claude Code | Zero cost when inactive; requires mirror state check |
+| Explicit invocation | User types `/mm-mirror` | Pi | Zero runtime cost; requires user awareness |
+
+For new shell-hook runtimes with a `BeforeAgent`-equivalent hook: use the
+automatic per-turn model. Call `mirror load --context-only` and return the
+identity block as the hook's context-injection field. Condition on mirror state
+to avoid the cost when Mirror Mode is not active.
+
+---
+
+### Smoke test isolation
+
+Use `DB_PATH` to override the database path directly, bypassing mirror home
+resolution. This avoids conflicts between `MIRROR_HOME` and `MIRROR_USER` set
+in `.env`.
+
+```bash
+export DB_PATH="/tmp/smoke-test/memory.db"
+export MEMORY_ENV="production"
+```
+
+Do **not** use `MIRROR_HOME` for smoke tests if `MIRROR_USER` is set in `.env`.
+The path resolver raises a `ValueError` when the `MIRROR_HOME` basename does
+not match `MIRROR_USER`.
+
+Standard smoke test structure:
+
+1. Record production DB checksum before the test
+2. Set `DB_PATH` to an isolated temporary path
+3. Simulate each lifecycle hook with a representative payload
+4. Inspect the isolated DB: verify `interface='<runtime>'` rows and message content
+5. Confirm production DB checksum unchanged after the test
+
+Reference: `scripts/smoke_gemini_cli.sh`
+
+---
+
+### Skill sharing (SKILL.md-native runtimes)
+
+Runtimes that discover SKILL.md natively (Gemini CLI at `.gemini/skills/`,
+Pi at `.pi/skills/`) can share Mirror Mind's skill surface via symlinks:
+
+```bash
+# From .gemini/skills/
+ln -sf ../../.pi/skills/mm-mirror mm-mirror
+```
+
+This creates one source of truth: updating a Pi skill automatically updates
+the Gemini CLI skill. Use this pattern for any runtime that consumes the
+same SKILL.md format as Pi.
+
+---
+
+### Interface label
+
+`interface` is a free-text field. Passing `--interface <runtime_name>` is all
+that is needed. No Python migrations are required to add a new runtime label.
+
+Established labels: `claude_code`, `pi`, `gemini_cli`.
+
+---
+
+**See also:** [CV2 Runtime Portability](roadmap/cv2-runtime-portability/index.md) · [Briefing](briefing.md) · [CV8.E4 Runtime Adapter Hardening](roadmap/cv8-runtime-expansion/cv8-e4-runtime-adapter-hardening/index.md)

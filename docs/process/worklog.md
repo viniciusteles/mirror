@@ -838,9 +838,43 @@ Python output to `/dev/null`.
 
 ---
 
+### 2026-04-29 — CV8.E4 complete: Runtime Adapter Hardening
+
+Seven lessons from the Gemini CLI integration extracted and hardened into
+explicit contract language. No premature abstraction — each pattern is
+backed by two concrete runtimes.
+
+**L1 — Stdout purity (shell-hook runtimes):** stdout must contain only one JSON
+object. Found live in Gemini CLI (status line leaking before JSON). Rule and
+correct/wrong examples added to the contract.
+
+**L2 — Session ID delivery:** three delivery models documented (Claude Code
+stdin, Gemini CLI stdin+env var, Pi TypeScript context). Preference rule:
+use env var when available.
+
+**L3 — Two extraction models:** immediate (`session-end` + transcript) vs
+deferred (`session-end-pi`). Tradeoff documented. Both proven in production.
+
+**L4 — Three injection models:** automatic per-turn (Gemini CLI), hook-conditional
+(Claude Code), explicit invocation (Pi). Tradeoffs and guidance for new runtimes.
+
+**L5 — Smoke test isolation:** `DB_PATH` is the correct override; `MIRROR_HOME`
+conflicts with `MIRROR_USER` from `.env`. Standard smoke test structure documented.
+
+**L6 — Skill symlinks:** SKILL.md-native runtimes share skills via symlinks from
+`.pi/skills/`. Zero maintenance — Pi skill updates propagate automatically.
+
+**L7 — Interface label:** free-text field; no Python changes for new runtimes.
+
+**Codex checklist** (`cv8-e5-codex-runtime-spike/codex-checklist.md`): every
+known answer and every unknown to answer in the E5 spike. Target parity
+prediction matrix included.
+
+---
+
 ## Next
 
-- **CV8.E4 (next):** Runtime Adapter Hardening — fold Gemini CLI lessons into the runtime contract before Codex work starts — hook scripts, `settings.json`,
+- **CV8.E5 (next):** Codex Runtime Spike — hook scripts, `settings.json`,
   `gemini_cli` interface label in Python, and `.gemini/skills/mm-*/SKILL.md` surface.
   See [CV8.E2 index](../project/roadmap/cv8-runtime-expansion/cv8-e2-gemini-cli-runtime-implementation/index.md).
 - **CV8.E3:** Gemini CLI Operational Validation & Docs — smoke test, isolated DB, README/REFERENCE updates.
