@@ -9,6 +9,43 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — CV8.E1 complete: Gemini CLI spike — L4 full parity confirmed
+
+Inspected Gemini CLI 0.38.2 (installed via Homebrew) against the Mirror Mind
+runtime contract. All runtime questions answered in a single spike session.
+
+**Hook system:** Full shell-hook lifecycle via `.gemini/settings.json`. Hooks
+communicate over stdin/stdout JSON. Key events: `SessionStart`, `BeforeAgent`,
+`AfterAgent`, `SessionEnd`. Every hook receives `session_id`,
+`transcript_path`, `cwd`, and `timestamp` on stdin. `$GEMINI_SESSION_ID` is
+also available as an env var — no stdin parsing needed for session identity.
+
+**Session ID:** Stable UUID per session. Always present.
+
+**Transcript:** Full JSON at `transcript_path` (`~/.gemini/tmp/<project>/chats/session-*.json`).
+Structure mirrors Claude Code: `messages[]` with `type: user | gemini`, full text content.
+Per-turn assistant logging via `AfterAgent.prompt_response` is preferred over backfill.
+
+**Mirror Mode injection:** `BeforeAgent` → `hookSpecificOutput.additionalContext` —
+text appended to the prompt before model processing. Automatic per-turn injection
+without requiring explicit user invocation. Cleaner than Pi, equivalent to Claude Code.
+
+**Skills:** Native SKILL.md discovery at `.gemini/skills/` — same format as Pi.
+Model activates on demand via `activate_skill`. Existing Pi skills are directly reusable.
+
+**SessionEnd limitation:** Best-effort — CLI exits without waiting. Mitigated by
+deferred extraction (same model as Pi, already battle-tested).
+
+**Target parity: L4 Full Parity.** All five levels satisfied.
+
+**Order inversion decision recorded:** Gemini CLI first, Codex second. Rationale
+in `docs/project/decisions.md`. CV8 index and roadmap updated.
+
+**Also: v0.4.0 released** — marks CV7 Intelligence Depth complete. 997 tests,
+ruff clean, CI green.
+
+---
+
 ### 2026-04-29 — CV7.E4 complete: Memory Depth (S4 — Shadow as structural cultivation)
 
 Four pieces completing the shadow architecture decided in the 2026-04-26
@@ -751,12 +788,14 @@ Reference: [CV1.E4 Pi Operational Validation](../project/roadmap/cv1-pi-runtime/
 
 ## Next
 
-- **CV7.E4.S2 (next):** Honest reinforcement — use vs retrieval, decay, schema migration (`last_accessed_at`, `use_count`, `readiness_state`).
-- **CV7.E4.S3:** Consolidation as integration (`mm-consolidate` skill).
-- **CV7.E4.S4:** Shadow as structural layer (shadow identity layer + readiness states + `mm-shadow` skill).
-- **Follow-up: `MemoryClient` lifecycle sweep.** `__del__` is now a safety net, but hot call sites still open one client per call. Worth two follow-up passes:
-  1. **Quick win (pending).** Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`) that also open a fresh client on every call. Each hook invocation today runs bootstrap + migrations once per helper call; a shared client would halve or third that cost for common hook paths.
-  2. **Structural.** Introduce a per-process `MemoryClient` cache keyed by `db_path` (lazy singleton) for library helpers in `hooks/` and `cli/conversation_logger.py`. Long-lived callers (Pi extension, shell hooks wired into one process) would reuse a single connection instead of paying bootstrap cost on every call. See [Decisions](../project/decisions.md) for the split between one-shot CLI entry points (process exit reclaims fds, no change needed) and library functions called from Python (where caching matters).
+- **CV8.E2 (next):** Gemini CLI Runtime Implementation — hook scripts, `settings.json`,
+  `gemini_cli` interface label in Python, and `.gemini/skills/mm-*/SKILL.md` surface.
+  See [CV8.E2 index](../project/roadmap/cv8-runtime-expansion/cv8-e2-gemini-cli-runtime-implementation/index.md).
+- **CV8.E3:** Gemini CLI Operational Validation & Docs — smoke test, isolated DB, README/REFERENCE updates.
+- **CV8.E4:** Runtime Adapter Hardening — fold Gemini CLI lessons into the runtime contract before Codex.
+- **Follow-up: `MemoryClient` lifecycle sweep (parked).** `__del__` is now a safety net, but hot call sites still open one client per call. Two passes worth doing eventually:
+  1. Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`).
+  2. Per-process `MemoryClient` cache keyed by `db_path` for library helpers in `hooks/` and `cli/conversation_logger.py`.
 
 ---
 

@@ -1,9 +1,9 @@
 [< Roadmap](../index.md)
 
-# CV8 — Runtime Expansion: Codex and Gemini CLI
+# CV8 — Runtime Expansion: Gemini CLI and Codex
 
-**Status:** Draft
-**Goal:** Make Mirror Mind run as a first-class mirror runtime on top of Codex first and Gemini CLI second, without duplicating business logic outside the shared Python core.
+**Status:** In progress
+**Goal:** Make Mirror Mind run as a first-class mirror runtime on top of Gemini CLI first and Codex second, without duplicating business logic outside the shared Python core.
 
 ---
 
@@ -18,9 +18,16 @@ runtime-specific forks.
 
 The target runtimes are ordered deliberately:
 
-1. **Codex** — first new runtime after Claude Code and Pi
-2. **Gemini CLI** — second, implemented only after Codex teaches us what needs
+1. **Gemini CLI** — first new runtime after Claude Code and Pi
+2. **Codex** — second, implemented only after Gemini CLI teaches us what needs
    to be generalized
+
+The original plan had Codex first. The order was inverted because Gemini CLI
+(0.38.2) was already installed, its hook model was immediately inspectable, and
+the spike revealed full L4 parity is achievable with shell hooks — a model
+closer to Claude Code than to Pi. Gemini CLI produces the clearest first test
+of the runtime adapter contract. Codex comes second after Gemini CLI lessons are
+folded back into the adapter hardening epic.
 
 The work is not to rewrite Mirror Mind for either tool. The work is to add two
 thin runtime adapters that satisfy the existing runtime contract:
@@ -40,12 +47,12 @@ honestly rather than pretending parity exists.
 
 ## Product Outcome
 
-A user can open Codex or Gemini CLI in a Mirror Mind project and use the mirror
+A user can open Gemini CLI or Codex in a Mirror Mind project and use the mirror
 with continuity:
 
 - conversations are persisted under the active `~/.mirror/<user>/memory.db`
-- user and assistant turns are logged with `interface='codex'` or
-  `interface='gemini_cli'`
+- user and assistant turns are logged with `interface='gemini_cli'` or
+  `interface='codex'`
 - Mirror Mode can load identity, persona, journey, memories, and attachments
 - Builder Mode can load a journey and project docs
 - existing memory, task, journey, identity, backup, and consult commands remain
@@ -57,10 +64,10 @@ with continuity:
 ## Non-Goals
 
 - No new memory implementation per runtime
-- No Codex-specific or Gemini-specific database schema beyond interface labels,
+- No Gemini CLI-specific or Codex-specific database schema beyond interface labels,
   unless the runtime genuinely requires metadata we cannot represent today
 - No hosted service or daemon as part of CV8
-- No rewrite of existing Claude Code or Pi behavior unless Codex/Gemini work
+- No rewrite of existing Claude Code or Pi behavior unless Gemini CLI/Codex work
   exposes a shared runtime contract bug
 - No fake parity: if a runtime lacks hooks or context injection, the integration
   is documented as partial
@@ -80,8 +87,14 @@ capability with aspiration.
 | L3 | Mirror Mode runtime | Identity/context can be injected before the model responds, with session-scoped state |
 | L4 | Full parity | Runtime supports logging, command surface, Mirror Mode, Builder Mode, external skills or equivalent discoverability, and isolated smoke validation |
 
-The Codex and Gemini CLI spikes must assign a target parity level before their
-implementation stories begin.
+**Gemini CLI target: L4.** The hook model (shell scripts via `.gemini/settings.json`),
+per-turn context injection (`BeforeAgent` → `additionalContext`), stable session ID
+(`$GEMINI_SESSION_ID`), transcript file (`transcript_path` in every hook stdin), and
+native SKILL.md discovery (`.gemini/skills/`) together satisfy every parity requirement.
+The only honest limitation: `SessionEnd` is best-effort. Extraction defers to next
+`SessionStart` — the same model used by Pi, already battle-tested.
+
+**Codex target:** TBD after CV8.E1.
 
 ---
 
@@ -89,13 +102,13 @@ implementation stories begin.
 
 | Code | Epic | User-visible outcome | Status |
 |------|------|----------------------|--------|
-| [CV8.E1](cv8-e1-codex-runtime-spike/index.md) | Codex Runtime Spike | We know exactly what Codex exposes and what parity level is realistic | Draft |
-| [CV8.E2](cv8-e2-codex-runtime-implementation/index.md) | Codex Runtime Implementation | Codex can run Mirror Mind through a thin adapter over the Python core | Draft |
-| [CV8.E3](cv8-e3-codex-operational-validation/index.md) | Codex Operational Validation & Docs | Codex integration is smoke-tested, documented, and safe against production DB leakage | Draft |
-| [CV8.E4](cv8-e4-runtime-adapter-hardening/index.md) | Runtime Adapter Hardening | Lessons from Codex are folded into reusable runtime guidance before Gemini work starts | Draft |
-| [CV8.E5](cv8-e5-gemini-cli-runtime-spike/index.md) | Gemini CLI Runtime Spike | We know exactly what Gemini CLI exposes and what parity level is realistic | Draft |
-| [CV8.E6](cv8-e6-gemini-cli-runtime-implementation/index.md) | Gemini CLI Runtime Implementation | Gemini CLI can run Mirror Mind through a thin adapter over the Python core | Draft |
-| [CV8.E7](cv8-e7-gemini-cli-operational-validation/index.md) | Gemini CLI Operational Validation & Docs | Gemini CLI integration is smoke-tested, documented, and safe against production DB leakage | Draft |
+| [CV8.E1](cv8-e1-gemini-cli-runtime-spike/index.md) | Gemini CLI Runtime Spike | Gemini CLI capabilities fully mapped; target parity L4 confirmed | Done |
+| [CV8.E2](cv8-e2-gemini-cli-runtime-implementation/index.md) | Gemini CLI Runtime Implementation | Gemini CLI can run Mirror Mind through shell hooks over the Python core | Draft |
+| [CV8.E3](cv8-e3-gemini-cli-operational-validation/index.md) | Gemini CLI Operational Validation & Docs | Gemini CLI integration is smoke-tested, documented, and safe against production DB leakage | Draft |
+| [CV8.E4](cv8-e4-runtime-adapter-hardening/index.md) | Runtime Adapter Hardening | Lessons from Gemini CLI are folded into reusable runtime guidance before Codex work starts | Draft |
+| [CV8.E5](cv8-e5-codex-runtime-spike/index.md) | Codex Runtime Spike | We know exactly what Codex exposes and what parity level is realistic | Draft |
+| [CV8.E6](cv8-e6-codex-runtime-implementation/index.md) | Codex Runtime Implementation | Codex can run Mirror Mind through a thin adapter over the Python core | Draft |
+| [CV8.E7](cv8-e7-codex-operational-validation/index.md) | Codex Operational Validation & Docs | Codex integration is smoke-tested, documented, and safe against production DB leakage | Draft |
 
 ---
 
@@ -103,54 +116,46 @@ implementation stories begin.
 
 CV8 is done when:
 
-- Codex runtime capabilities are investigated and mapped against
+- Gemini CLI runtime capabilities are investigated and mapped against
   `docs/project/runtime-interface.md`
+- Gemini CLI has the highest honest parity level its hook model supports (L4)
+- Gemini CLI conversations write `interface='gemini_cli'` and are session-safe
+- Gemini CLI Mirror Mode works via `BeforeAgent` `additionalContext` injection
+- Gemini CLI has an isolated smoke test that proves no production database is touched
+- Gemini CLI setup and usage are documented in README, Getting Started, REFERENCE,
+  Runtime Interface Contract, and runtime-specific skill/command docs
+- Gemini CLI lessons are folded back into the runtime contract before Codex work begins
+- Codex runtime capabilities are investigated and mapped against the same contract
 - Codex has the highest honest parity level its extension/hook model supports
 - Codex conversations write `interface='codex'` and are session-safe
 - Codex Mirror Mode works if the runtime supports pre-response context injection;
   otherwise the limitation is documented as lower parity
 - Codex has an isolated smoke test that proves no production database is touched
-- Codex setup and usage are documented in README, Getting Started, REFERENCE,
-  Runtime Interface Contract, and runtime-specific skill/command docs
-- Codex lessons are folded back into the runtime contract before Gemini work
-  begins
-- Gemini CLI runtime capabilities are investigated and mapped against the same
-  contract
-- Gemini CLI has the highest honest parity level its extension/hook model
-  supports
-- Gemini CLI conversations write `interface='gemini_cli'` and are session-safe
-- Gemini CLI Mirror Mode works if the runtime supports pre-response context
-  injection; otherwise the limitation is documented as lower parity
-- Gemini CLI has an isolated smoke test that proves no production database is
-  touched
-- all runtime-facing docs clearly distinguish Claude Code, Pi, Codex, and Gemini
-  CLI support levels
+- all runtime-facing docs clearly distinguish Claude Code, Pi, Gemini CLI, and Codex
+  support levels
 
 ---
 
 ## Sequencing
 
 ```text
-E1 Codex spike
-  └── E2 Codex implementation
-        └── E3 Codex validation + docs
+E1 Gemini CLI spike (done)
+  └── E2 Gemini CLI implementation
+        └── E3 Gemini CLI validation + docs
               └── E4 runtime adapter hardening
-                    └── E5 Gemini CLI spike
-                          └── E6 Gemini CLI implementation
-                                └── E7 Gemini CLI validation + docs
+                    └── E5 Codex spike
+                          └── E6 Codex implementation
+                                └── E7 Codex validation + docs
 ```
 
-Codex comes first because it is the first test of the post-Pi runtime contract.
-Gemini CLI comes second because it should benefit from the adapter hardening that
-Codex forces. If we skip E4, we risk doing the same discovery twice and leaving
-the runtime contract as tribal knowledge.
+Gemini CLI comes first because it was already installed, the spike produced
+immediate and complete findings, and L4 parity is achievable with a familiar
+shell-hook model. Codex comes second and benefits from the adapter hardening that
+Gemini CLI forces.
 
 ---
 
-## Open Questions
-
-These are intentionally not answered in the CV draft. They belong to the spike
-epics.
+## Open Questions (Codex — to be answered in E5)
 
 - Does Codex expose lifecycle hooks equivalent to session start, user prompt,
   assistant response, and session end?
@@ -160,14 +165,6 @@ epics.
 - Does Codex expose transcript paths, per-turn events, or neither?
 - What local project file structure does Codex use for custom commands, skills,
   or hooks?
-- Does Gemini CLI expose lifecycle hooks equivalent to session start, user
-  prompt, assistant response, and session end?
-- Does Gemini CLI expose a stable session id?
-- Can Gemini CLI inject context before the model response, or only through
-  explicit commands?
-- Does Gemini CLI expose transcript paths, per-turn events, or neither?
-- What local project file structure does Gemini CLI use for custom commands,
-  skills, or hooks?
 
 ---
 

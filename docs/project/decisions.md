@@ -11,6 +11,35 @@ resolved.
 
 ## Completed Decisions
 
+### CV8 runtime order inverted: Gemini CLI first, Codex second
+
+**Date:** 2026-04-29
+**Reference:** [CV8 index](roadmap/cv8-runtime-expansion/index.md), [CV8.E1 Gemini CLI spike](roadmap/cv8-runtime-expansion/cv8-e1-gemini-cli-runtime-spike/index.md)
+
+The original CV8 plan had Codex first (E1–E3), adapter hardening (E4), then
+Gemini CLI second (E5–E7). The order was inverted because:
+
+1. **Gemini CLI was already installed** (0.38.2 via Homebrew). The spike could
+   happen immediately without any setup friction.
+2. **The spike revealed L4 full parity**. Gemini CLI exposes a complete shell-hook
+   lifecycle (`SessionStart`, `BeforeAgent`, `AfterAgent`, `SessionEnd`), a stable
+   session UUID via `$GEMINI_SESSION_ID`, transcript path in every hook's stdin,
+   per-turn context injection via `BeforeAgent` `additionalContext`, and native
+   SKILL.md discovery at `.gemini/skills/` — satisfying every Mirror Mind runtime
+   requirement.
+3. **Gemini CLI's hook model is closer to Claude Code** than Pi is. This makes the
+   Gemini CLI adapter a cleaner first test of the general runtime contract: it exercises
+   the same shell-hook path Claude Code uses, proving the contract generalizes to a
+   second shell-hook runtime without modification.
+4. **Deferred extraction is already battle-tested** from Pi. `SessionEnd` is best-effort
+   in Gemini CLI, but deferring extraction to the next `SessionStart` is the exact model
+   Pi uses — no new mechanism needed.
+
+Codex remains second. It benefits from the adapter hardening that Gemini CLI forces
+before Codex work begins.
+
+---
+
 ### Shadow is both a structural layer and a memory destination
 
 **Date:** 2026-04-26
