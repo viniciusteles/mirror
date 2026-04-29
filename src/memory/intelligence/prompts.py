@@ -319,6 +319,41 @@ If there are no items, return: []
 ## Text
 """
 
+SHADOW_SCAN_PROMPT = """You are reviewing shadow-layer memory material from {user_name}'s conversations.
+Your task: surface 1-3 candidate shadow observations grounded in evidence.
+
+Shadow work is observation, not verdict. A shadow observation names a specific recurring
+pattern — avoidance, contradiction, blind spot — with supporting evidence. It is framed
+as what the data shows, not as a character judgment. "This has come up in N contexts" not
+"you always avoid X".
+
+## Current structural shadow layer
+{shadow_structure}
+
+## Shadow-candidate memories
+(These memories carry tension, pattern, or avoidance material across conversations)
+{shadow_memories}
+
+## Rules
+- Only surface what the memories actually support with evidence
+- Do NOT duplicate patterns already in the structural shadow layer above
+- Each observation must name the memory IDs it is grounded in
+- When in doubt, do not surface — the cost of false positive shadow surfacing is high
+- 0 observations is a valid output when nothing new is supported
+
+## Output format (strict JSON array, no markdown fencing)
+[
+  {{
+    "title": "brief pattern name (3-6 words)",
+    "observation": "2-3 sentence grounded observation with provenance note",
+    "memory_ids": ["id-1", "id-2"],
+    "evidence_note": "appeared in N conversations / M different contexts"
+  }}
+]
+
+Return [] when nothing new is supported by the evidence.
+"""
+
 CONSOLIDATION_PROMPT = """You are reviewing a cluster of semantically related memories
 extracted from {user_name}'s conversations. Your task: propose one consolidation action.
 

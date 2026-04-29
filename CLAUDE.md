@@ -282,6 +282,10 @@ project construction.
 - `/mm-mute` / `/mm:mute` - toggle conversation logging
 - `/mm-new` / `/mm:new` - start a new conversation
 
+**Memory cultivation:**
+- `/mm-consolidate` / `/mm:consolidate` - scan memories for patterns and propose consolidation (merge, identity update, shadow candidate)
+- `/mm-shadow` / `/mm:shadow` - surface and promote shadow-layer observations into the structural shadow identity layer
+
 **Utilities:**
 - `/mm-consult` / `/mm:consult` - ask other LLMs through OpenRouter
 - `/mm-backup` / `/mm:backup` - memory database backup

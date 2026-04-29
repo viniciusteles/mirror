@@ -215,8 +215,11 @@ class MemoryClient:
         org: bool = False,
         query=None,
         touches_identity: bool = True,
+        touches_shadow: bool = False,
     ) -> str:
-        return self.identity.load_mirror_context(persona, journey, org, query, touches_identity)
+        return self.identity.load_mirror_context(
+            persona, journey, org, query, touches_identity, touches_shadow
+        )
 
     def load_full_identity(self) -> str:
         return self.identity.load_full_identity()

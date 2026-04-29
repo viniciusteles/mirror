@@ -26,7 +26,12 @@ def test_load_returns_context_and_journey():
     assert resolved_journey == "mirror-poc"
     assert detected is None
     mock_mem.load_mirror_context.assert_called_once_with(
-        persona=None, journey="mirror-poc", org=False, query=None, touches_identity=True
+        persona=None,
+        journey="mirror-poc",
+        org=False,
+        query=None,
+        touches_identity=True,
+        touches_shadow=False,
     )
     mock_write.assert_called_once_with(
         active=True,

@@ -125,6 +125,7 @@ class IdentityService:
         org: bool = False,
         query: str | None = None,
         touches_identity: bool = True,
+        touches_shadow: bool = False,
     ) -> str:
         """Load formatted identity context for prompt injection.
 
@@ -136,6 +137,9 @@ class IdentityService:
                 operational/technical turns that do not require full self context.
                 Defaults to True to preserve behaviour for callers that do not
                 use reception.
+            touches_shadow: When True AND the structural shadow layer has content,
+                include shadow/profile with provenance framing. Conservative by
+                default (False) — shadow surfaces only when reception confirms it.
         """
         constraints = self.get_identity("ego", "constraints")
 
@@ -173,6 +177,20 @@ class IdentityService:
             content = self.get_identity("journey", journey)
             if content:
                 sections.append((f"journey/{journey}", content))
+
+        # Shadow layer — asymmetric activation.
+        # Surfaces only when reception confirms the turn touches shadow material
+        # AND the structural shadow layer has confirmed content.
+        # Format includes provenance framing, not bare claims.
+        if touches_shadow:
+            shadow_entries = self.store.get_identity_by_layer("shadow")
+            if shadow_entries:
+                shadow_parts = [
+                    "[Confirmed shadow patterns — grounded in evidence across multiple conversations]"
+                ]
+                for entry in shadow_entries:
+                    shadow_parts.append(entry.content)
+                sections.append(("shadow/profile", "\n\n".join(shadow_parts)))
 
         parts = []
         if constraints:

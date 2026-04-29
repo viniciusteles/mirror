@@ -27,8 +27,9 @@ class MemoryStore(ConnectionBacked):
         self.conn.execute(
             """INSERT INTO memories
                (id, conversation_id, memory_type, layer, title, content, context,
-                journey, persona, tags, created_at, relevance_score, embedding, metadata)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                journey, persona, tags, created_at, relevance_score, embedding, metadata,
+                use_count, readiness_state)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 mem.id,
                 mem.conversation_id,
@@ -44,6 +45,8 @@ class MemoryStore(ConnectionBacked):
                 mem.relevance_score,
                 mem.embedding,
                 mem.metadata,
+                mem.use_count,
+                mem.readiness_state,
             ),
         )
         self.conn.commit()
@@ -106,6 +109,32 @@ class MemoryStore(ConnectionBacked):
         rows = self.conn.execute(
             "SELECT * FROM memories WHERE layer = ? ORDER BY created_at DESC",
             (layer,),
+        ).fetchall()
+        return [Memory(**dict(r)) for r in rows]
+
+    def get_shadow_candidate_memories(
+        self,
+        readiness_states: tuple[str, ...] = ("observed", "candidate"),
+        limit: int = 100,
+    ) -> list[Memory]:
+        """Return memories that are shadow-layer material awaiting review.
+
+        Includes:
+        - memories with layer='shadow'
+        - memories with memory_type IN ('tension', 'pattern') from any layer
+
+        Excludes terminal states (integrated).
+        """
+        placeholders = ",".join("?" for _ in readiness_states)
+        rows = self.conn.execute(
+            f"""
+            SELECT * FROM memories
+            WHERE (layer = 'shadow' OR memory_type IN ('tension', 'pattern'))
+              AND readiness_state IN ({placeholders})
+            ORDER BY created_at DESC
+            LIMIT ?
+            """,
+            (*readiness_states, limit),
         ).fetchall()
         return [Memory(**dict(r)) for r in rows]
 

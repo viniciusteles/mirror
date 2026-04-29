@@ -47,7 +47,7 @@ def _resolve_defaults(
     query: str | None,
     session_id: str | None,
 ) -> tuple[str | None, str | None, list | None, bool]:
-    """Resolve routing defaults. Returns (persona, journey, detected, touches_identity).
+    """Resolve routing defaults. Returns (persona, journey, detected, touches_identity, touches_shadow).
 
     Priority order (highest to lowest):
       1. Explicit args passed directly to load()
@@ -62,6 +62,7 @@ def _resolve_defaults(
     resolved_journey = journey
     detected: list | None = None
     touches_identity: bool = True  # full context when reception is off
+    touches_shadow: bool = False  # shadow layer off unless reception activates it
 
     # Phase 2 — load sticky into holding vars; do NOT apply yet.
     # Reception gets to run before sticky is applied so it can override it.
@@ -130,7 +131,7 @@ def _resolve_defaults(
         if result.journey and resolved_journey is None:
             resolved_journey = result.journey
         touches_identity = result.touches_identity
-        # touches_shadow available for E4.S4 shadow layer gating.
+        touches_shadow = result.touches_shadow
 
     # Phase 4 — apply sticky as fallback (reception was empty or disabled).
     if resolved_persona is None:
@@ -149,7 +150,7 @@ def _resolve_defaults(
         if detected:
             resolved_journey = detected[0][0]
 
-    return resolved_persona, resolved_journey, detected, touches_identity
+    return resolved_persona, resolved_journey, detected, touches_identity, touches_shadow
 
 
 def load(
@@ -168,12 +169,14 @@ def load(
     """
     mem = MemoryClient(env=env)
 
-    resolved_persona, resolved_journey, detected, touches_identity = _resolve_defaults(
-        mem,
-        journey=journey,
-        persona=persona,
-        query=query,
-        session_id=session_id,
+    resolved_persona, resolved_journey, detected, touches_identity, touches_shadow = (
+        _resolve_defaults(
+            mem,
+            journey=journey,
+            persona=persona,
+            query=query,
+            session_id=session_id,
+        )
     )
 
     context = mem.load_mirror_context(
@@ -182,6 +185,7 @@ def load(
         org=org,
         query=query,
         touches_identity=touches_identity,
+        touches_shadow=touches_shadow,
     )
 
     _persist_global_sticky_defaults(
