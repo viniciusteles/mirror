@@ -240,13 +240,14 @@ Skills are discovered from `.gemini/skills/mm-*/SKILL.md` (symlinked from
 | User prompt | `scripts/codex-mirror.sh` | JSONL backfill at exit |
 | Assistant response | `scripts/codex-mirror.sh` | JSONL backfill at exit |
 | Session end + backup | `scripts/codex-mirror.sh` | Wrapper exit |
-| Mirror load | `AGENTS.md` + `/mm-mirror` skill | Explicit invocation |
+| Mirror load | `AGENTS.md` + `$mm-mirror` skill | Explicit invocation |
 
 Codex has no hook system. It uses a **wrapper script** (`scripts/codex-mirror.sh`)
 that handles the lifecycle around the `codex` command. Context is supplied via a
 static `AGENTS.md` in the project root, and Mirror Mode is activated through the
 native skill surface at `.agents/skills/mm-*/SKILL.md` (symlinked from
-`.pi/skills/mm-*/`).
+`.pi/skills/mm-*/`). Unlike Pi and Gemini CLI, Codex activates these skills with
+`$mm-*` syntax, for example `$mm-build mirror`.
 
 ---
 
@@ -429,7 +430,7 @@ script.
 | Model | Command | Runtimes | Tradeoff |
 |---|---|---|---|
 | Immediate | `session-end` (reads JSON stdin with `transcript_path`) | Claude Code | Best memory freshness; requires transcript access |
-| Deferred | `session-end-pi <session_id>` | Pi, Gemini CLI | Resilient to best-effort session end; extraction at next session start |
+| Deferred | `session-end-pi <session_id>` | Pi, Gemini CLI, Codex | Resilient to best-effort session end or wrapper-driven lifecycle; extraction at next session start |
 
 Use **immediate** when the runtime can supply a `transcript_path` at session end.
 Use **deferred** when session end is best-effort or the runtime lacks transcript access.
@@ -446,7 +447,7 @@ at session end. If yes, `session-end` gives better extraction timing. If no,
 |---|---|---|---|
 | Automatic per-turn | `BeforeAgent` `additionalContext` | Gemini CLI | Best UX — no user action; latency cost on every turn |
 | Hook-conditional | `UserPromptSubmit` inject when mirror state active | Claude Code | Zero cost when inactive; requires mirror state check |
-| Explicit invocation | User types `/mm-mirror` | Pi | Zero runtime cost; requires user awareness |
+| Explicit invocation | User types `/mm-mirror` or `$mm-mirror` | Pi, Codex | Zero runtime cost; requires user awareness |
 
 For new shell-hook runtimes with a `BeforeAgent`-equivalent hook: use the
 automatic per-turn model. Call `mirror load --context-only` and return the
@@ -478,14 +479,15 @@ Standard smoke test structure:
 4. Inspect the isolated DB: verify `interface='<runtime>'` rows and message content
 5. Confirm production DB checksum unchanged after the test
 
-Reference: `scripts/smoke_gemini_cli.sh`
+References: `scripts/smoke_gemini_cli.sh`, `scripts/smoke_codex.sh`
 
 ---
 
 ### Skill sharing (SKILL.md-native runtimes)
 
 Runtimes that discover SKILL.md natively (Gemini CLI at `.gemini/skills/`,
-Pi at `.pi/skills/`) can share Mirror Mind's skill surface via symlinks:
+Codex at `.agents/skills/`, Pi at `.pi/skills/`) can share Mirror Mind's skill
+surface via symlinks:
 
 ```bash
 # From .gemini/skills/
@@ -493,8 +495,9 @@ ln -sf ../../.pi/skills/mm-mirror mm-mirror
 ```
 
 This creates one source of truth: updating a Pi skill automatically updates
-the Gemini CLI skill. Use this pattern for any runtime that consumes the
-same SKILL.md format as Pi.
+the Gemini CLI and Codex skill surfaces. Use this pattern for any runtime that
+consumes the same SKILL.md format as Pi. The discovery format can be shared even
+when invocation syntax differs; Codex uses `$mm-*` rather than `/mm-*`.
 
 ---
 

@@ -45,7 +45,7 @@ Historically, **Claude Code was the initial harness** used in Alisson's original
 Mirror Mind now supports four runtimes:
 - **Pi** — the preferred interface today, because it makes the mirror multi-model and less tied to a single provider/runtime
 - **Gemini CLI** — fully supported with the same shell-hook model as Claude Code; L4 full parity
-- **Codex** — supported at L3 parity via wrapper script and skill symlinks
+- **Codex** — supported at L3 parity via wrapper script, JSONL backfill, `AGENTS.md`, and `$mm-*` skill invocation
 - **Claude Code** — the original interface used by Alisson's first implementation, still supported as an alternative
 
 Mirror Mind separates repository templates from live user identity:
@@ -59,6 +59,7 @@ tests/                        → Automated tests
 .pi/skills/                   → Operational skills (Pi)
 .gemini/hooks/                → Lifecycle hooks (Gemini CLI)
 .gemini/skills/               → Operational skills (Gemini CLI — symlinked from .pi/skills/)
+.agents/skills/               → Operational skills (Codex — symlinked from .pi/skills/)
 ~/.mirror/<user>/identity/    → Real user-owned identity (outside the repo)
 ~/.mirror/<user>/memory.db    → Runtime source of truth (outside the repo)
 ```
@@ -84,9 +85,10 @@ Mirror Mind requires accounts at two separate services before anything works:
 Create an account, add credits, and generate an API key. OpenRouter handles everything the memory system needs: generating embeddings to index and search your memories (using OpenAI’s text-embedding-3-small model behind the scenes), extracting memories from conversations via Gemini Flash, and the `/mm-consult` command to query other models. Cost is very low — a few cents per session.
 
 **2. An AI provider subscription — to run the mirror**
-Mirror Mind is a framework; the actual AI conversation runs through Pi, Gemini CLI, or Claude Code:
+Mirror Mind is a framework; the actual AI conversation runs through Pi, Gemini CLI, Codex, or Claude Code:
 - **Pi** is model-agnostic — you can configure any supported model, but you need access to whichever one you choose
 - **Gemini CLI** uses Gemini models; requires a Google account (free tier available)
+- **Codex** is agent-native and model-flexible; supported at L3 parity
 - **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
 
 One account for infrastructure, one for the conversation interface. Both are required.
@@ -95,6 +97,7 @@ One account for infrastructure, one for the conversation interface. Both are req
 
 - [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) — preferred runtime (multi-model, not locked to one provider)
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported runtime (`brew install gemini-cli`)
+- [Codex](https://github.com/google-gemini/codex) — supported runtime
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — supported alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager
@@ -210,6 +213,7 @@ This loads identity from the active user home into the memory database. The mirr
 If you are already inside a runtime, you can also seed there:
 - Pi: `/mm-seed`
 - Gemini CLI: `/mm-seed` (via skill)
+- Codex: `$mm-seed`
 - Claude Code: `/mm:seed`
 
 ### 6. Start using
@@ -252,7 +256,14 @@ invocation. Use the same `/mm-*` commands as Pi:
 ```
 
 Skills are discovered via symlinks in `.agents/skills/`. Mirror Mode and
-Builder Mode are available via explicit `/mm-*` commands.
+Builder Mode are available via explicit `$mm-*` skill invocations:
+
+```text
+$mm-mirror
+$mm-build <journey-slug>
+$mm-journeys
+$mm-consult ...
+```
 
 **Alternative: Claude Code**
 
@@ -273,25 +284,25 @@ Claude Code is still fully supported, but it is now the secondary runtime rather
 
 ## Commands
 
-| Pi / Gemini CLI | Claude Code | What it does |
-|-----------------|-------------|--------------|
-| `/mm-mirror` | `/mm:mirror` | Mirror Mode — loads identity, persona, attachments and responds as you |
-| `/mm-build` | `/mm:build` | Builder Mode — loads journey context and project docs |
-| `/mm-consult` | `/mm:consult` | Consult other LLMs via OpenRouter with mirror context |
-| `/mm-journeys` | `/mm:journeys` | Quick list of all journeys |
-| `/mm-journey` | `/mm:journey` | Detailed journey status |
-| `/mm-tasks` | `/mm:tasks` | Task management by journey |
-| `/mm-week` | `/mm:week` | Weekly planning |
-| `/mm-journal` | `/mm:journal` | Record a personal journal entry |
-| `/mm-memories` | `/mm:memories` | List stored memories |
-| `/mm-conversations` | `/mm:conversations` | Recent conversations list |
-| `/mm-recall` | `/mm:recall` | Load messages from a previous conversation into context |
-| `/mm-identity` | `/mm:identity` | Read and update identity in the database |
-| `/mm-seed` | `/mm:seed` | Seed identity from user home into the database |
-| `/mm-mute` | `/mm:mute` | Toggle conversation recording |
-| `/mm-new` | `/mm:new` | Start a new conversation |
-| `/mm-backup` | `/mm:backup` | Backup the memory database |
-| `/mm-help` | `/mm:help` | List available commands |
+| Pi / Gemini CLI | Codex | Claude Code | What it does |
+|-----------------|-------|-------------|--------------|
+| `/mm-mirror` | `$mm-mirror` | `/mm:mirror` | Mirror Mode — loads identity, persona, attachments and responds as you |
+| `/mm-build` | `$mm-build` | `/mm:build` | Builder Mode — loads journey context and project docs |
+| `/mm-consult` | `$mm-consult` | `/mm:consult` | Consult other LLMs via OpenRouter with mirror context |
+| `/mm-journeys` | `$mm-journeys` | `/mm:journeys` | Quick list of all journeys |
+| `/mm-journey` | `$mm-journey` | `/mm:journey` | Detailed journey status |
+| `/mm-tasks` | `$mm-tasks` | `/mm:tasks` | Task management by journey |
+| `/mm-week` | `$mm-week` | `/mm:week` | Weekly planning |
+| `/mm-journal` | `$mm-journal` | `/mm:journal` | Record a personal journal entry |
+| `/mm-memories` | `$mm-memories` | `/mm:memories` | List stored memories |
+| `/mm-conversations` | `$mm-conversations` | `/mm:conversations` | Recent conversations list |
+| `/mm-recall` | `$mm-recall` | `/mm:recall` | Load messages from a previous conversation into context |
+| `/mm-identity` | `$mm-identity` | `/mm:identity` | Read and update identity in the database |
+| `/mm-seed` | `$mm-seed` | `/mm:seed` | Seed identity from user home into the database |
+| `/mm-mute` | `$mm-mute` | `/mm:mute` | Toggle conversation recording |
+| `/mm-new` | `$mm-new` | `/mm:new` | Start a new conversation |
+| `/mm-backup` | `$mm-backup` | `/mm:backup` | Backup the memory database |
+| `/mm-help` | `$mm-help` | `/mm:help` | List available commands |
 
 ### Reference extensions
 
@@ -344,7 +355,7 @@ Long-term memory with semantic search. Stores conversations, extracts memories v
 
 - **Database:** SQLite at `~/.mirror/<user>/memory.db` in production
 - **Database path:** configurable with `DB_PATH`
-- **Backups:** `/mm:backup` zips the configured database into `DB_BACKUP_PATH`
+- **Backups:** the runtime backup command zips the configured database into `DB_BACKUP_PATH`
 - **Embeddings:** OpenAI text-embedding-3-small
 - **Extraction:** Gemini Flash via OpenRouter
 - **Search:** Hybrid scoring (4 signals)

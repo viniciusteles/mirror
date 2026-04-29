@@ -2,7 +2,7 @@
 
 # CV8 — Runtime Expansion: Gemini CLI and Codex
 
-**Status:** In progress
+**Status:** Done
 **Goal:** Make Mirror Mind run as a first-class mirror runtime on top of Gemini CLI first and Codex second, without duplicating business logic outside the shared Python core.
 
 ---
@@ -94,7 +94,11 @@ native SKILL.md discovery (`.gemini/skills/`) together satisfy every parity requ
 The only honest limitation: `SessionEnd` is best-effort. Extraction defers to next
 `SessionStart` — the same model used by Pi, already battle-tested.
 
-**Codex target: L3.** No lifecycle hooks exist. L1 via wrapper script + JSONL backfill at session end. L2 via `.agents/skills/mm-*/SKILL.md` native discovery. L3 via `AGENTS.md` static injection + explicit `mm-mirror` skill invocation (same model as Pi). L4 not achievable without hook support.
+**Codex parity: L3.** No lifecycle hooks exist. L1 is handled by the wrapper
+script plus JSONL backfill at session end. L2 uses `.agents/skills/mm-*/SKILL.md`
+native discovery. L3 uses `AGENTS.md` plus explicit `$mm-mirror` skill invocation
+(same explicit model as Pi, but with Codex's `$skill-name` syntax). L4 is not
+achievable without hook support or per-turn dynamic context injection.
 
 ---
 
@@ -107,14 +111,14 @@ The only honest limitation: `SessionEnd` is best-effort. Extraction defers to ne
 | [CV8.E3](cv8-e3-gemini-cli-operational-validation/index.md) | Gemini CLI Operational Validation & Docs | Gemini CLI integration is smoke-tested, documented, and safe against production DB leakage | Done |
 | [CV8.E4](cv8-e4-runtime-adapter-hardening/index.md) | Runtime Adapter Hardening | Lessons from Gemini CLI are folded into reusable runtime guidance before Codex work starts | Done |
 | [CV8.E5](cv8-e5-codex-runtime-spike/index.md) | Codex Runtime Spike | We know exactly what Codex exposes and what parity level is realistic | Done |
-| [CV8.E6](cv8-e6-codex-runtime-implementation/index.md) | Codex Runtime Implementation | Codex can run Mirror Mind through a thin adapter over the Python core | Draft |
-| [CV8.E7](cv8-e7-codex-operational-validation/index.md) | Codex Operational Validation & Docs | Codex integration is smoke-tested, documented, and safe against production DB leakage | Draft |
+| [CV8.E6](cv8-e6-codex-runtime-implementation/index.md) | Codex Runtime Implementation | Codex can run Mirror Mind through a thin adapter over the Python core | Done |
+| [CV8.E7](cv8-e7-codex-operational-validation/index.md) | Codex Operational Validation & Docs | Codex integration is smoke-tested, documented, and safe against production DB leakage | Done |
 
 ---
 
 ## Done Condition
 
-CV8 is done when:
+CV8 is done:
 
 - Gemini CLI runtime capabilities are investigated and mapped against
   `docs/project/runtime-interface.md`
@@ -128,8 +132,8 @@ CV8 is done when:
 - Codex runtime capabilities are investigated and mapped against the same contract
 - Codex has the highest honest parity level its extension/hook model supports
 - Codex conversations write `interface='codex'` and are session-safe
-- Codex Mirror Mode works if the runtime supports pre-response context injection;
-  otherwise the limitation is documented as lower parity
+- Codex Mirror Mode works through explicit `$mm-mirror` skill invocation; lack
+  of pre-response hook injection is documented as the reason Codex stops at L3
 - Codex has an isolated smoke test that proves no production database is touched
 - all runtime-facing docs clearly distinguish Claude Code, Pi, Gemini CLI, and Codex
   support levels
@@ -155,16 +159,15 @@ Gemini CLI forces.
 
 ---
 
-## Open Questions (Codex — to be answered in E5)
+## Codex Findings
 
-- Does Codex expose lifecycle hooks equivalent to session start, user prompt,
-  assistant response, and session end?
-- Does Codex expose a stable session id?
-- Can Codex inject context before the model response, or only through explicit
-  commands?
-- Does Codex expose transcript paths, per-turn events, or neither?
-- What local project file structure does Codex use for custom commands, skills,
-  or hooks?
+- Codex has no lifecycle hooks.
+- Codex writes JSONL transcripts under `~/.codex/sessions/`; the wrapper
+  backfills user and assistant turns after the session exits.
+- Codex exposes project-local skills through `.agents/skills/<name>/SKILL.md`.
+- Codex skill activation uses `$skill-name` syntax, for example `$mm-build`.
+- Codex loads project instructions from `AGENTS.md`, but cannot perform dynamic
+  per-turn context injection.
 
 ---
 

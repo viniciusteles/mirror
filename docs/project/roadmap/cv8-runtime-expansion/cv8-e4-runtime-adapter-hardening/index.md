@@ -3,7 +3,7 @@
 # CV8.E4 — Runtime Adapter Hardening
 
 **Epic:** Fold Gemini CLI lessons into the shared runtime contract before starting Codex
-**Status:** In progress
+**Status:** Done
 **Depends on:** CV8.E3 Gemini CLI Operational Validation & Docs
 
 ---
@@ -66,7 +66,7 @@ best-effort session-end hooks).
 | Model | How | Runtimes |
 |---|---|---|
 | Automatic per-turn | `BeforeAgent` `additionalContext` | Gemini CLI |
-| Explicit invocation | User types `/mm-mirror` | Pi |
+| Explicit invocation | User types `/mm-mirror` or `$mm-mirror` | Pi, Codex |
 | Hook-conditional | `UserPromptSubmit` inject when active | Claude Code |
 
 **Contract addition:** document the three injection models and their tradeoffs.
@@ -84,8 +84,9 @@ touching home resolution. All future smoke tests should use `DB_PATH`.
 ### L6 — Skill symlinks enable zero-maintenance skill sharing
 
 `.gemini/skills/mm-*/` → `.pi/skills/mm-*/` via symlinks. Pi-format SKILL.md
-works identically in both runtimes. New runtimes that support native SKILL.md
-discovery can participate in this pattern immediately.
+works identically in both runtimes. Codex later reused the same pattern through
+`.agents/skills/mm-*/`, with `$mm-*` activation syntax. New runtimes that
+support native SKILL.md discovery can participate in this pattern immediately.
 
 **Contract addition:** document the symlink pattern for runtimes that support
 SKILL.md natively.

@@ -141,7 +141,7 @@ skill handles everything.
 | User prompt logging | Wrapper backfills from JSONL after session | Not per-turn; end-of-session only |
 | Assistant response logging | Wrapper backfills from JSONL after session | Not per-turn; end-of-session only |
 | Session end + extraction | Wrapper calls `session-end-pi` + `backup` after `codex` exits | Deferred extraction |
-| Mirror Mode injection | `mm-mirror` skill + explicit `/mm-mirror` invocation | Same as Pi |
+| Mirror Mode injection | `mm-mirror` skill + explicit `$mm-mirror` invocation | Same explicit model as Pi, with Codex skill syntax |
 | Command surface | `.agents/skills/mm-*/SKILL.md` | Native skill discovery |
 
 ---
@@ -161,7 +161,7 @@ skill handles everything.
 Honest limitations:
 - Logging is end-of-session backfill, not per-turn (memory extraction quality
   is the same; just no real-time logging)
-- Mirror Mode injection is explicit (`/mm-mirror`), not automatic per-turn
+- Mirror Mode injection is explicit (`$mm-mirror`), not automatic per-turn
 - Session ID requires post-hoc extraction from JSONL filename
 - No way to intercept or block turns; hooks are L0 here
 
@@ -218,8 +218,8 @@ Same as Gemini CLI: symlink `.agents/skills/mm-*` → `.pi/skills/mm-*/`.
 19 skills, zero maintenance.
 
 ### S4 — `AGENTS.md` in project root
-Instructions for the model: Mirror Mind is active, use `/mm-mirror` for Mirror
-Mode, `/mm-build` for Builder Mode, etc. Points the model to the skill surface.
+Instructions for the model: Mirror Mind is active, use `$mm-mirror` for Mirror
+Mode, `$mm-build` for Builder Mode, etc. Points the model to the skill surface.
 
 ### S5 — Smoke test + docs
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import sys
+from collections.abc import Callable
 
 from memory.cli.conversation_logger import (
     is_muted,
@@ -46,7 +47,7 @@ def _resolve_defaults(
     persona: str | None,
     query: str | None,
     session_id: str | None,
-) -> tuple[str | None, str | None, list | None, bool]:
+) -> tuple[str | None, str | None, list | None, bool, bool]:
     """Resolve routing defaults. Returns (persona, journey, detected, touches_identity, touches_shadow).
 
     Priority order (highest to lowest):
@@ -110,10 +111,10 @@ def _resolve_defaults(
             for j in raw_journeys
         ]
 
-        llm_logger = None
+        llm_logger: Callable[[LLMResponse], None] | None = None
         if LOG_LLM_CALLS:
 
-            def llm_logger(response: LLMResponse) -> None:
+            def _log_llm_call(response: LLMResponse) -> None:
                 mem.store.log_llm_call(
                     role="reception",
                     model=response.model,
@@ -123,6 +124,8 @@ def _resolve_defaults(
                     completion_tokens=response.completion_tokens,
                     latency_ms=response.latency_ms,
                 )
+
+            llm_logger = _log_llm_call
 
         result = reception(query, personas_meta, journeys_meta, on_llm_call=llm_logger)
 

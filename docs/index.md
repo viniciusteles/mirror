@@ -12,9 +12,9 @@ How we are building it and why.
 - [Decisions](project/decisions.md) — incremental decisions and open discussions
 - [Roadmap](project/roadmap/index.md) — CV → Epic → Story hierarchy with status
 
-Current state: **CV0 English Foundation ✅ · CV1 Pi Runtime ✅ · CV2 Runtime Portability ✅ · CV3 Pi Skill Parity ✅ · CV4 Framework/User Separation ✅ · CV5 Multisession Safety ✅ · CV6 Runtime Maturity ✅ · CV7 Intelligence Depth in progress**
+Current state: **CV0 English Foundation ✅ · CV1 Pi Runtime ✅ · CV2 Runtime Portability ✅ · CV3 Pi Skill Parity ✅ · CV4 Framework/User Separation ✅ · CV5 Multisession Safety ✅ · CV6 Runtime Maturity ✅ · CV7 Intelligence Depth ✅ · CV8 Runtime Expansion ✅**
 
-Next runtime expansion draft: **CV8 Codex first, Gemini CLI second**.
+Runtime expansion result: **Gemini CLI first at L4 full parity; Codex second at L3 parity through the wrapper script, JSONL backfill, `AGENTS.md`, and `$mm-*` skill invocation.**
 
 ---
 

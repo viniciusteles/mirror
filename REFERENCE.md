@@ -70,26 +70,28 @@ other long-form reference content.
 
 ## Skills
 
-Claude Code uses the `/mm:` prefix; Pi uses the `/mm-` prefix. Both call the same Python core.
+Claude Code uses the `/mm:` prefix. Pi and Gemini CLI use the `/mm-` prefix.
+Codex discovers the same skill files through `.agents/skills/`, but activates
+them with `$mm-*` syntax. All runtimes call the same Python core.
 
-| Command (Claude / Pi) | Purpose | Main Arguments |
-|---------|---------|----------------|
-| `/mm:mirror` | Loads identity, persona, journey, and attachments for Mirror Mode | `load [--persona P] [--journey J] [--query Q] [--org]`, `log "summary"`, `journeys` |
-| `/mm:identity` / `/mm-identity` | Read and update identity directly in the database | `list [--layer L]`, `get <layer> <key>`, `set <layer> <key>`, `edit <layer> <key>` |
-| `/mm:consult` / `/mm-consult` | Asks other LLMs through OpenRouter with Mirror context | `<family> [tier] "prompt"`, `credits` |
-| `ext:review-copy` | External Claude skill for multi-LLM copy review; install + expose it explicitly before use | skill-driven workflow |
-| `/mm:journeys` | Lists journeys with status | no arguments |
-| `/mm:journey` | Shows detailed journey identity, journey path, memories, and conversations | `[journey]`, `update <journey> <content>` |
-| `/mm:memories` | Lists or searches memories by type, layer, and journey | `--type T`, `--layer L`, `--journey J`, `--search "Q"`, `--limit N` |
-| `/mm:tasks` | Manages tasks by journey | `list`, `add "title"`, `done <id>`, `doing <id>`, `block <id>`, `delete <id>`, `import`, `sync` |
-| `/mm:week` | Weekly planning | `view`, `plan "text"`, `save` |
-| `/mm:journal` | Records a personal journal entry | `[--journey J] "text"` |
-| `/mm:recall` / `/mm-recall` | Loads a previous conversation into context | `<conversation_id> [--limit N]` |
-| `/mm:conversations` | Lists recent conversations | `--limit N`, `--journey J`, `--persona P` |
-| `/mm:backup` | Backs up the memory database | no arguments |
-| `/mm:seed` | Seeds identity files from the active user home into the database | no arguments |
-| `/mm:mute` | Toggles conversation logging | no arguments |
-| `/mm:new` | Starts a new conversation | no arguments |
+| Pi / Gemini CLI | Codex | Claude Code | Purpose | Main Arguments |
+|---------|-------|-------------|---------|----------------|
+| `/mm-mirror` | `$mm-mirror` | `/mm:mirror` | Loads identity, persona, journey, and attachments for Mirror Mode | `load [--persona P] [--journey J] [--query Q] [--org]`, `log "summary"`, `journeys` |
+| `/mm-identity` | `$mm-identity` | `/mm:identity` | Read and update identity directly in the database | `list [--layer L]`, `get <layer> <key>`, `set <layer> <key>`, `edit <layer> <key>` |
+| `/mm-consult` | `$mm-consult` | `/mm:consult` | Asks other LLMs through OpenRouter with Mirror context | `<family> [tier] "prompt"`, `credits` |
+| `/mm-journeys` | `$mm-journeys` | `/mm:journeys` | Lists journeys with status | no arguments |
+| `/mm-journey` | `$mm-journey` | `/mm:journey` | Shows detailed journey identity, journey path, memories, and conversations | `[journey]`, `update <journey> <content>` |
+| `/mm-memories` | `$mm-memories` | `/mm:memories` | Lists or searches memories by type, layer, and journey | `--type T`, `--layer L`, `--journey J`, `--search "Q"`, `--limit N` |
+| `/mm-tasks` | `$mm-tasks` | `/mm:tasks` | Manages tasks by journey | `list`, `add "title"`, `done <id>`, `doing <id>`, `block <id>`, `delete <id>`, `import`, `sync` |
+| `/mm-week` | `$mm-week` | `/mm:week` | Weekly planning | `view`, `plan "text"`, `save` |
+| `/mm-journal` | `$mm-journal` | `/mm:journal` | Records a personal journal entry | `[--journey J] "text"` |
+| `/mm-recall` | `$mm-recall` | `/mm:recall` | Loads a previous conversation into context | `<conversation_id> [--limit N]` |
+| `/mm-conversations` | `$mm-conversations` | `/mm:conversations` | Lists recent conversations | `--limit N`, `--journey J`, `--persona P` |
+| `/mm-backup` | `$mm-backup` | `/mm:backup` | Backs up the memory database | no arguments |
+| `/mm-seed` | `$mm-seed` | `/mm:seed` | Seeds identity files from the active user home into the database | no arguments |
+| `/mm-mute` | `$mm-mute` | `/mm:mute` | Toggles conversation logging | no arguments |
+| `/mm-new` | `$mm-new` | `/mm:new` | Starts a new conversation | no arguments |
+| `ext-review-copy` | — | `ext:review-copy` | External multi-LLM copy review skill; install and expose it explicitly before use | skill-driven workflow |
 
 Portuguese command aliases have been removed. Use English options such as
 `--journey`.
@@ -439,6 +441,8 @@ templates/identity/              -> generic bootstrap templates shipped in the r
 src/memory/                      -> Python package: client, store, db, search, extraction, tasks, llm_router
 .claude/skills/                  -> operational skills (mm:mirror, mm:tasks, etc.)
 .pi/skills/                      -> Pi skills
+.gemini/skills/                  -> Gemini CLI skills (symlinked from .pi/skills)
+.agents/skills/                  -> Codex skills (symlinked from .pi/skills)
 ```
 
 ### Templates Vs. Real Content

@@ -1,9 +1,9 @@
-[< CV8.E1 Codex Runtime Spike](../index.md)
+[< CV8.E5 Codex Runtime Spike](../index.md)
 
-# CV8.E1.S1 — Inspect Codex Capabilities
+# CV8.E5.S1 — Inspect Codex Capabilities
 
-**Status:** Draft
-**Epic:** CV8.E1 — Codex Runtime Spike
+**Status:** Done
+**Epic:** CV8.E5 — Codex Runtime Spike
 **Type:** Spike / discovery
 
 ---

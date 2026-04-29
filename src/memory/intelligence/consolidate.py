@@ -143,12 +143,15 @@ def propose_consolidation(
 
     try:
         response = send_to_model(
-            prompt=prompt,
             model=EXTRACTION_MODEL,
-            on_llm_call=on_llm_call,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
         )
     except Exception:
         return None
+
+    if on_llm_call:
+        on_llm_call(response)
 
     raw = response.content.strip()
     # Strip optional markdown fencing.

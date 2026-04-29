@@ -9,6 +9,22 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — Documentation audit: CV8 status and Codex skill syntax
+
+Audited the public and operational docs after real Codex use showed that Codex
+activates Mirror Mind skills with `$mm-*` syntax, not `/mm-*`.
+
+Updated README, Getting Started, REFERENCE, CLAUDE/AGENTS instructions, the
+runtime interface contract, the shared `mm-build` skill usage, and CV8 roadmap
+pages. The docs now consistently show:
+- Pi and Gemini CLI: `/mm-*`
+- Codex: `$mm-*`
+- Claude Code: `/mm:*`
+
+Also corrected stale CV7/CV8 status in the docs map and roadmap, marked CV8.E6
+and CV8.E7 done, and fixed old E1/E5 story-number drift left from the runtime
+order inversion.
+
 ### 2026-04-29 — CV8.E6 complete: Codex runtime implementation
 
 Added L3 parity for Codex via wrapper script and JSONL backfill.

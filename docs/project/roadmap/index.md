@@ -24,7 +24,7 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV5](cv5-multisession-safety/index.md) | Multisession Safety | ✅ Done |
 | [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | ✅ Done |
 | [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | ✅ Done |
-| [CV8](cv8-runtime-expansion/index.md) | Runtime Expansion: Gemini CLI and Codex | 🔵 In progress |
+| [CV8](cv8-runtime-expansion/index.md) | Runtime Expansion: Gemini CLI and Codex | ✅ Done |
 
 ---
 
@@ -71,11 +71,11 @@ hybrid search, honest reinforcement, consolidation, shadow cultivation).
 
 ## CV8 — Runtime Expansion: Gemini CLI and Codex
 
-In progress. CV8 extends Mirror Mind beyond Claude Code and Pi into two
-additional coding-agent runtimes. The order was inverted from the original
-plan: Gemini CLI is first (L4 full parity confirmed by spike), Codex second.
-E1 (Gemini CLI spike) is done. E2 (implementation) is next. See the
-[CV8 index](cv8-runtime-expansion/index.md).
+Done. CV8 extends Mirror Mind beyond Claude Code and Pi into two additional
+coding-agent runtimes. The order was inverted from the original plan: Gemini CLI
+shipped first at L4 full parity, and Codex shipped second at L3 parity through a
+wrapper script, JSONL backfill, `AGENTS.md`, and `$mm-*` skill invocation. See
+the [CV8 index](cv8-runtime-expansion/index.md).
 
 ---
 

@@ -10,11 +10,29 @@ Activates Builder Mode for a specific journey. Loads identity context and projec
 
 ## Usage
 
+Pi and Gemini CLI:
+
 ```
 /mm-build <journey-slug>
 ```
 
 **Example:** `/mm-build my-journey`
+
+Codex:
+
+```
+$mm-build <journey-slug>
+```
+
+**Example:** `$mm-build my-journey`
+
+Claude Code:
+
+```
+/mm:build <journey-slug>
+```
+
+**Example:** `/mm:build my-journey`
 
 ---
 

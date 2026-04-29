@@ -160,6 +160,7 @@ This loads YAML files from the active user home into the database. The mirror re
 If you are already inside a runtime, the equivalent interactive entry points are:
 - Pi: `/mm-seed`
 - Gemini CLI: `/mm-seed` (via skill)
+- Codex: `$mm-seed`
 - Claude Code: `/mm:seed`
 
 ---
@@ -205,7 +206,15 @@ Use the same `/mm-*` commands as Pi:
 ```
 
 Skills are discovered automatically from `.agents/skills/` (symlinked during install).
-Mirror Mode and Builder Mode are available via explicit `/mm-*` commands.
+Mirror Mode and Builder Mode are available via explicit `$mm-*` skill
+invocations:
+
+```text
+$mm-mirror
+$mm-build <journey-slug>
+$mm-journeys
+$mm-consult ...
+```
 The wrapper script handles session start, backfill, and end automatically.
 
 ### Alternative: Claude Code

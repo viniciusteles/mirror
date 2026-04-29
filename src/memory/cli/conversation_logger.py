@@ -381,7 +381,7 @@ def backfill_codex_session(
     messages: list[dict] = []
 
     try:
-        with open(jsonl_path, "r") as f:
+        with open(jsonl_path) as f:
             for line in f:
                 if not line.strip():
                     continue

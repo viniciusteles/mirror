@@ -3,7 +3,7 @@
 # CV8.E6 — Codex Runtime Implementation
 
 **Epic:** Add a Codex runtime adapter at L3 parity using a wrapper script, JSONL backfill, and native skill discovery
-**Status:** Draft
+**Status:** Done
 **Depends on:** CV8.E5 Codex Runtime Spike
 
 ---
@@ -42,11 +42,11 @@ Claude Code and Gemini CLI:
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV8.E6.S1 | Add `backfill-codex-session` CLI command | Draft |
-| CV8.E6.S2 | Write `scripts/codex-mirror.sh` wrapper | Draft |
-| CV8.E6.S3 | Add `.agents/skills/mm-*/SKILL.md` symlinks | Draft |
-| CV8.E6.S4 | Write project `AGENTS.md` with Mirror Mind instructions | Draft |
-| CV8.E6.S5 | Smoke test + docs | Draft |
+| CV8.E6.S1 | Add `backfill-codex-session` CLI command | Done |
+| CV8.E6.S2 | Write `scripts/codex-mirror.sh` wrapper | Done |
+| CV8.E6.S3 | Add `.agents/skills/mm-*/SKILL.md` symlinks | Done |
+| CV8.E6.S4 | Write project `AGENTS.md` with Mirror Mind instructions | Done |
+| CV8.E6.S5 | Smoke test + docs | Done |
 
 ---
 
@@ -117,10 +117,10 @@ exit $EXIT_CODE
 
 This project uses Mirror Mind. When working here:
 
-- For personal reflection, strategy, or identity questions: use `/mm-mirror`
-- For project work on a specific journey: use `/mm-build <slug>`
-- To see active journeys: use `/mm-journeys`
-- All other `/mm-*` commands are available via skills
+- For personal reflection, strategy, or identity questions: use `$mm-mirror`
+- For project work on a specific journey: use `$mm-build <slug>`
+- To see active journeys: use `$mm-journeys`
+- All other `$mm-*` commands are available via skills
 
 Mirror Mind identity and memory are loaded automatically when you invoke
 the relevant skill. You do not need to load them manually.

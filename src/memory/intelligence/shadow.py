@@ -88,12 +88,15 @@ def propose_shadow_observations(
 
     try:
         response = send_to_model(
-            prompt=prompt,
             model=EXTRACTION_MODEL,
-            on_llm_call=on_llm_call,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
         )
     except Exception:
         return []
+
+    if on_llm_call:
+        on_llm_call(response)
 
     raw = response.content.strip()
     # Strip optional markdown fencing.

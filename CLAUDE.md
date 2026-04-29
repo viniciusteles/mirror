@@ -28,8 +28,8 @@ Mirror Mind works through several interfaces over one shared Python core
   and are symlinked under `.gemini/skills/`. Invoked with the `/mm-` prefix.
 - **[Codex](https://github.com/google-gemini/codex) — supported alternative.**
   L3 parity via wrapper script and skill symlinks. Skills live under
-  `.pi/skills/` and are symlinked under `.agents/skills/`. Invoked with the
-  `/mm-` prefix.
+  `.pi/skills/` and are symlinked under `.agents/skills/`. Invoked with
+  `$mm-*` syntax, for example `$mm-build`.
 - **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)
   — supported alternative.** The original interface. Skills live under
   `.claude/skills/` and are invoked with the `/mm:` prefix.
@@ -160,11 +160,12 @@ mentoring, health, existential or spiritual questions, sensemaking,
 psychological tensions, class preparation, product launches, or any topic that
 asks for personal reflection or positioning.
 
-**How to operate:** follow `/mm-mirror`. Load identity, route persona, search
-attachments, answer in first person, and record the response.
+**How to operate:** follow the Mirror Mode skill for the active runtime
+(`/mm-mirror`, `$mm-mirror`, or `/mm:mirror`). Load identity, route persona,
+search attachments, answer in first person, and record the response.
 
 If automatic routing fails or the user wants to force this mode, invoke
-`/mm-mirror` explicitly.
+the Mirror Mode skill explicitly.
 
 #### Ego-Persona Model
 
@@ -241,9 +242,10 @@ engineering task.
 **How to operate:** read code, edit files, run commands, propose technical
 solutions, and keep docs updated when the code changes.
 
-**Builder Mode for a journey:** when the user invokes `/mm-build <slug>` (Pi)
-or `/mm:build <slug>` (Claude Code), load Builder Mode with full journey context plus
-project docs. See the corresponding skill file for the active runtime.
+**Builder Mode for a journey:** when the user invokes `/mm-build <slug>` (Pi or
+Gemini CLI), `$mm-build <slug>` (Codex), or `/mm:build <slug>` (Claude Code),
+load Builder Mode with full journey context plus project docs. See the
+corresponding skill file for the active runtime.
 
 This includes:
 
@@ -266,39 +268,39 @@ project construction.
 ## Available Skills
 
 **Core modes:**
-- `/mm-mirror` / `/mm:mirror` - complete Mirror Mode procedure
-- `/mm-build` / `/mm:build` - Builder Mode for a journey
+- `/mm-mirror` / `$mm-mirror` / `/mm:mirror` - complete Mirror Mode procedure
+- `/mm-build` / `$mm-build` / `/mm:build` - Builder Mode for a journey
 
 **Journeys & tasks:**
-- `/mm-journeys` / `/mm:journeys` - compact journey list
-- `/mm-journey` / `/mm:journey` - detailed journey status
-- `/mm-tasks` / `/mm:tasks` - task management by journey
-- `/mm-week` / `/mm:week` - weekly planning
+- `/mm-journeys` / `$mm-journeys` / `/mm:journeys` - compact journey list
+- `/mm-journey` / `$mm-journey` / `/mm:journey` - detailed journey status
+- `/mm-tasks` / `$mm-tasks` / `/mm:tasks` - task management by journey
+- `/mm-week` / `$mm-week` / `/mm:week` - weekly planning
 
 **Memory & inspection:**
-- `/mm-memories` / `/mm:memories` - recorded memories
-- `/mm-conversations` / `/mm:conversations` - recent conversations list
-- `/mm-recall` / `/mm:recall` - load messages from a previous conversation into context
+- `/mm-memories` / `$mm-memories` / `/mm:memories` - recorded memories
+- `/mm-conversations` / `$mm-conversations` / `/mm:conversations` - recent conversations list
+- `/mm-recall` / `$mm-recall` / `/mm:recall` - load messages from a previous conversation into context
 
 **Content:**
-- `/mm-journal` / `/mm:journal` - personal journal entry
+- `/mm-journal` / `$mm-journal` / `/mm:journal` - personal journal entry
 
 **Identity:**
-- `/mm-seed` / `/mm:seed` - seed identity YAML files into the database (bootstrap only — skips existing entries)
-- `/mm-identity` / `/mm:identity` - read and update identity directly in the database
+- `/mm-seed` / `$mm-seed` / `/mm:seed` - seed identity YAML files into the database (bootstrap only — skips existing entries)
+- `/mm-identity` / `$mm-identity` / `/mm:identity` - read and update identity directly in the database
 
 **Session control:**
-- `/mm-mute` / `/mm:mute` - toggle conversation logging
-- `/mm-new` / `/mm:new` - start a new conversation
+- `/mm-mute` / `$mm-mute` / `/mm:mute` - toggle conversation logging
+- `/mm-new` / `$mm-new` / `/mm:new` - start a new conversation
 
 **Memory cultivation:**
-- `/mm-consolidate` / `/mm:consolidate` - scan memories for patterns and propose consolidation (merge, identity update, shadow candidate)
-- `/mm-shadow` / `/mm:shadow` - surface and promote shadow-layer observations into the structural shadow identity layer
+- `/mm-consolidate` / `$mm-consolidate` / `/mm:consolidate` - scan memories for patterns and propose consolidation (merge, identity update, shadow candidate)
+- `/mm-shadow` / `$mm-shadow` / `/mm:shadow` - surface and promote shadow-layer observations into the structural shadow identity layer
 
 **Utilities:**
-- `/mm-consult` / `/mm:consult` - ask other LLMs through OpenRouter
-- `/mm-backup` / `/mm:backup` - memory database backup
-- `/mm-help` / `/mm:help` - list commands
+- `/mm-consult` / `$mm-consult` / `/mm:consult` - ask other LLMs through OpenRouter
+- `/mm-backup` / `$mm-backup` / `/mm:backup` - memory database backup
+- `/mm-help` / `$mm-help` / `/mm:help` - list commands
 
 ## Development Conventions
 
@@ -307,7 +309,7 @@ project construction.
   because they can bypass the locked project environment.
 - YAML files follow the local schema: `name`, `model`, `inherit`,
   `routing`, `briefing`, and `system_prompt`. The `routing` field is seeded
-  into the database at `/mm-seed` time; at runtime, persona routing reads
+  into the database at seed time; at runtime, persona routing reads
   from the database, not the YAML.
 - Personas inherit from `ego` or `self` depending on depth.
 - Practice TDD for behavior changes.

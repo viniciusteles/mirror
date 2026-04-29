@@ -1,6 +1,6 @@
 [< Story](index.md)
 
-# Plan — CV8.E5.S1 Inspect Gemini CLI Capabilities
+# Plan — CV8.E1.S1 Inspect Gemini CLI Capabilities
 
 ## Purpose
 
@@ -328,12 +328,12 @@ Rationale:
 - Hook trust/fingerprinting may require user approval for project-level hooks.
 - Custom commands that run shell injections require confirmation unless policy
   allows them.
-- Gemini CLI support may end up stronger than Codex support, but CV8 sequencing
-  still keeps Codex first by decision.
+- Gemini CLI support may end up stronger than Codex support. The CV8 order was
+  later inverted so Gemini CLI shipped first and Codex second.
 
 ---
 
 ## Exit Criteria
 
-This story can close when we can write CV8.E5.S2 with concrete lifecycle mapping
+This story can close when we can write CV8.E2 with concrete lifecycle mapping
 instead of speculation.

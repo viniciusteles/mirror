@@ -1,6 +1,7 @@
 """MemoryService: storage and search for memories and journal entries."""
 
 import json
+from collections.abc import Callable
 
 from memory.config import LOG_LLM_CALLS
 from memory.intelligence.embeddings import embedding_to_bytes, generate_embedding
@@ -114,10 +115,10 @@ class MemoryService:
         from memory.intelligence.extraction import classify_journal_entry
 
         if not title or not layer or not tags:
-            llm_logger = None
+            llm_logger: Callable[[LLMResponse], None] | None = None
             if LOG_LLM_CALLS:
 
-                def llm_logger(response: LLMResponse) -> None:
+                def _log_llm_call(response: LLMResponse) -> None:
                     self.store.log_llm_call(
                         role="journal_classification",
                         model=response.model,
@@ -127,6 +128,8 @@ class MemoryService:
                         completion_tokens=response.completion_tokens,
                         latency_ms=response.latency_ms,
                     )
+
+                llm_logger = _log_llm_call
 
             classification = classify_journal_entry(content, on_llm_call=llm_logger)
             title = title or classification["title"]

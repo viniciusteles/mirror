@@ -1,6 +1,6 @@
 [< Story](index.md)
 
-# Plan — CV8.E1.S1 Inspect Codex Capabilities
+# Plan — CV8.E5.S1 Inspect Codex Capabilities
 
 ## Purpose
 

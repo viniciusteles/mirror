@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from memory.config import LOG_LLM_CALLS
@@ -98,10 +99,10 @@ class TaskService:
             desc = t.content[:200] if t.content else ""
             journey_context.append({"slug": t.key, "description": desc})
 
-        llm_logger = None
+        llm_logger: Callable[[LLMResponse], None] | None = None
         if LOG_LLM_CALLS:
 
-            def llm_logger(response: LLMResponse) -> None:
+            def _log_llm_call(response: LLMResponse) -> None:
                 self.store.log_llm_call(
                     role="week_plan",
                     model=response.model,
@@ -111,6 +112,8 @@ class TaskService:
                     completion_tokens=response.completion_tokens,
                     latency_ms=response.latency_ms,
                 )
+
+            llm_logger = _log_llm_call
 
         items = extract_week_plan(text, journey_context, on_llm_call=llm_logger)
 

@@ -1,9 +1,9 @@
-[< CV8.E5 Gemini CLI Runtime Spike](../index.md)
+[< CV8.E1 Gemini CLI Runtime Spike](../index.md)
 
-# CV8.E5.S1 — Inspect Gemini CLI Capabilities
+# CV8.E1.S1 — Inspect Gemini CLI Capabilities
 
-**Status:** Draft
-**Epic:** CV8.E5 — Gemini CLI Runtime Spike
+**Status:** Done
+**Epic:** CV8.E1 — Gemini CLI Runtime Spike
 **Type:** Spike / discovery
 
 ---
@@ -50,7 +50,7 @@ grounded in facts rather than assumptions.
 - Gemini CLI session id or fallback strategy is identified
 - Gemini CLI context-injection capability is classified
 - findings are recorded in `plan.md`
-- enough evidence exists to proceed to CV8.E5.S2 lifecycle mapping
+- enough evidence exists to proceed to CV8.E2 implementation
 
 ---
 

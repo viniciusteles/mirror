@@ -1,6 +1,6 @@
 [< Story](index.md)
 
-# Test Guide — CV8.E5.S1 Inspect Gemini CLI Capabilities
+# Test Guide — CV8.E1.S1 Inspect Gemini CLI Capabilities
 
 This is a spike, so verification means the investigation is reproducible and
 the evidence is recorded. No Gemini CLI runtime implementation should exist
