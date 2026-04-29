@@ -42,9 +42,10 @@ Historically, **Claude Code was the initial harness** used in Alisson's original
 
 ## How it works
 
-Mirror Mind now supports three runtimes:
+Mirror Mind now supports four runtimes:
 - **Pi** — the preferred interface today, because it makes the mirror multi-model and less tied to a single provider/runtime
 - **Gemini CLI** — fully supported with the same shell-hook model as Claude Code; L4 full parity
+- **Codex** — supported at L3 parity via wrapper script and skill symlinks
 - **Claude Code** — the original interface used by Alisson's first implementation, still supported as an alternative
 
 Mirror Mind separates repository templates from live user identity:
@@ -242,6 +243,16 @@ invocation. Use the same `/mm-*` commands as Pi:
 /mm-journey <slug>
 /mm-consult ...
 ```
+
+**Codex**
+
+```bash
+# Use the wrapper script to run Codex with Mirror Mind
+./scripts/codex-mirror.sh
+```
+
+Skills are discovered via symlinks in `.agents/skills/`. Mirror Mode and
+Builder Mode are available via explicit `/mm-*` commands.
 
 **Alternative: Claude Code**
 

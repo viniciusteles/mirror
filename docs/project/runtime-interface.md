@@ -3,9 +3,9 @@
 # Runtime Interface Contract
 
 A **runtime** is any frontend that presents the mirror to the user. Currently
-three runtimes exist: Claude Code (hooks), Pi (TypeScript extension), and
-Gemini CLI (shell hooks). This document defines what every runtime must
-implement to integrate correctly with the Python `memory` core.
+four runtimes exist: Claude Code (hooks), Pi (TypeScript extension), Gemini CLI
+(shell hooks), and Codex (wrapper script). This document defines what every
+runtime must implement to integrate correctly with the Python `memory` core.
 
 The Python CLI (`python -m memory ...`) is the stable interface. Inside this
 repo, run it as `uv run python -m memory ...`. Runtimes are thin dispatchers —
@@ -117,6 +117,15 @@ hook). Uses `session-end-pi` for deferred extraction, same as Pi.
 uv run python -m memory conversation-logger session-end-pi <session_id>
 ```
 
+**Codex** — has no lifecycle hooks. Uses a wrapper script that backfills the
+session transcript from JSONL and then calls `session-end-pi` for deferred
+extraction.
+
+```
+uv run python -m memory conversation-logger backfill-codex-session <path>
+uv run python -m memory conversation-logger session-end-pi <session_id>
+```
+
 A new runtime should use `session-end-pi` unless it can supply a transcript
 path, in which case `session-end` gives immediate extraction.
 
@@ -222,6 +231,22 @@ injection without explicit user invocation.
 
 Skills are discovered from `.gemini/skills/mm-*/SKILL.md` (symlinked from
 `.pi/skills/mm-*/`). The SKILL.md format is identical between Pi and Gemini CLI.
+
+### Codex
+
+| Event | Mechanism | Codex trigger |
+|-------|-----------|---------------|
+| Session start | `scripts/codex-mirror.sh` | Wrapper start |
+| User prompt | `scripts/codex-mirror.sh` | JSONL backfill at exit |
+| Assistant response | `scripts/codex-mirror.sh` | JSONL backfill at exit |
+| Session end + backup | `scripts/codex-mirror.sh` | Wrapper exit |
+| Mirror load | `AGENTS.md` + `/mm-mirror` skill | Explicit invocation |
+
+Codex has no hook system. It uses a **wrapper script** (`scripts/codex-mirror.sh`)
+that handles the lifecycle around the `codex` command. Context is supplied via a
+static `AGENTS.md` in the project root, and Mirror Mode is activated through the
+native skill surface at `.agents/skills/mm-*/SKILL.md` (symlinked from
+`.pi/skills/mm-*/`).
 
 ---
 
@@ -478,7 +503,7 @@ same SKILL.md format as Pi.
 `interface` is a free-text field. Passing `--interface <runtime_name>` is all
 that is needed. No Python migrations are required to add a new runtime label.
 
-Established labels: `claude_code`, `pi`, `gemini_cli`.
+Established labels: `claude_code`, `pi`, `gemini_cli`, `codex`.
 
 ---
 

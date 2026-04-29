@@ -22,9 +22,10 @@ Mirror Mind requires accounts at two separate services before anything works:
 Create an account, add credits, and generate an API key. OpenRouter handles everything the memory system needs: generating embeddings to index and search your memories (using OpenAI’s text-embedding-3-small model behind the scenes), extracting memories from conversations via Gemini Flash, and the `/mm-consult` command to query other models. Cost is very low — a few cents per session.
 
 **2. An AI provider subscription — to run the mirror**
-Mirror Mind is a framework; the actual AI conversation runs through Pi, Gemini CLI, or Claude Code:
+Mirror Mind is a framework; the actual AI conversation runs through Pi, Gemini CLI, Codex, or Claude Code:
 - **Pi** is model-agnostic — you can configure any supported model, but you need access to whichever one you choose
 - **Gemini CLI** uses Gemini models; requires a Google account (free tier available)
+- **Codex** is agent-native and model-flexible; supported at L3 parity
 - **Claude Code** requires a Claude subscription (claude.ai Pro or Anthropic API access)
 
 One account for infrastructure, one for the conversation interface. Both are required.
@@ -33,6 +34,7 @@ One account for infrastructure, one for the conversation interface. Both are req
 
 - [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) — preferred runtime (multi-model)
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported runtime (`brew install gemini-cli`)
+- [Codex](https://github.com/google-gemini/codex) — supported runtime
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — supported alternative runtime
 - Python 3.10+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — package manager
@@ -194,6 +196,17 @@ Use the same `/mm-*` commands as Pi:
 /mm-journey <journey-slug>
 /mm-consult ...
 ```
+
+### Codex
+
+```bash
+# Use the wrapper script to run Codex with Mirror Mind
+./scripts/codex-mirror.sh
+```
+
+Skills are discovered automatically from `.agents/skills/` (symlinked during install).
+Mirror Mode and Builder Mode are available via explicit `/mm-*` commands.
+The wrapper script handles session start, backfill, and end automatically.
 
 ### Alternative: Claude Code
 

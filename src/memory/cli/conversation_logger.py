@@ -367,6 +367,77 @@ def backfill_pi_sessions(
     return count
 
 
+def backfill_codex_session(
+    jsonl_path: str | Path,
+    mirror_home: str | Path | None = None,
+    interface: str = "codex",
+) -> int:
+    """Import a Codex session JSONL file into the memory system."""
+    jsonl_path = Path(jsonl_path).expanduser()
+    if not jsonl_path.exists():
+        return 0
+
+    session_id = None
+    messages: list[dict] = []
+
+    try:
+        with open(jsonl_path, "r") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                entry = json.loads(line)
+                entry_type = entry.get("type")
+                payload = entry.get("payload", {})
+
+                if entry_type == "session_meta":
+                    session_id = payload.get("id")
+                elif entry_type == "event_msg":
+                    payload_type = payload.get("type")
+                    if payload_type in ("user_message", "agent_message"):
+                        role = "user" if payload_type == "user_message" else "assistant"
+                        content = payload.get("message", "")
+                        ts = entry.get("timestamp")
+                        if content:
+                            messages.append({"role": role, "content": content, "created_at": ts})
+    except Exception:
+        return 0
+
+    if not session_id or not messages:
+        return 0
+
+    mem = _memory_client(mirror_home)
+    if mem.store.get_runtime_session(session_id):
+        return 0
+
+    from memory.models import Message as _Msg
+
+    conv = mem.start_conversation(interface=interface)
+    for m in messages:
+        mem.store.add_message(
+            _Msg(
+                conversation_id=conv.id,
+                role=m["role"],
+                content=m["content"],
+                created_at=m["created_at"],
+            )
+        )
+
+    first_user = next((m for m in messages if m["role"] == "user"), None)
+    if first_user:
+        title = _generate_title(first_user["content"])
+        mem.store.update_conversation(conv.id, title=title)
+
+    mem.store.update_conversation(conv.id, ended_at=messages[-1]["created_at"])
+    mem.store.upsert_runtime_session(
+        session_id,
+        conversation_id=conv.id,
+        interface=interface,
+        active=False,
+        closed_at=messages[-1]["created_at"],
+    )
+    return 1
+
+
 # --- Hook entry points ---
 
 
@@ -507,6 +578,19 @@ def main(argv: list[str] | None = None) -> None:
     elif cmd == "session-end-pi":
         if len(args) >= 2:
             end_session(args[1], extract=False, mirror_home=mirror_home)
+    elif cmd == "backfill-codex-session":
+        if len(args) >= 2:
+            path = args[1]
+            interface = "codex"
+            if "--interface" in args:
+                idx = args.index("--interface")
+                if idx + 1 < len(args):
+                    interface = args[idx + 1]
+            count = backfill_codex_session(path, mirror_home=mirror_home, interface=interface)
+            if count:
+                print(f"Backfilled 1 Codex session from {path}")
+            else:
+                print(f"No new Codex session backfilled from {path}")
 
 
 if __name__ == "__main__":

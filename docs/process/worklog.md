@@ -9,6 +9,45 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — CV8.E6 complete: Codex runtime implementation
+
+Added L3 parity for Codex via wrapper script and JSONL backfill.
+
+**`backfill-codex-session` CLI** (`conversation_logger.py`): parses Codex JSONL,
+extracts session ID, and logs user/assistant turns. Idempotent check prevents
+duplicates.
+
+**`scripts/codex-mirror.sh`**: wrapper script that handles the lifecycle.
+`session-start` → `codex` → find newest JSONL for CWD → `backfill-codex-session`
+→ `session-end-pi` → `backup`.
+
+**Skill symlinks** (`.agents/skills/mm-*/`): 19 symlinks to `.pi/skills/mm-*/`.
+Gives Codex native skill discovery for all Mirror Mind commands.
+
+**`AGENTS.md`**: project-root context file for Codex.
+
+**`codex` interface label**: added to `runtime-interface.md` and CLI.
+
+---
+
+### 2026-04-29 — CV8.E7 complete: Codex operational validation
+
+Smoke test and documentation updated.
+
+**Smoke test** (`scripts/smoke_codex.sh`): isolated DB, fake Codex JSONL,
+verifies `backfill-codex-session` correctly logs messages with `interface='codex'`.
+PASSED.
+
+**Docs updated**:
+- README: four runtimes, Codex in prerequisites and starting section
+- Getting Started: four runtimes, Codex section added
+- Runtime Interface Contract: Codex reference implementation and L3 details added
+
+CV8 is effectively complete. Both Gemini CLI (L4) and Codex (L3) are now
+first-class runtimes.
+
+---
+
 ### 2026-04-29 — v0.5.1 released: Gemini CLI hooks tolerate missing `GEMINI_SESSION_ID`
 
 Fixed the Gemini CLI hook integration after real runtime use showed that
@@ -917,14 +956,8 @@ Implementation plan produced for E6: `backfill-codex-session` CLI command,
 
 ## Next
 
-- **CV8.E6 (next):** Codex Runtime Implementation — hook scripts, `settings.json`,
-  `gemini_cli` interface label in Python, and `.gemini/skills/mm-*/SKILL.md` surface.
-  See [CV8.E2 index](../project/roadmap/cv8-runtime-expansion/cv8-e2-gemini-cli-runtime-implementation/index.md).
-- **CV8.E3:** Gemini CLI Operational Validation & Docs — smoke test, isolated DB, README/REFERENCE updates.
-- **CV8.E4:** Runtime Adapter Hardening — fold Gemini CLI lessons into the runtime contract before Codex.
-- **Follow-up: `MemoryClient` lifecycle sweep (parked).** `__del__` is now a safety net, but hot call sites still open one client per call. Two passes worth doing eventually:
-  1. Apply the `mark_injected` pattern to the other `mirror_state.py` helpers (`_load_state`, `write_state`).
-  2. Per-process `MemoryClient` cache keyed by `db_path` for library helpers in `hooks/` and `cli/conversation_logger.py`.
+- **CV9 (Planned):** Mirror Mind 1.0 — refactoring, stabilization, and public release preparation.
+- **Continuous refinement** of identity based on real usage.
 
 ---
 
