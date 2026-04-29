@@ -17,16 +17,22 @@ grows sharper the more you use it.
 
 **Runtimes:**
 
-Mirror Mind works through two interfaces over one shared Python core
+Mirror Mind works through several interfaces over one shared Python core
 (`src/memory/`). Logic lives once; the interface is a thin wrapper.
 
 - **[Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent)
-  — preferred.** Pi is a multi-model coding agent that lets you choose the
-  underlying AI model freely — not locked to Claude or any single provider.
-  Skills live under `.pi/skills/` and are invoked with the `/mm-` prefix.
+  — preferred.** Multi-model coding agent. Skills live under `.pi/skills/` and
+  are invoked with the `/mm-` prefix.
+- **[Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported.**
+  L4 parity via shell hooks. Skills live under `.pi/skills/` (shared with Pi)
+  and are symlinked under `.gemini/skills/`. Invoked with the `/mm-` prefix.
+- **[Codex](https://github.com/google-gemini/codex) — supported alternative.**
+  L3 parity via wrapper script and skill symlinks. Skills live under
+  `.pi/skills/` and are symlinked under `.agents/skills/`. Invoked with the
+  `/mm-` prefix.
 - **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-  — supported alternative.** The original interface, still fully supported.
-  Skills live under `.claude/skills/` and are invoked with the `/mm:` prefix.
+  — supported alternative.** The original interface. Skills live under
+  `.claude/skills/` and are invoked with the `/mm:` prefix.
 
 If you are new to Mirror Mind, start with Pi.
 
@@ -62,9 +68,12 @@ src/memory/                     -> long-term memory system
 templates/identity/            -> generic bootstrap templates
 examples/extensions/           -> reference extensions (e.g. review-copy)
 tests/                         -> automated tests
-.claude/skills/                -> operational skills (Claude Code)
-.pi/skills/                    -> operational skills (Pi)
+.pi/skills/                    -> core Mirror Mind skills (shared)
+.claude/skills/                -> Claude-specific skill surface
+.gemini/skills/                -> Gemini-CLI-specific skill surface (symlinked)
+.agents/skills/                -> Codex-specific skill surface (symlinked)
 CLAUDE.md                      -> routing and project reference
+AGENTS.md                      -> symlink to CLAUDE.md
 REFERENCE.md                   -> detailed operational reference
 ```
 
