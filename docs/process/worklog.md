@@ -9,6 +9,41 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — CV7.E4.S2 complete: Honest reinforcement
+
+Replaces the naive `log1p(access_count)/3` (no decay, no use/retrieval
+distinction) with a two-signal honest formula.
+
+**Three new columns on `memories`** (migration 009):
+- `last_accessed_at TEXT` — cached when the memory was last retrieved;
+  updated atomically in `log_access()` so decay needs no extra query.
+- `use_count INTEGER DEFAULT 0` — incremented via `log_use()` when the
+  model explicitly draws on a memory in a response. Separate from retrieval.
+- `readiness_state TEXT DEFAULT 'observed'` — Jungian progression state
+  for S3/S4 consolidation and shadow work. Infrastructure only in S2.
+
+**`reinforcement_score(access_count, use_count, last_accessed_at)`** in
+`search.py`: use_signal = min(1, use_count/5); retrieval_signal =
+log1p(access_count)/3 * exp(-ln2 * days / DECAY_DAYS). Weights:
+USE_WEIGHT=0.7, RETRIEVAL_WEIGHT=0.3, DECAY_DAYS=180. At half-life,
+retrieval signal halves; after 2 years it's ~6%.
+
+**`hybrid_score()`** now takes a pre-computed `reinforcement` float
+instead of raw `access_count`. Caller computes via `reinforcement_score()`.
+
+**`MemoryClient.log_use(memory_id)`** exposed for skill-layer callers
+to mark explicit use (infrastructure; wiring to Mirror Mode skill in S4).
+
+**Config knobs**: `MEMORY_REINFORCEMENT_DECAY_DAYS`,
+`MEMORY_REINFORCEMENT_USE_WEIGHT`, `MEMORY_REINFORCEMENT_RETRIEVAL_WEIGHT`.
+
+**`evals/retrieval.py`**: 10 deterministic probes documenting the scoring
+behavioral contract. Free to run, no API calls. All 10 pass.
+
+945 tests pass. ruff clean. CI green on Python 3.10 and 3.12.
+
+---
+
 ### 2026-04-28 — CV7.E4.S1 complete: Hybrid search 2.0
 
 Adds FTS5 full-text lexical search as a new signal in the hybrid scorer and

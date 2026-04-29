@@ -46,7 +46,7 @@ capable, the runtime contract is updated again.
 
 | Code | Story | Status |
 |------|-------|--------|
-| CV8.E5.S1 | Inspect Gemini CLI extension, command, hook, and transcript capabilities | Draft |
+| [CV8.E5.S1](cv8-e5-s1-gemini-cli-capabilities/index.md) | Inspect Gemini CLI extension, command, hook, and transcript capabilities | Draft |
 | CV8.E5.S2 | Map Gemini CLI lifecycle to the runtime contract | Draft |
 | CV8.E5.S3 | Decide Gemini CLI target parity level and document limitations | Draft |
 | CV8.E5.S4 | Draft Gemini CLI implementation plan and test guide | Draft |

@@ -73,7 +73,7 @@ Four areas, each with its own architectural shift:
 | Code | Story | Status |
 |------|-------|--------|
 | CV7.E4.S1 | Hybrid search 2.0 (FTS5 + sqlite-vec + RRF + MMR) | Done |
-| CV7.E4.S2 | Reinforcement honest (use vs retrieval, decay, eval-tuned weights, schema migration) | Planned |
+| CV7.E4.S2 | Reinforcement honest (use vs retrieval, decay, eval-tuned weights, schema migration) | Done |
 | CV7.E4.S3 | Consolidation as integration (`mm-consolidate` skill, promotion mechanism) | Planned |
 | CV7.E4.S4 | Shadow as structural cultivation (`shadow` layer + readiness states + `mm-shadow` skill + asymmetric composition) | Planned |
 | CV7.E4.S5 | *(Stretch)* Cross-conversation summaries / "weekly pass" | Deferred |
