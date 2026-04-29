@@ -9,6 +9,17 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — v0.6.1 released: Codex skill syntax documentation fix
+
+Patch release for the Codex runtime docs and skill activation correction.
+
+The important user-facing fix: Codex activates Mirror Mind skills with
+`$mm-*` syntax, for example `$mm-build mirror`, not `/mm-*`.
+
+This release also aligns CV8 completion status across docs, fixes stale
+Gemini/Codex story numbering from the order inversion, and keeps the verification
+gate green after small type/lint cleanup.
+
 ### 2026-04-29 — Documentation audit: CV8 status and Codex skill syntax
 
 Audited the public and operational docs after real Codex use showed that Codex
