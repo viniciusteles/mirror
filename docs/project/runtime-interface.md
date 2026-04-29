@@ -3,9 +3,9 @@
 # Runtime Interface Contract
 
 A **runtime** is any frontend that presents the mirror to the user. Currently
-two runtimes exist: Claude Code (hooks) and Pi (TypeScript extension). This
-document defines what every runtime must implement to integrate correctly with
-the Python `memory` core.
+three runtimes exist: Claude Code (hooks), Pi (TypeScript extension), and
+Gemini CLI (shell hooks). This document defines what every runtime must
+implement to integrate correctly with the Python `memory` core.
 
 The Python CLI (`python -m memory ...`) is the stable interface. Inside this
 repo, run it as `uv run python -m memory ...`. Runtimes are thin dispatchers —
@@ -110,6 +110,13 @@ Claude Code's `Stop` hook provides this via stdin automatically.
 uv run python -m memory conversation-logger session-end-pi <session_id>
 ```
 
+**Gemini CLI** — `SessionEnd` is best-effort (CLI exits without waiting for the
+hook). Uses `session-end-pi` for deferred extraction, same as Pi.
+
+```
+uv run python -m memory conversation-logger session-end-pi <session_id>
+```
+
 A new runtime should use `session-end-pi` unless it can supply a transcript
 path, in which case `session-end` gives immediate extraction.
 
@@ -139,6 +146,11 @@ Mirror Mode is already active.
 
 **Pi** does not auto-inject. The `/mm-mirror` skill calls `mirror load`
 explicitly at the start of each Mirror Mode response.
+
+**Gemini CLI** runs this in the `BeforeAgent` hook. When Mirror Mode is active,
+the hook calls `mirror load --context-only` and returns the identity block as
+`hookSpecificOutput.additionalContext` — injected automatically before the model
+processes the prompt.
 
 ---
 
@@ -192,6 +204,23 @@ Claude no longer relies on a repo-local `mm:review-copy` compatibility skill;
 | Assistant response | `.pi/extensions/mirror-logger.ts` | `agent_end` |
 | Session end + backup | `.pi/extensions/mirror-logger.ts` | `session_shutdown` |
 | Mirror load | `.pi/skills/mm-mirror/SKILL.md` | `/mm-mirror` skill invocation |
+
+### Gemini CLI
+
+| Event | Hook file | Gemini CLI trigger |
+|-------|-----------|--------------------|
+| Session start | `.gemini/hooks/session-start.sh` | `SessionStart` |
+| User prompt + Mirror inject | `.gemini/hooks/log-user.sh` | `BeforeAgent` |
+| Assistant response | `.gemini/hooks/log-assistant.sh` | `AfterAgent` |
+| Session end + backup | `.gemini/hooks/session-end.sh` | `SessionEnd` (best-effort) |
+
+Hook files are registered in `.gemini/settings.json`. Session ID is available
+as `$GEMINI_SESSION_ID` in every hook environment. Mirror Mode injection uses
+`BeforeAgent` `hookSpecificOutput.additionalContext` — automatic per-turn
+injection without explicit user invocation.
+
+Skills are discovered from `.gemini/skills/mm-*/SKILL.md` (symlinked from
+`.pi/skills/mm-*/`). The SKILL.md format is identical between Pi and Gemini CLI.
 
 ---
 
