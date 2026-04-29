@@ -9,6 +9,46 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-29 — CV7.E4.S3 complete: Consolidation as integration
+
+The move from "the mirror remembers" to "the mirror grows". Raw extracted
+memories now have a path into structural identity content.
+
+**Promotion mechanism decision** documented in `decisions.md`:
+Manual-by-acknowledgment for S3. Scan is automatic; promotion requires
+explicit acceptance. Auto-by-repetition deferred until real sessions
+produce calibration data.
+
+**`consolidations` table** (migration 010): tracks proposals with full
+provenance — source memory IDs, LLM proposal, user decision, final content,
+timestamps. Action types: `merge | identity_update | shadow_candidate`.
+
+**`cluster_memories()`** in `intelligence/consolidate.py`: greedy
+single-linkage clustering by cosine similarity. Skips terminal states;
+returns clusters of ≥2, capped at 5 per cluster.
+
+**`propose_consolidation()`**: LLM call producing a JSON proposal per
+cluster. CONSOLIDATION_PROMPT encodes three-action taxonomy and selection
+rules (prefer merge when uncertain). Fail-open on LLM failure.
+
+**CLI** `python -m memory consolidate <scan|apply|reject|list>`:
+- `scan`: cluster + proposals, print, persist as pending
+- `apply <id> [--content]`: execute (identity update / merge / shadow
+  candidate), advance readiness_states, record provenance
+- `reject <id>`: mark rejected, leave memories unchanged
+- `list [--status]`: consolidation history
+
+**Readiness state transitions on acceptance:**
+- merge: originals → `integrated`; merged memory created with embedding
+- identity_update: sources → `acknowledged`; identity layer appended
+- shadow_candidate: sources → `candidate` for mm-shadow pass (S4)
+
+**Skills**: `mm-consolidate` (Pi) and `mm:consolidate` (Claude Code).
+
+972 tests pass. ruff clean. CI green on Python 3.10 and 3.12.
+
+---
+
 ### 2026-04-29 — CV7.E4.S2 complete: Honest reinforcement
 
 Replaces the naive `log1p(access_count)/3` (no decay, no use/retrieval
