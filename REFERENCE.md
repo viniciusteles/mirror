@@ -71,8 +71,8 @@ other long-form reference content.
 ## Skills
 
 Claude Code uses the `/mm:` prefix. Pi and Gemini CLI use the `/mm-` prefix.
-Codex discovers the same skill files through `.agents/skills/`, but activates
-them with `$mm-*` syntax. All runtimes call the same Python core.
+Gemini CLI and Codex discover the same skill files through `.agents/skills/`,
+but Codex activates them with `$mm-*` syntax. All runtimes call the same Python core.
 
 | Pi / Gemini CLI | Codex | Claude Code | Purpose | Main Arguments |
 |---------|-------|-------------|---------|----------------|
@@ -441,8 +441,7 @@ templates/identity/              -> generic bootstrap templates shipped in the r
 src/memory/                      -> Python package: client, store, db, search, extraction, tasks, llm_router
 .claude/skills/                  -> operational skills (mm:mirror, mm:tasks, etc.)
 .pi/skills/                      -> Pi skills
-.gemini/skills/                  -> Gemini CLI skills (symlinked from .pi/skills)
-.agents/skills/                  -> Codex skills (symlinked from .pi/skills)
+.agents/skills/                  -> shared Gemini CLI/Codex skills (symlinked from .pi/skills)
 ```
 
 ### Templates Vs. Real Content

@@ -229,8 +229,10 @@ installed Gemini CLI version. Hooks must support both. Mirror Mode injection
 uses `BeforeAgent` `hookSpecificOutput.additionalContext` — automatic per-turn
 injection without explicit user invocation.
 
-Skills are discovered from `.gemini/skills/mm-*/SKILL.md` (symlinked from
-`.pi/skills/mm-*/`). The SKILL.md format is identical between Pi and Gemini CLI.
+Skills are discovered from the shared `.agents/skills/mm-*/SKILL.md` surface
+(symlinked from `.pi/skills/mm-*/`). `.gemini/skills/` is intentionally absent
+because Gemini CLI can read `.agents/skills/`, and keeping both surfaces creates
+conflicting duplicate skills.
 
 ### Codex
 
@@ -245,7 +247,7 @@ Skills are discovered from `.gemini/skills/mm-*/SKILL.md` (symlinked from
 Codex has no hook system. It uses a **wrapper script** (`scripts/codex-mirror.sh`)
 that handles the lifecycle around the `codex` command. Context is supplied via a
 static `AGENTS.md` in the project root, and Mirror Mode is activated through the
-native skill surface at `.agents/skills/mm-*/SKILL.md` (symlinked from
+shared native skill surface at `.agents/skills/mm-*/SKILL.md` (symlinked from
 `.pi/skills/mm-*/`). Unlike Pi and Gemini CLI, Codex activates these skills with
 `$mm-*` syntax, for example `$mm-build mirror`.
 
@@ -485,19 +487,20 @@ References: `scripts/smoke_gemini_cli.sh`, `scripts/smoke_codex.sh`
 
 ### Skill sharing (SKILL.md-native runtimes)
 
-Runtimes that discover SKILL.md natively (Gemini CLI at `.gemini/skills/`,
-Codex at `.agents/skills/`, Pi at `.pi/skills/`) can share Mirror Mind's skill
-surface via symlinks:
+Runtimes that discover SKILL.md natively can share Mirror Mind's skill surface
+via symlinks. Pi owns the source skill files in `.pi/skills/`; Gemini CLI and
+Codex share one project-local surface at `.agents/skills/`:
 
 ```bash
-# From .gemini/skills/
+# From .agents/skills/
 ln -sf ../../.pi/skills/mm-mirror mm-mirror
 ```
 
-This creates one source of truth: updating a Pi skill automatically updates
-the Gemini CLI and Codex skill surfaces. Use this pattern for any runtime that
-consumes the same SKILL.md format as Pi. The discovery format can be shared even
-when invocation syntax differs; Codex uses `$mm-*` rather than `/mm-*`.
+This creates one source of truth: updating a Pi skill automatically updates the
+Gemini CLI and Codex skill surface. Do not also create `.gemini/skills/`; Gemini
+CLI can read `.agents/skills/`, and a second surface creates duplicate/conflicting
+skills. The discovery format can be shared even when invocation syntax differs:
+Gemini CLI uses `/mm-*`, while Codex uses `$mm-*`.
 
 ---
 

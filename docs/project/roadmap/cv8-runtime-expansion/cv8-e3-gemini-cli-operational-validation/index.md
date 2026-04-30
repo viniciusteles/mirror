@@ -37,7 +37,7 @@ public-facing documentation to reflect the new runtime.
 | Level | Status | Notes |
 |-------|--------|-------|
 | L1 Logged runtime | ✅ | `BeforeAgent` + `AfterAgent` + `SessionStart` + `$GEMINI_SESSION_ID` |
-| L2 Command surface | ✅ | 19 skills at `.gemini/skills/mm-*/SKILL.md` |
+| L2 Command surface | ✅ | 19 skills at shared `.agents/skills/mm-*/SKILL.md` surface |
 | L3 Mirror Mode | ✅ | `BeforeAgent` `additionalContext` — automatic per-turn injection |
 | L4 Full parity | ✅ | All of the above + smoke test + docs |
 

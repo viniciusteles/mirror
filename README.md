@@ -58,8 +58,7 @@ tests/                        → Automated tests
 .claude/skills/               → Operational skills (Claude Code)
 .pi/skills/                   → Operational skills (Pi)
 .gemini/hooks/                → Lifecycle hooks (Gemini CLI)
-.gemini/skills/               → Operational skills (Gemini CLI — symlinked from .pi/skills/)
-.agents/skills/               → Operational skills (Codex — symlinked from .pi/skills/)
+.agents/skills/               → Shared operational skills for Gemini CLI and Codex — symlinked from .pi/skills/
 ~/.mirror/<user>/identity/    → Real user-owned identity (outside the repo)
 ~/.mirror/<user>/memory.db    → Runtime source of truth (outside the repo)
 ```
@@ -237,9 +236,9 @@ Pi is the preferred runtime because it makes Mirror Mind effectively multi-model
 gemini
 ```
 
-Skills are discovered automatically. The mirror logs conversations, injects
-identity context in Mirror Mode, and runs backups — all without explicit
-invocation. Use the same `/mm-*` commands as Pi:
+Skills are discovered automatically from `.agents/skills/`. The mirror logs
+conversations, injects identity context in Mirror Mode, and runs backups — all
+without explicit invocation. Use the same `/mm-*` commands as Pi:
 
 ```text
 /mm-mirror
@@ -255,8 +254,8 @@ invocation. Use the same `/mm-*` commands as Pi:
 ./scripts/codex-mirror.sh
 ```
 
-Skills are discovered via symlinks in `.agents/skills/`. Mirror Mode and
-Builder Mode are available via explicit `$mm-*` skill invocations:
+Skills are discovered via the same symlinks in `.agents/skills/`. Mirror Mode
+and Builder Mode are available via explicit `$mm-*` skill invocations:
 
 ```text
 $mm-mirror

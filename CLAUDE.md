@@ -24,11 +24,11 @@ Mirror Mind works through several interfaces over one shared Python core
   — preferred.** Multi-model coding agent. Skills live under `.pi/skills/` and
   are invoked with the `/mm-` prefix.
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported.**
-  L4 parity via shell hooks. Skills live under `.pi/skills/` (shared with Pi)
-  and are symlinked under `.gemini/skills/`. Invoked with the `/mm-` prefix.
+  L4 parity via shell hooks. Skills live under `.pi/skills/` and are surfaced
+  through `.agents/skills/`. Invoked with the `/mm-` prefix.
 - **[Codex](https://github.com/google-gemini/codex) — supported alternative.**
   L3 parity via wrapper script and skill symlinks. Skills live under
-  `.pi/skills/` and are symlinked under `.agents/skills/`. Invoked with
+  `.pi/skills/` and are surfaced through `.agents/skills/`. Invoked with
   `$mm-*` syntax, for example `$mm-build`.
 - **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)
   — supported alternative.** The original interface. Skills live under
@@ -70,8 +70,7 @@ examples/extensions/           -> reference extensions (e.g. review-copy)
 tests/                         -> automated tests
 .pi/skills/                    -> core Mirror Mind skills (shared)
 .claude/skills/                -> Claude-specific skill surface
-.gemini/skills/                -> Gemini-CLI-specific skill surface (symlinked)
-.agents/skills/                -> Codex-specific skill surface (symlinked)
+.agents/skills/                -> shared Gemini CLI/Codex skill surface (symlinked)
 CLAUDE.md                      -> routing and project reference
 AGENTS.md                      -> symlink to CLAUDE.md
 REFERENCE.md                   -> detailed operational reference

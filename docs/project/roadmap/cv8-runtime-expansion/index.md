@@ -90,7 +90,7 @@ capability with aspiration.
 **Gemini CLI target: L4.** The hook model (shell scripts via `.gemini/settings.json`),
 per-turn context injection (`BeforeAgent` → `additionalContext`), stable session ID
 (`$GEMINI_SESSION_ID`), transcript file (`transcript_path` in every hook stdin), and
-native SKILL.md discovery (`.gemini/skills/`) together satisfy every parity requirement.
+native SKILL.md discovery through the shared `.agents/skills/` surface together satisfy every parity requirement.
 The only honest limitation: `SessionEnd` is best-effort. Extraction defers to next
 `SessionStart` — the same model used by Pi, already battle-tested.
 

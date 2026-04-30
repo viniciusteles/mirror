@@ -25,7 +25,9 @@ Gemini CLI second (E5–E7). The order was inverted because:
    lifecycle (`SessionStart`, `BeforeAgent`, `AfterAgent`, `SessionEnd`), a stable
    session UUID via `$GEMINI_SESSION_ID`, transcript path in every hook's stdin,
    per-turn context injection via `BeforeAgent` `additionalContext`, and native
-   SKILL.md discovery at `.gemini/skills/` — satisfying every Mirror Mind runtime
+   SKILL.md discovery. The implemented project-local surface is now the shared
+   `.agents/skills/` tree, because Gemini CLI can read it and a parallel
+   `.gemini/skills/` tree conflicts — still satisfying every Mirror Mind runtime
    requirement.
 3. **Gemini CLI's hook model is closer to Claude Code** than Pi is. This makes the
    Gemini CLI adapter a cleaner first test of the general runtime contract: it exercises

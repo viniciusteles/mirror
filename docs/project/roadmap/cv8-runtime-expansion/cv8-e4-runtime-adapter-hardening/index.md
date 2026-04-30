@@ -83,10 +83,10 @@ touching home resolution. All future smoke tests should use `DB_PATH`.
 
 ### L6 — Skill symlinks enable zero-maintenance skill sharing
 
-`.gemini/skills/mm-*/` → `.pi/skills/mm-*/` via symlinks. Pi-format SKILL.md
-works identically in both runtimes. Codex later reused the same pattern through
-`.agents/skills/mm-*/`, with `$mm-*` activation syntax. New runtimes that
-support native SKILL.md discovery can participate in this pattern immediately.
+`.agents/skills/mm-*/` → `.pi/skills/mm-*/` via symlinks. Pi-format SKILL.md
+works for both Gemini CLI and Codex; Gemini CLI invokes with `/mm-*`, while Codex
+invokes with `$mm-*`. Do not create a parallel `.gemini/skills/` tree because
+Gemini CLI can read `.agents/skills/`, and duplicate skill surfaces conflict.
 
 **Contract addition:** document the symlink pattern for runtimes that support
 SKILL.md natively.

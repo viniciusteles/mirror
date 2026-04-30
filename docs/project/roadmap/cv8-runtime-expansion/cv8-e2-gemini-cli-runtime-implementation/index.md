@@ -30,7 +30,7 @@ calls. They must not own Mirror Mind behavior.
 - assistant turns are logged per turn via `AfterAgent`
 - session end calls `session-end-pi <session_id>` (deferred extraction) and runs backup
 - Mirror Mode injection: `BeforeAgent` hook calls `mirror load --context-only` when mirror state is active; returns identity block as `additionalContext`
-- `.gemini/skills/mm-*/SKILL.md` covers the minimum command surface
+- `.agents/skills/mm-*/SKILL.md` covers the minimum command surface for Gemini CLI and Codex; `.gemini/skills/` is intentionally absent to avoid duplicate/conflicting skills
 - `gemini_cli` interface label is recognized in CLI reporting and conversation listing
 - implementation has tests for every Python-side contract change
 - no direct SQLite access from Gemini CLI files
@@ -46,7 +46,7 @@ calls. They must not own Mirror Mind behavior.
 | CV8.E2.S2 | Implement session lifecycle hooks (session-start, session-end) | Done |
 | CV8.E2.S3 | Implement per-turn logging hooks (BeforeAgent, AfterAgent) | Done |
 | CV8.E2.S4 | Implement Mirror Mode context injection via BeforeAgent | Done |
-| CV8.E2.S5 | Add `.gemini/skills/mm-*/SKILL.md` command surface | Done (19 symlinks) |
+| CV8.E2.S5 | Add Gemini CLI command surface | Done via shared `.agents/skills/mm-*/SKILL.md` symlinks |
 | CV8.E2.S6 | Add Builder Mode skill | Done (mm-build symlinked) |
 
 ---
@@ -63,22 +63,11 @@ calls. They must not own Mirror Mind behavior.
     log-user.sh              — BeforeAgent: log-user + optional mirror inject
     log-assistant.sh         — AfterAgent: log-assistant
     session-end.sh           — SessionEnd: session-end-pi + backup (best-effort)
+.agents/
   skills/
-    mm-mirror/SKILL.md       — Mirror Mode
-    mm-build/SKILL.md        — Builder Mode
-    mm-journeys/SKILL.md
-    mm-journey/SKILL.md
-    mm-tasks/SKILL.md
-    mm-memories/SKILL.md
-    mm-conversations/SKILL.md
-    mm-recall/SKILL.md
-    mm-new/SKILL.md
-    mm-mute/SKILL.md
-    mm-seed/SKILL.md
-    mm-identity/SKILL.md
-    mm-consult/SKILL.md
-    mm-backup/SKILL.md
-    mm-help/SKILL.md
+    mm-mirror -> ../../.pi/skills/mm-mirror
+    mm-build -> ../../.pi/skills/mm-build
+    ... shared Gemini CLI/Codex skill surface
 ```
 
 ### Hook: SessionStart
@@ -207,12 +196,13 @@ echo '{}'
 
 ## Skill Reuse
 
-Gemini CLI skills share the same SKILL.md format as Pi. The `.pi/skills/mm-*/SKILL.md`
-files can be adapted with minimal changes:
+Gemini CLI skills share the same SKILL.md format as Pi and Codex. The project
+uses `.agents/skills/mm-*` symlinks pointing to `.pi/skills/mm-*` as the single
+Gemini CLI/Codex skill surface.
 
-- Replace `uv run python -m memory` paths with repo-relative equivalents where needed
-- Remove Pi-specific lifecycle references (Pi extension events do not apply)
-- The skill descriptions and operational steps are identical
+Do not create a parallel `.gemini/skills/` tree. Gemini CLI can discover skills
+from `.agents/skills/`; keeping both `.gemini/skills/` and `.agents/skills/`
+creates duplicate/conflicting command definitions.
 
 ---
 

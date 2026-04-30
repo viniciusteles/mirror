@@ -9,6 +9,16 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-04-30 — v0.6.2 released: Gemini CLI skill surface consolidated under `.agents/skills`
+
+Removed the duplicate `.gemini/skills/` symlink tree. Gemini CLI can read the
+same project-local `.agents/skills/` surface used by Codex, and keeping both
+surfaces creates duplicate/conflicting skill definitions.
+
+Updated the current runtime docs to reflect the new single-surface rule:
+`.pi/skills/` remains the source, `.agents/skills/` is the shared Gemini CLI/Codex
+surface, Gemini CLI invokes with `/mm-*`, and Codex invokes with `$mm-*`.
+
 ### 2026-04-29 — v0.6.1 released: Codex skill syntax documentation fix
 
 Patch release for the Codex runtime docs and skill activation correction.

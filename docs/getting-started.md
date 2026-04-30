@@ -186,7 +186,7 @@ Pi is the preferred runtime because it lets Mirror Mind work across models more 
 gemini
 ```
 
-Skills are discovered automatically from `.gemini/skills/`. The mirror logs
+Skills are discovered automatically from `.agents/skills/`. The mirror logs
 conversations in the background, injects identity context automatically in
 Mirror Mode via the `BeforeAgent` hook, and runs backups on session end.
 Use the same `/mm-*` commands as Pi:
@@ -205,7 +205,7 @@ Use the same `/mm-*` commands as Pi:
 ./scripts/codex-mirror.sh
 ```
 
-Skills are discovered automatically from `.agents/skills/` (symlinked during install).
+Skills are discovered automatically from the shared `.agents/skills/` surface.
 Mirror Mode and Builder Mode are available via explicit `$mm-*` skill
 invocations:
 
