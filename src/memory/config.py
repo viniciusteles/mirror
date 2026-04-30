@@ -237,9 +237,9 @@ REINFORCEMENT_RETRIEVAL_WEIGHT = float(os.getenv("MEMORY_REINFORCEMENT_RETRIEVAL
 # Observability — set MEMORY_LOG_LLM_CALLS=1 to write every LLM call to llm_calls table
 LOG_LLM_CALLS = os.getenv("MEMORY_LOG_LLM_CALLS", "") == "1"
 
-# Reception — set MEMORY_RECEPTION=1 to enable LLM-based turn classification
-# When disabled (default), persona/journey routing uses keyword detection unchanged.
-RECEPTION_ENABLED = os.getenv("MEMORY_RECEPTION", "") == "1"
+# Reception — set MEMORY_RECEPTION=0 to disable LLM-based turn classification
+# When enabled (default), persona/journey routing uses the LLM instead of keywords.
+RECEPTION_ENABLED = os.getenv("MEMORY_RECEPTION", "1") == "1"
 
 # Two-pass extraction — set MEMORY_TWO_PASS=1 to enable curation against existing memories
 # When disabled (default), extraction is single-pass unchanged.

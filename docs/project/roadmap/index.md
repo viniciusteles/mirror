@@ -25,6 +25,15 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV6](cv6-intelligence-runtime-maturity/index.md) | Multi-User Onboarding, Identity Runtime Maturity, and Extensibility | ✅ Done |
 | [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | ✅ Done |
 | [CV8](cv8-runtime-expansion/index.md) | Runtime Expansion: Gemini CLI and Codex | ✅ Done |
+| [CV9](cv9-mirror-1-0/index.md) | Mirror Mind 1.0 — refactoring, stabilization, and public release preparation | 🟡 Planning |
+
+---
+
+## CV9 — Mirror Mind 1.0
+
+Planned. Mirror Mind 1.0 focuses on refactoring, stabilization, release
+hardening, documentation polish, and public readiness. It marks the transition
+from research to stable tool.
 
 ---
 

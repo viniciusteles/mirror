@@ -111,7 +111,7 @@ uv run python -m memory shadow list [--status pending|accepted|rejected]
 Once the shadow layer has content, it composes into Mirror Mode prompts when:
 - Reception's `touches_shadow` axis is True (the turn involves existential tension,
   avoidance, psychological patterns, or shadow-adjacent themes)
-- AND `MEMORY_RECEPTION=1` is set
+- AND `MEMORY_RECEPTION=1` is set (the default)
 
 The shadow section includes a provenance framing note. It never surfaces as a bare
 verdict — always grounded in evidence.
