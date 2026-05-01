@@ -188,6 +188,7 @@ adds domain depth without becoming a separate entity.
 - Research/search/find out/investigate/literature -> `researcher`
 - Finance/spending/balances/budget -> `treasurer` (use external financial context when provided)
 - Ideas/concepts/hypotheses/thinking partner -> `thinker`
+- Plan review/specialist findings/scale and stage/overengineering/launch readiness -> `quartermaster`
 - General knowledge/curiosities -> `scholar`
 - Marketing/copy/communication/social media -> `marketer`
 - Education/classes/instructional design -> `teacher`
