@@ -186,7 +186,7 @@ adds domain depth without becoming a separate entity.
 - Product/UX/product strategy -> `product-designer`
 - Technology/tools/code/debug/software development -> `engineer`
 - Research/search/find out/investigate/literature -> `researcher`
-- Finance/spending/balances/budget -> `treasurer` (use external financial context when provided)
+- Finance/spending/balances/budget/pricing/investment/runway -> `cfo` (personal and business finances treated as one system; ask for data when numbers are absent)
 - Ideas/concepts/hypotheses/thinking partner -> `thinker`
 - Plan review/specialist findings/scale and stage/overengineering/launch readiness -> `quartermaster`
 - General knowledge/curiosities -> `scholar`
