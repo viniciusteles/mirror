@@ -178,22 +178,34 @@ adds domain depth without becoming a separate entity.
 - the depth required exceeds the generic ego repertoire
 - the user explicitly asks for a persona
 
-**Routing by domain:**
+**Routing protocol:**
 
-- Writing/blog/articles/publishing -> `writer`
-- Therapy/existential/psychology/shadow -> `therapist`
-- Health/symptoms/medicine -> `doctor`
-- Product/UX/product strategy -> `product-designer`
-- Technology/tools/code/debug/software development -> `engineer`
-- Research/search/find out/investigate/literature -> `researcher`
-- Finance/spending/balances/budget/pricing/investment/runway -> `cfo` (personal and business finances treated as one system; ask for data when numbers are absent)
-- Ideas/concepts/hypotheses/thinking partner -> `thinker`
-- Plan review/specialist findings/scale and stage/overengineering/launch readiness -> `quartermaster`
-- General knowledge/curiosities -> `scholar`
-- Marketing/copy/communication/social media -> `marketer`
-- Education/classes/instructional design -> `teacher`
-- Mentoring/practical philosophy/wisdom -> `mentor`
-- Travel/destinations/accommodation/transportation/trip planning -> `traveler`
+Persona routing is data-driven, not hard-coded in this file. Each persona
+seeded in the user's database carries `routing_keywords` and a short routing
+descriptor as metadata. At runtime, `IdentityService.detect_persona()` scores
+the current query against the keywords of every persona in the active user's
+database and returns the best matches; an optional LLM router can refine the
+choice when enabled. If no persona scores above threshold, the ego answers
+alone.
+
+The set of routable personas for a given user is therefore exactly the set of
+personas seeded in their database, nothing more, nothing less. To inspect
+the active routing rules for the current user, run
+`uv run python -m memory detect-persona "<query>"` or
+`uv run python -m memory list personas`.
+
+**Baseline templates shipped with the framework:**
+
+- `writer`: writing, editing, drafting, publishing, voice
+- `engineer`: software, debugging, architecture, tests, tooling
+- `thinker`: ideas, decisions, hypotheses, framing, conceptual work
+
+These three are the only personas guaranteed by `templates/identity/personas/`.
+Any additional persona (therapist, doctor, cfo, marketer, teacher, mentor,
+researcher, traveler, product-designer, strategist, quartermaster, scholar,
+etc.) is user-defined and lives in `~/.mirror/<user>/identity/personas/`.
+Users are free to add, rename, or remove personas in their own home; the
+framework does not impose a fixed catalog.
 
 When the ego answers alone, use no label.
 
