@@ -121,7 +121,7 @@ achievable without hook support or per-turn dynamic context injection.
 CV8 is done:
 
 - Gemini CLI runtime capabilities are investigated and mapped against
-  `docs/project/runtime-interface.md`
+  `docs/product/specs/runtime-interface/index.md`
 - Gemini CLI has the highest honest parity level its hook model supports (L4)
 - Gemini CLI conversations write `interface='gemini_cli'` and are session-safe
 - Gemini CLI Mirror Mode works via `BeforeAgent` `additionalContext` injection
@@ -173,7 +173,7 @@ Gemini CLI forces.
 
 ## See also
 
-- [Runtime Interface Contract](../../runtime-interface.md)
+- [Runtime Interface Contract](../../../product/specs/runtime-interface/index.md)
 - [CV1 Pi Runtime](../cv1-pi-runtime/index.md)
 - [CV2 Runtime Portability](../cv2-runtime-portability/index.md)
 - [CV3 Pi Skill Parity](../cv3-pi-skill-parity/index.md)

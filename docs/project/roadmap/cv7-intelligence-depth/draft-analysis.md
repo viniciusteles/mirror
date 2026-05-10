@@ -821,8 +821,8 @@ neither.
 5. **Per-turn cost envelope — what's the actual ceiling?** Section 7
    commits to cost-as-envelope but leaves the number open. Suggested
    \$0.05/turn as a starting point; the planning pass should confirm
-   against current per-turn cost data and the budget Vinícius is
-   willing to spend monthly.
+   against current per-turn cost data and the monthly budget the active user is
+   willing to spend.
 
 ---
 

@@ -80,4 +80,4 @@ E1 (CLI Completeness)
 
 ---
 
-**See also:** [CV2 Runtime Portability](../cv2-runtime-portability/index.md) · [CV4 Intelligence Depth](../index.md) · [Runtime Interface](../../runtime-interface.md)
+**See also:** [CV2 Runtime Portability](../cv2-runtime-portability/index.md) · [CV4 Intelligence Depth](../index.md) · [Runtime Interface](../../../product/specs/runtime-interface/index.md)

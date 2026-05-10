@@ -31,7 +31,7 @@ Previous role:
 - clearly not part of the user-home seed flow
 
 Boundary risk:
-- it contained Vinícius-specific operational biography and could be mistaken for
+- it contained user-specific operational biography and could be mistaken for
   framework-shipped identity
 
 Resolution status:

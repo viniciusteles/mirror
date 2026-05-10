@@ -10,8 +10,8 @@ Organized by domain so you can find what is relevant to your current work.
 ## Product
 
 **First-person voice.**  
-The mirror speaks as Vinícius, not about him. Every response is in first person,
-from his worldview, reflecting his philosophy. "You should consider..." is wrong.
+The mirror speaks as the active user, not about them. Every response is in first person,
+from their worldview, reflecting their philosophy. "You should consider..." is wrong.
 "I lean toward..." is right.
 
 **Memory as intelligence.**  
@@ -32,6 +32,14 @@ the interface layer.
 **One voice, many lenses.**  
 Personas are not separate agents. The ego activates a persona; the voice stays
 unified. The persona adds depth without becoming a different entity.
+
+**Doing as entry, being as discovery.**  
+For software audiences, the front door should be concrete work: projects,
+Builder, coherence, lenses, and agentic execution. The identity layer should not
+be removed, but it should not always be the public promise. Maestro can attract
+through doing while Mirror reveals itself through use. The user buys operational
+power and later discovers continuity, memory, personas, journeys, and inner
+sensemaking as the work deepens.
 
 ---
 
@@ -125,7 +133,7 @@ One concern per commit. Descriptive English message. No `fix stuff`, no
 `WIP`, no Portuguese names in commit messages.
 
 **Push only when asked.**  
-The driver does not push to the remote unless Vinícius explicitly requests it.
+The driver does not push to the remote unless the user explicitly requests it.
 
 ---
 

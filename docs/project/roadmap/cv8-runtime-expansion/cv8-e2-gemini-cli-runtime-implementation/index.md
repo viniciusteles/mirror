@@ -220,5 +220,5 @@ creates duplicate/conflicting command definitions.
 
 - [CV8.E1 Gemini CLI Runtime Spike](../cv8-e1-gemini-cli-runtime-spike/index.md)
 - [CV8.E3 Gemini CLI Operational Validation](../cv8-e3-gemini-cli-operational-validation/index.md)
-- [Runtime Interface Contract](../../../runtime-interface.md)
-- [Claude Code reference implementation](.gemini/../../../runtime-interface.md#claude-code)
+- [Runtime Interface Contract](../../../../product/specs/runtime-interface/index.md)
+- [Claude Code reference implementation](../../../../product/specs/runtime-interface/index.md#claude-code)

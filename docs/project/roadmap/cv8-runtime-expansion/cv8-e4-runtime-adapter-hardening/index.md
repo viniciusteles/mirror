@@ -101,7 +101,7 @@ was needed. New runtimes never require Python migrations just to add a label.
 ## Done Condition
 
 - ✅ E4 index rewritten: Gemini CLI lessons, not Codex
-- ✅ `docs/project/runtime-interface.md` updated with lessons L1–L7 as explicit
+- ✅ `docs/product/specs/runtime-interface/index.md` updated with lessons L1–L7 as explicit
   contract sections
 - ✅ Smoke test isolation pattern documented in the runtime contract
 - ✅ Codex implementation checklist produced from Gemini lessons (pre-work for E5)
@@ -133,4 +133,4 @@ Gemini CLI made concrete and Codex is about to reuse.
 
 - [CV8.E3 Gemini CLI Operational Validation](../cv8-e3-gemini-cli-operational-validation/index.md)
 - [CV8.E5 Codex Runtime Spike](../cv8-e5-codex-runtime-spike/index.md)
-- [Runtime Interface Contract](../../../runtime-interface.md)
+- [Runtime Interface Contract](../../../../product/specs/runtime-interface/index.md)

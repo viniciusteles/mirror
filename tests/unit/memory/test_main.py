@@ -33,6 +33,13 @@ def test_conversation_logger_status_dispatches():
     mock_logger_main.assert_called_once_with(["status"])
 
 
+def test_web_dispatches():
+    with patch("memory.web.server.main") as mock_web_main:
+        _run_main(["web", "--port", "9999"])
+
+    mock_web_main.assert_called_once_with(["--port", "9999"])
+
+
 def test_unknown_top_level_command_exits(capsys):
     with pytest.raises(SystemExit) as exc_info:
         _run_main(["nosuchcommand"])

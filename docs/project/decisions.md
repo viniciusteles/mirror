@@ -11,6 +11,86 @@ resolved.
 
 ## Completed Decisions
 
+### Coherence is a Builder lifecycle capability, not a command-first flow
+
+**Date:** 2026-05-09
+**Reference:** [Coherence product architecture](../product/envisioning/index.md), [Coherence runtime spec](../product/specs/coherence-runtime/index.md), [CV10 Coherence Engine](roadmap/cv10-coherence-engine/index.md)
+
+Coherence will be integrated into the natural Builder lifecycle instead of
+being exposed primarily as a command users must remember. The user experience
+remains: activate Builder Mode for a journey. When coherence is enabled,
+Builder runs a preflight against the journey's `project_path`, injects a UoC
+summary into the Builder briefing, surfaces blocking gaps before implementation,
+and refreshes coherence after meaningful changes.
+
+This keeps the separation clear: Builder executes, coherence governs, lenses
+provide opinion, and Mirror remembers.
+
+---
+
+### Maestro is the doing-first product frame over Mirror Core
+
+**Date:** 2026-05-09
+**Reference:** [Coherence product architecture](../product/envisioning/index.md)
+
+Maestro is not a separate runtime, not a competing Builder mode, and not a
+standalone coherence engine. Maestro is the public product frame for a
+software-development audience: Builder plus active software lenses plus the
+coherence protocol, powered by Mirror Core.
+
+Mirror remains the underlying architecture: identity, memory, journeys,
+personas, attachments, and long-term continuity. Maestro attracts through doing;
+Mirror reveals itself through use.
+
+---
+
+### Localization and audience modes are Mirror-wide surfaces
+
+**Date:** 2026-05-09
+**Reference:** [CV11 Localization](roadmap/cv11-localization/index.md), [CV12 Audience Modes](roadmap/cv12-audience-modes/index.md)
+
+Coherence exposed two surface concerns: language and audience mode. They are not
+owned by the coherence engine. Localization and audience modes are Mirror-wide
+capabilities.
+
+Localization changes language, not semantics. Audience mode changes explanation
+strategy, not truth. Coherence must stay compatible with both by separating
+stable semantic ids from human-facing text, but full localization and audience
+mode behavior are planned separately.
+
+---
+
+### `memory` remains the historical package namespace for Mirror Core
+
+**Date:** 2026-05-09
+**Reference:** [CV13 Mirror Web Console](roadmap/cv13-mirror-web-console/index.md)
+
+The Python package is still named `memory` for historical reasons, but it now
+contains more than the memory subsystem. It is the current namespace for Mirror
+Core and runtime interfaces, including skills, CLI dispatch, and the local web
+console.
+
+New modules may continue to live under `memory.*` until a future package rename
+to `mirror` is intentionally planned. This avoids coupling the current Web
+Console PR to a broad package rename.
+
+---
+
+### Mirror Web Console starts as a local read-only docs browser
+
+**Date:** 2026-05-09
+**Reference:** [CV13 Mirror Web Console](roadmap/cv13-mirror-web-console/index.md), [CV13.E1 Docs Browser](roadmap/cv13-mirror-web-console/cv13-e1-docs-browser/index.md)
+
+The Mirror Web Console will begin with a small, local-first, read-only slice:
+browsing and rendering Markdown documentation. Broader capabilities such as
+configuration inspection, identity/persona inspection, and editing workflows are
+future epics.
+
+The first implementation binds to `127.0.0.1`, reads only approved documentation
+roots, rejects path traversal, and renders Markdown as HTML.
+
+---
+
 ### CV8 runtime order inverted: Gemini CLI first, Codex second
 
 **Date:** 2026-04-29
@@ -257,8 +337,8 @@ English migration is clearly stable and the upgrade path for old databases is
 no longer a concern?
 
 **Why not urgent:** The cost of keeping it is low. The risk of removing it
-prematurely is higher. Revisit when Vinícius decides old database upgrade
-support is no longer needed.
+prematurely is higher. Revisit when legacy database upgrade support is no longer
+needed.
 
 ---
 

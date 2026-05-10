@@ -9,7 +9,7 @@ we have learned about what makes sessions productive.
 
 ## The Model
 
-**Vinícius is the navigator. Claude is the driver.**
+**The user is the navigator. The agent is the driver.**
 
 The navigator sets direction, raises concerns, and spots the larger pattern.
 The driver implements — but also speaks up when something looks wrong at the
@@ -113,7 +113,7 @@ into an importable module so Pi skills can call the same implementation.
 6. Story marked ✅ in epic index
 7. Worklog entry added
 8. Commit(s) with descriptive messages
-9. Push when Vinícius asks
+9. Push when the user asks
 
 ---
 

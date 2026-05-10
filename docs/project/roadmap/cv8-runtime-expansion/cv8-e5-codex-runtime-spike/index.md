@@ -240,4 +240,4 @@ Mode, `$mm-build` for Builder Mode, etc. Points the model to the skill surface.
 
 - [CV8.E6 Codex Runtime Implementation](../cv8-e6-codex-runtime-implementation/index.md)
 - [Codex implementation checklist](codex-checklist.md)
-- [Runtime Interface Contract](../../../runtime-interface.md)
+- [Runtime Interface Contract](../../../../product/specs/runtime-interface/index.md)

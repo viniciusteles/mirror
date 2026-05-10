@@ -69,4 +69,4 @@ grounded in facts rather than assumptions.
 - [Plan](plan.md)
 - [Test Guide](test-guide.md)
 - [CV8 index](../../index.md)
-- [Runtime Interface Contract](../../../../runtime-interface.md)
+- [Runtime Interface Contract](../../../../../product/specs/runtime-interface/index.md)

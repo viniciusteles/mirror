@@ -2,6 +2,8 @@
 
 # Getting Started
 
+Mirror Mind is a local-first memory and identity framework for agentic AI runtimes. It gives each session access to the user's identity, voice, values, journeys, projects, and accumulated memory, so work can continue without starting from zero. The system is not a generic chatbot layer. It is Mirror Core: the architecture that lets Pi, Claude Code, Gemini CLI, and Codex operate with continuity, context, and coherence.
+
 ## Lineage and credits
 
 Mirror Mind in this repository is a continuation of the original mirror work created by **Alisson Vale** in

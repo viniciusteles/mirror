@@ -12,6 +12,7 @@ dependencies = [
     "numpy>=1.24",
     "pydantic>=2.0",
     "pyyaml>=6.0",
+    "markdown>=3.6",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +32,9 @@ memory-rehearse-migration = "memory.cli.migration_rehearsal:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+memory = ["web/static/*"]
 
 # ---------------------------------------------------------------------------
 # pytest

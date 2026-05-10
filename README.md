@@ -10,7 +10,7 @@ The advice it gives could fit anyone. It doesn't know that you made that decisio
 
 That's not an assistant. That's a very smart stranger.
 
-**Mirror Mind is a different bet.** It's a framework that turns any LLM into an AI that *actually knows you* — your identity, your voice, your values, your ongoing projects — and accumulates that knowledge over time, conversation by conversation.
+**Mirror Mind is a different bet.** It is a local-first memory and identity framework for agentic AI runtimes. It gives each session access to your identity, voice, values, journeys, projects, and accumulated memory, so work can continue without starting from zero. The system is not a generic chatbot layer. It is Mirror Core: the architecture that lets Pi, Claude Code, Gemini CLI, and Codex operate with continuity, context, and coherence.
 
 The mirror doesn't just answer your questions. It reflects your own intelligence back at you, sharpened. It remembers what matters. It carries context across months. It knows where you are in your projects and what's unresolved. When you need a therapist's depth, it shifts. When you need an engineer's precision, it shifts. One unified voice, multiple lenses.
 
@@ -29,8 +29,7 @@ This is not a chatbot. It's a mirror — conscious, accumulative, and yours.
 
 ## Origins and credits
 
-Mirror Mind is a continuation of the original mirror work created by **Alisson Vale** in
-[alissonvale/mirror-poc](https://github.com/alissonvale/mirror-poc/).
+Mirror Mind is a continuation of the original mirror work created by **Alisson Vale**.
 
 This repository builds on that original idea and implementation. The work here extends it in several important directions: making the system usable for people who do not speak Portuguese, adding a Pi-based multi-model runtime, and hardening the framework for multi-user and multi-session use. The original mirror concept and the first `mirror-poc` implementation are Alisson's, and this repository should be understood as a continuation and expansion of that foundation.
 
