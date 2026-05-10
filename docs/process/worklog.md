@@ -9,6 +9,32 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-05-09 — Initial Mirror Web Console docs browser
+
+Added the first local web console slice: a read-only documentation browser. The
+console starts with `uv run python -m memory web`, binds to `127.0.0.1`, shows
+a hierarchical docs tree matching the docs folders, and renders selected
+documents as HTML through the `markdown` package. The docs reader rejects path
+traversal and non-doc files outside allowed roots.
+
+This is the first step toward a broader Mirror Web Console for inspecting and
+later editing configuration, personas, identity, and journey state.
+
+### 2026-05-09 — Coherence direction documented as Builder lifecycle
+
+Captured the Maestro synthesis as product architecture and roadmap direction.
+Maestro is now framed as a doing-first public product frame powered by Mirror
+Core, not as a separate runtime or competing Builder mode. Coherence is specified
+as a natural Builder lifecycle capability: preflight on Builder activation,
+visible Units of Coherence in the Builder briefing, and postflight after
+meaningful changes.
+
+Added product and project docs for the path:
+- `docs/product/envisioning/index.md`
+- `docs/product/specs/coherence-runtime/index.md`
+- `docs/project/roadmap/cv10-coherence-engine/`
+- future placeholders for CV11 Localization and CV12 Audience Modes
+
 ### 2026-04-30 — v0.6.2 released: Gemini CLI skill surface consolidated under `.agents/skills`
 
 Removed the duplicate `.gemini/skills/` symlink tree. Gemini CLI can read the
@@ -658,7 +684,7 @@ normalized Pi links to the agent package URL:
 
 Standardized current-facing docs and skill instructions around `uv run` as the
 repo command boundary. Updated `docs/getting-started.md`, `README.md`,
-`REFERENCE.md`, `CLAUDE.md`, `docs/project/runtime-interface.md`, Claude/Pi
+`REFERENCE.md`, `CLAUDE.md`, `docs/product/specs/runtime-interface/index.md`, Claude/Pi
 skill docs, and local Claude settings so project Python commands and tests run
 through the locked uv environment instead of system Python.
 
@@ -676,7 +702,7 @@ CI green on the push.
 
 ### 2026-04-20 — sqlite3 connection fd leak fixed in MemoryClient
 
-**Symptom.** After the thread-safety fix, `test_concurrent_memory_client_open_on_fresh_db_is_safe` still failed intermittently with `sqlite3.OperationalError: unable to open database file`, reliably on Vinícius's machine, never on the agent's. Same line (`sqlite3.connect`) every time. A retry-with-backoff guard made failures take 6 s instead of 0 s — the symptom was persistent, not a filesystem flicker.
+**Symptom.** After the thread-safety fix, `test_concurrent_memory_client_open_on_fresh_db_is_safe` still failed intermittently with `sqlite3.OperationalError: unable to open database file`, reliably on the user's machine, never on the agent's. Same line (`sqlite3.connect`) every time. A retry-with-backoff guard made failures take 6 s instead of 0 s — the symptom was persistent, not a filesystem flicker.
 
 **Root cause.** Python 3.14's `sqlite3.Connection` does not release its underlying OS file descriptors through refcount-based cleanup. Only explicit `close()` or process exit releases them. The concurrency test creates 32 × 5 = 160 short-lived `MemoryClient` instances with no explicit close, leaking ∼2 fds per client. On a machine where cyclic GC doesn't run often enough between iterations, the process hits `EMFILE` and SQLite reports `unable to open database file`.
 

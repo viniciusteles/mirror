@@ -59,6 +59,8 @@ Commands:
                        Usage: python -m memory consolidate <scan|apply|reject|list> [args]
   shadow               Surface and promote shadow-layer observations
                        Usage: python -m memory shadow <scan|apply|reject|list|show> [args]
+  web                  Run the local Mirror Web Console
+                       Usage: python -m memory web [--host 127.0.0.1] [--port 8765]
 """
 
 
@@ -206,6 +208,11 @@ def main() -> None:
         from memory.cli.shadow_cmd import main as _shadow_main
 
         _shadow_main(sys.argv[2:])
+
+    elif command == "web":
+        from memory.web.server import main as _web_main
+
+        _web_main(sys.argv[2:])
 
     else:
         print(f"Unknown command: {command}\n")

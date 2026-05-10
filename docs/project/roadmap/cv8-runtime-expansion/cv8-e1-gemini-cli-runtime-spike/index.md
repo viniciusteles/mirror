@@ -259,5 +259,5 @@ CV8.E1.S4 (draft implementation plan) is delivered as CV8.E2.
 ## See also
 
 - [CV8.E2 Gemini CLI Runtime Implementation](../cv8-e2-gemini-cli-runtime-implementation/index.md)
-- [Runtime Interface Contract](../../../runtime-interface.md)
+- [Runtime Interface Contract](../../../../product/specs/runtime-interface/index.md)
 - [Hooks reference](https://geminicli.com/docs/hooks/reference)

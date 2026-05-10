@@ -1,4 +1,4 @@
-[< Project](briefing.md)
+[< Specs](../index.md)
 
 # Runtime Interface Contract
 

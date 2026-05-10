@@ -1,6 +1,6 @@
-# Mirror Mind — Documentation
+# About these Docs
 
-Mirror Mind is a framework that turns Claude into an AI that knows you: your identity, voice, values, and ongoing projects — accumulating that knowledge over time, conversation by conversation. It is not a chatbot. It is a mirror — conscious, accumulative, and yours.
+This documentation is organized around four questions: what Mirror Mind is as a product, how the project is being built, how we work, and how to operate the system. Use the sections below as a map into the product principles, runtime specs, roadmap, development process, and operational reference.
 
 ---
 
@@ -22,7 +22,10 @@ Runtime expansion result: **Gemini CLI first at L4 full parity; Codex second at 
 
 What Mirror Mind is and how it behaves.
 
+- [Product index](product/index.md) — map of product documentation
 - [Principles](product/principles.md) — product, code, testing, and process guidelines
+- [Envisioning](product/envisioning/index.md) — UoC model, lenses, Maestro framing, and coherence as product architecture
+- [Specs](product/specs/index.md) — concrete product and runtime behavior specifications
 
 ---
 

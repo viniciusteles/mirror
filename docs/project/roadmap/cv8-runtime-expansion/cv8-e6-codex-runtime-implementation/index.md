@@ -142,4 +142,4 @@ the relevant skill. You do not need to load them manually.
 
 - [CV8.E5 Codex Runtime Spike](../cv8-e5-codex-runtime-spike/index.md)
 - [CV8.E7 Codex Operational Validation](../cv8-e7-codex-operational-validation/index.md)
-- [Runtime Interface Contract](../../../runtime-interface.md)
+- [Runtime Interface Contract](../../../../product/specs/runtime-interface/index.md)

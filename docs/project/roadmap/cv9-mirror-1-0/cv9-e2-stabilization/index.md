@@ -63,4 +63,4 @@ CV9.E2 is done when:
 
 - [CV9 Mirror Mind 1.0](../index.md)
 - [Development Guide](../../../../process/development-guide.md)
-- [Runtime Interface Contract](../../../runtime-interface.md)
+- [Runtime Interface Contract](../../../../product/specs/runtime-interface/index.md)

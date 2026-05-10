@@ -26,6 +26,10 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV7](cv7-intelligence-depth/index.md) | Intelligence Depth | ✅ Done |
 | [CV8](cv8-runtime-expansion/index.md) | Runtime Expansion: Gemini CLI and Codex | ✅ Done |
 | [CV9](cv9-mirror-1-0/index.md) | Mirror Mind 1.0 — refactoring, stabilization, and public release preparation | 🟡 Planning |
+| [CV10](cv10-coherence-engine/index.md) | Coherence Engine | 🟡 Planned |
+| [CV11](cv11-localization/index.md) | Localization | ⚪ Future |
+| [CV12](cv12-audience-modes/index.md) | Audience Modes | ⚪ Future |
+| [CV13](cv13-mirror-web-console/index.md) | Mirror Web Console | 🟡 Planned |
 
 ---
 
@@ -36,6 +40,30 @@ hardening, documentation polish, and public readiness. It marks the transition
 from research to stable tool.
 
 ---
+
+## CV10 — Coherence Engine
+
+Planned. CV10 makes coherence a natural Builder lifecycle capability. Builder
+will automatically evaluate Units of Coherence for the active journey's
+`project_path`, surface blocking gaps before implementation, and refresh a
+project-visible coherence index. See the [CV10 index](cv10-coherence-engine/index.md).
+
+## CV11 — Localization
+
+Future. Localization is a Mirror-wide surface, not a coherence-specific feature.
+It starts with `en-US` and `pt-BR` and changes language, not semantics. See the
+[CV11 index](cv11-localization/index.md).
+
+## CV12 — Audience Modes
+
+Future. Audience modes adapt explanation depth and vocabulary for technical and
+non-technical users without changing facts, standards, or coherence rules. See
+the [CV12 index](cv12-audience-modes/index.md).
+
+## CV13 — Mirror Web Console
+
+Planned. CV13 adds a local-first web interface for inspecting Mirror context.
+The first slice is a read-only Markdown documentation browser. See the [CV13 index](cv13-mirror-web-console/index.md).
 
 ## CV3 — Pi Skill Parity
 
