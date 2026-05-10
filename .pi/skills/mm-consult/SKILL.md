@@ -32,8 +32,8 @@ uv run python -m memory consult FAMILY TIER "QUESTION" \
 ```
 
 **Examples:**
-- `/mm-consult gemini lite "how should I price the course?"` → `uv run python -m memory consult gemini lite "how should I price the course?" --persona marketer`
-- `/mm-consult deepseek "analyze this tension"` → `uv run python -m memory consult deepseek "analyze this tension" --persona therapist`
+- `/mm-consult gemini lite "draft an opening for this article"` → `uv run python -m memory consult gemini lite "draft an opening for this article" --persona writer`
+- `/mm-consult deepseek "is this design overengineered?"` → `uv run python -m memory consult deepseek "is this design overengineered?" --persona engineer`
 
 The script prints the response, cost, and balance. Always show the complete response to the user without summarizing or omitting it.
 
