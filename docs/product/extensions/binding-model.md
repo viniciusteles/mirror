@@ -107,6 +107,12 @@ Concretely, the dispatcher inspects the request's `journey_id`. If a binding
 exists for `target_kind='journey'` and `target_id=<journey_id>`, the provider
 fires.
 
+Journey bindings are often paired with a journey `project_path`, but those are
+two separate links: `project_path` says which folder represents the journey;
+the binding says which extension capability should run when that journey is
+active. See [Journey-Bound Context](journey-bound-context.md) for the complete
+runtime flow.
+
 Most extensions will not use journey bindings. They are reserved for narrow
 cases where the data and the journey have a one-to-one relationship.
 
