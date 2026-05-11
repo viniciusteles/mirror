@@ -26,14 +26,32 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return float(dot / norm)
 
 
+def _parse_datetime_utc(value: str) -> datetime | None:
+    """Parse an ISO timestamp as an aware UTC datetime.
+
+    Mirror historically stores timestamps in a few ISO-compatible shapes:
+    naive strings (``2026-01-01T00:00:00``), Z-suffixed UTC strings, and
+    offset-aware strings produced by ``datetime.isoformat()``. Search scoring
+    must normalize all of them before subtraction; mixing naive and aware
+    datetimes raises ``TypeError`` during Builder/Mirror context loading.
+    """
+    try:
+        normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
 def recency_score(created_at: str) -> float:
     """Exponential decay with configurable half-life."""
-    try:
-        created = datetime.fromisoformat(created_at.rstrip("Z"))
-    except ValueError:
+    created = _parse_datetime_utc(created_at)
+    if created is None:
         return 0.5
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
-    days_ago = (now - created).total_seconds() / 86400
+    now = datetime.now(timezone.utc)
+    days_ago = max(0.0, (now - created).total_seconds() / 86400)
     return math.exp(-math.log(2) * days_ago / RECENCY_HALF_LIFE_DAYS)
 
 
@@ -58,15 +76,12 @@ def reinforcement_score(
 
     retrieval_raw = min(1.0, math.log1p(access_count) / 3.0)
     if access_count > 0 and last_accessed_at:
-        try:
-            last = datetime.fromisoformat(last_accessed_at.rstrip("Z"))
-        except ValueError:
-            last = None
+        last = _parse_datetime_utc(last_accessed_at)
     else:
         last = None
 
     if last is not None:
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        now = datetime.now(timezone.utc)
         days = max(0.0, (now - last).total_seconds() / 86400)
         decay = math.exp(-math.log(2) * days / REINFORCEMENT_DECAY_DAYS)
         retrieval_signal = retrieval_raw * decay

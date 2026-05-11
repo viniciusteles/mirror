@@ -107,6 +107,17 @@ class TestReinforcementScore:
         score = reinforcement_score(5, 3, _days_ago(7))
         assert 0.0 < score <= 1.0  # composite, just check it's in range
 
+    def test_offset_aware_last_accessed_at_is_supported(self):
+        last = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+        score = reinforcement_score(3, 0, last)
+        assert score > 0.0
+
+    def test_non_utc_offset_last_accessed_at_is_normalized(self):
+        offset = timezone(timedelta(hours=-3))
+        last = (datetime.now(timezone.utc) - timedelta(days=1)).astimezone(offset).isoformat()
+        score = reinforcement_score(3, 0, last)
+        assert score > 0.0
+
 
 # ---------------------------------------------------------------------------
 # hybrid_score — now takes pre-computed reinforcement
