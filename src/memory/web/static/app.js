@@ -15,9 +15,30 @@ async function loadTree() {
   }
   tree.appendChild(list);
 
-  const firstFile = findFirstFile(nodes);
-  if (firstFile) {
-    await loadDoc(firstFile.path);
+  const initial = readPathFromLocation();
+  if (initial) {
+    await loadDoc(initial, { replace: true });
+  } else {
+    const firstFile = findFirstFile(nodes);
+    if (firstFile) {
+      await loadDoc(firstFile.path, { replace: true });
+    }
+  }
+}
+
+function readPathFromLocation() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('path');
+}
+
+function updateLocation(path, { replace = false } = {}) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('path', path);
+  const state = { path };
+  if (replace) {
+    window.history.replaceState(state, '', url);
+  } else {
+    window.history.pushState(state, '', url);
   }
 }
 
@@ -63,7 +84,11 @@ function findFirstFile(nodes) {
   return null;
 }
 
-async function loadDoc(path) {
+async function loadDoc(path, { replace = false, updateHistory = true } = {}) {
+  if (currentDocPath === path && !replace) {
+    return;
+  }
+
   const response = await fetch(`/api/docs/file?path=${encodeURIComponent(path)}`);
   const doc = await response.json();
 
@@ -76,7 +101,19 @@ async function loadDoc(path) {
   currentDocPath = doc.path;
   currentPath.textContent = doc.path;
   content.innerHTML = doc.html;
+  window.scrollTo({ top: 0 });
+
+  if (updateHistory) {
+    updateLocation(doc.path, { replace });
+  }
 }
+
+window.addEventListener('popstate', (event) => {
+  const path = event.state?.path || readPathFromLocation();
+  if (path && path !== currentDocPath) {
+    loadDoc(path, { updateHistory: false });
+  }
+});
 
 content.addEventListener('click', async (event) => {
   const link = event.target.closest('a');
