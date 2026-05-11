@@ -30,6 +30,33 @@ from memory.extensions.errors import ExtensionLoadError
 _LOADED: dict[str, ExtensionAPI] = {}
 
 
+def _ensure_on_sys_path(extension_dir: Path) -> None:
+    """Make the extension's own directory importable.
+
+    Real extensions split their code into a ``src/`` sub-package (and
+    sometimes ``src/cli/``, ``src/parsers/``, etc.). For
+    ``from src.foo import bar`` to resolve inside ``extension.py``, the
+    extension root must sit on ``sys.path``. Inserting it idempotently
+    here saves every author from writing a four-line prelude in their
+    entrypoint module.
+
+    The insertion is left in place after import: extensions may import
+    their own modules lazily inside CLI handlers, not just at
+    module-load time, and a single extra entry on ``sys.path`` is
+    negligible.
+
+    Trade-off: two installed extensions that both ship a top-level
+    package named ``src`` will compete in ``sys.modules``. The first
+    one wins for the duration of the process. The authoring guide warns
+    extension authors to keep their public-facing imports under their
+    own namespace if they ever need cross-extension imports; for the
+    common case of ``src/`` as a private code folder this is fine.
+    """
+    entry = str(extension_dir.resolve())
+    if entry not in sys.path:
+        sys.path.insert(0, entry)
+
+
 def _import_extension_module(
     *,
     extension_id: str,
@@ -38,11 +65,17 @@ def _import_extension_module(
 ):
     """Import the extension's entrypoint module from its on-disk path.
 
-    Uses ``importlib.util`` so we never pollute ``sys.path``. The
-    imported module is registered in ``sys.modules`` under a namespaced
-    name (``memory_ext.<extension_id>.<module_name>``) so any future
+    Uses ``importlib.util`` so we control exactly which file backs the
+    extension entrypoint. The imported module is registered in
+    ``sys.modules`` under a namespaced name
+    (``memory_ext.<extension_id>.<module_name>``) so any future
     re-imports inside the same process find the same object.
+
+    Before exec'ing the module we add the extension's directory to
+    ``sys.path`` so the entrypoint can do ``from src.foo import bar``
+    against its own helpers without a manual prelude.
     """
+    _ensure_on_sys_path(module_path.parent)
     fq_name = f"memory_ext.{extension_id.replace('-', '_')}.{module_name}"
     spec = importlib.util.spec_from_file_location(fq_name, module_path)
     if spec is None or spec.loader is None:

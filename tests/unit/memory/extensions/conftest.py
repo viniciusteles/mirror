@@ -15,6 +15,15 @@ def hello_fixture_dir() -> Path:
     return FIXTURES_DIR / "ext-hello"
 
 
+@pytest.fixture
+def with_src_fixture_dir() -> Path:
+    """Absolute path to the ext-with-src fixture: an extension that
+    imports helpers via ``from src.greet import hello`` with no
+    sys.path prelude. Used to prove the loader adds the extension
+    root to sys.path automatically."""
+    return FIXTURES_DIR / "ext-with-src"
+
+
 @pytest.fixture(autouse=True)
 def _clear_loader_cache():
     """Each test starts with an empty loader cache.

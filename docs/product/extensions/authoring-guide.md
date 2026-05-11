@@ -186,6 +186,24 @@ def _provide_greeting(api: ExtensionAPI, ctx) -> str | None:
     return f"Latest ping: {row['message']}"
 ```
 
+#### Importing your own helpers
+
+The loader inserts your extension's root directory on `sys.path` before
+importing `extension.py`. That means you can split your code into
+sub-modules and import them naturally:
+
+```python
+# extension.py
+from src.store import insert_ping
+from src.cli.report import cmd_report
+```
+
+No manual prelude is required. The insertion is idempotent (the same
+directory is never added twice), but it is global to the process — two
+extensions that both ship a top-level package called `src` will resolve
+to whichever one was loaded first. Keep public-facing module names
+specific to your extension if you ever expect them to be shared.
+
 ### 5. Write the prompt skill
 
 ```markdown

@@ -50,8 +50,33 @@ The runner is idempotent at the granularity of one file:
   `ExtensionMigrationError`. The runner refuses to apply or skip it — it
   stops and tells the user that an applied migration has been edited.
 
-This means: **never edit an applied migration**. Create a new one that
-amends the schema.
+This means: **never edit the SQL semantics of an applied migration**.
+Create a new file that amends the schema.
+
+### What the checksum considers
+
+The checksum is computed over a normalised form of the file: line and
+block comments (`--` and `/* ... */`) are stripped, and runs of
+whitespace are collapsed. **String literals are kept intact** because
+they are real SQL content (e.g. the value in an `INSERT`).
+
+In practice this means:
+
+- Adding or editing a comment → **allowed**, no drift.
+- Reformatting whitespace, indentation, blank lines → **allowed**,
+  no drift.
+- Adding or removing a column, changing a table name, changing a
+  value inside a string literal → **rejected** as drift.
+
+The relaxation is comments and whitespace only. Anything that could
+change how SQLite reads the statement is still treated as a
+structural edit.
+
+### Backwards compatibility
+
+Rows recorded before this normalisation (raw-bytes checksums) are
+accepted on the first run after upgrading and silently upgraded to
+the normalised hash. Existing installs do not need a manual reset.
 
 ## Prefix enforcement
 

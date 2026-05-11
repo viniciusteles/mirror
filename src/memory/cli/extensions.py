@@ -22,6 +22,24 @@ _ALLOWED_KINDS = {"prompt-skill", "command-skill"}
 _RUNTIME_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 _SKILL_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
+# Directories and files that must never be copied from an extension source
+# tree into the installed location. They are either version-control internals
+# (`.git/` carries read-only pack files that break re-installs), generated
+# caches (`__pycache__`, `.pytest_cache`, `.ruff_cache`, `.mypy_cache`,
+# `*.pyc`), environment-local state (`.venv`, `node_modules`), or OS noise
+# (`.DS_Store`). None belongs in a shipped extension.
+_COPY_IGNORE_PATTERNS = (
+    ".git",
+    "__pycache__",
+    ".venv",
+    "*.pyc",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".mypy_cache",
+    "node_modules",
+    ".DS_Store",
+)
+
 
 class ExtensionValidationError(ValueError):
     """Raised when a skill manifest is invalid."""
@@ -358,7 +376,12 @@ def install_extension(
     target_extensions_root = default_extensions_dir_for_home(mirror_home)
     target_extension_dir = target_extensions_root / extension_id
     target_extensions_root.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(source_dir, target_extension_dir, dirs_exist_ok=True)
+    shutil.copytree(
+        source_dir,
+        target_extension_dir,
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns(*_COPY_IGNORE_PATTERNS),
+    )
 
     installed_manifest = load_extension_manifest(target_extension_dir)
     runtimes = [runtime] if runtime is not None else sorted(installed_manifest["runtimes"].keys())
