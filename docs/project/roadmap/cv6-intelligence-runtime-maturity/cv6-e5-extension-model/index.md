@@ -51,4 +51,18 @@ consumption, Claude project exposure/cleanup, and the full migration of
 
 ---
 
-**See also:** [CV6](../index.md)
+## Scope and Successor
+
+CV6.E5 delivered the **prompt-skill** extension model: markdown-only
+extensions that orchestrate existing Mirror commands. That is the right
+contract for stateless workflows, and `review-copy` remains the reference.
+
+User-specific features that need their own database tables, CLI surface,
+and Mirror Mode integration require a richer contract. That work continues
+in **[CV14 — Stateful Extension System](../../cv14-stateful-extensions/index.md)**,
+which introduces the `command-skill` kind. The manifest validator accepts
+both kinds; authors pick the simpler one when no state is needed.
+
+---
+
+**See also:** [CV6](../index.md) · [CV14 Stateful Extension System](../../cv14-stateful-extensions/index.md)
