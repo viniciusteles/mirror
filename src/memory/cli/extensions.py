@@ -90,9 +90,36 @@ def load_extension_manifest(extension_dir: Path) -> dict:
 
     entrypoint = data.get("entrypoint")
     if kind == "command-skill":
-        if not isinstance(entrypoint, dict) or not entrypoint.get("command"):
+        if not isinstance(entrypoint, dict) or not entrypoint.get("module"):
             raise ExtensionValidationError(
-                f"command-skill requires entrypoint.command in {manifest_path}"
+                f"command-skill requires entrypoint.module (a Python module "
+                f"name under the extension directory) in {manifest_path}"
+            )
+        module_name = entrypoint["module"]
+        if not isinstance(module_name, str) or not module_name:
+            raise ExtensionValidationError(
+                f"entrypoint.module must be a non-empty string in {manifest_path}"
+            )
+        module_path = extension_dir / f"{module_name}.py"
+        if not module_path.exists():
+            raise ExtensionValidationError(
+                f"entrypoint.module '{module_name}' not found at {module_path}"
+            )
+        # Cache the resolved path so the loader does not have to recompute it.
+        entrypoint["module_path"] = str(module_path)
+
+        # Validate the table prefix is consistent with the id.
+        from memory.extensions.migrations import table_prefix_for
+
+        expected_prefix = table_prefix_for(skill_id)
+        declared_prefix = data.get("table_prefix")
+        if declared_prefix is None:
+            data["table_prefix"] = expected_prefix
+        elif declared_prefix != expected_prefix:
+            raise ExtensionValidationError(
+                f"table_prefix '{declared_prefix}' does not match the "
+                f"required prefix '{expected_prefix}' for id '{skill_id}' "
+                f"in {manifest_path}"
             )
 
     validated_runtimes: dict[str, dict] = {}

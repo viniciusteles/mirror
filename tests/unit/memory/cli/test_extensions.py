@@ -56,7 +56,7 @@ def test_load_prompt_skill_manifest(tmp_path):
 
 def test_load_command_skill_manifest(tmp_path):
     ext_dir = tmp_path / "extensions" / "xdigest"
-    _write(ext_dir / "run.py", "print('ok')\n")
+    _write(ext_dir / "extension.py", "def register(api):\n    pass\n")
     _write(
         ext_dir / "skill.yaml",
         """
@@ -66,7 +66,7 @@ def test_load_command_skill_manifest(tmp_path):
         kind: command-skill
         summary: Generate digest reports
         entrypoint:
-          command: python run.py
+          module: extension
         runtimes:
           claude:
             command_name: ext:xdigest
@@ -78,7 +78,65 @@ def test_load_command_skill_manifest(tmp_path):
     manifest = load_extension_manifest(ext_dir)
 
     assert manifest["kind"] == "command-skill"
-    assert manifest["entrypoint"]["command"] == "python run.py"
+    assert manifest["entrypoint"]["module"] == "extension"
+    assert manifest["entrypoint"]["module_path"].endswith("extension.py")
+    assert manifest["table_prefix"] == "ext_xdigest_"
+
+
+def test_load_command_skill_rejects_missing_module(tmp_path):
+    ext_dir = tmp_path / "extensions" / "xdigest"
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: xdigest
+        name: X Digest
+        category: extension
+        kind: command-skill
+        summary: Generate digest reports
+        entrypoint:
+          module: extension
+        runtimes:
+          claude:
+            command_name: ext:xdigest
+        """,
+    )
+
+    import pytest
+
+    from memory.cli.extensions import ExtensionValidationError
+
+    with pytest.raises(ExtensionValidationError) as excinfo:
+        load_extension_manifest(ext_dir)
+    assert "extension.py" in str(excinfo.value)
+
+
+def test_load_command_skill_rejects_mismatched_table_prefix(tmp_path):
+    ext_dir = tmp_path / "extensions" / "xdigest"
+    _write(ext_dir / "extension.py", "def register(api):\n    pass\n")
+    _write(
+        ext_dir / "skill.yaml",
+        """
+        id: xdigest
+        name: X Digest
+        category: extension
+        kind: command-skill
+        summary: Generate digest reports
+        table_prefix: ext_other_
+        entrypoint:
+          module: extension
+        runtimes:
+          claude:
+            command_name: ext:xdigest
+        """,
+    )
+
+    import pytest
+
+    from memory.cli.extensions import ExtensionValidationError
+
+    with pytest.raises(ExtensionValidationError) as excinfo:
+        load_extension_manifest(ext_dir)
+    assert "table_prefix" in str(excinfo.value)
 
 
 def test_discover_extensions_reports_invalid_manifests(tmp_path):
@@ -218,7 +276,7 @@ def test_cmd_extensions_list_filters_by_runtime(tmp_path, capsys):
         """,
     )
     xdigest = root / "xdigest"
-    _write(xdigest / "run.py", "print('ok')\n")
+    _write(xdigest / "extension.py", "def register(api):\n    pass\n")
     _write(
         xdigest / "skill.yaml",
         """
@@ -228,7 +286,7 @@ def test_cmd_extensions_list_filters_by_runtime(tmp_path, capsys):
         kind: command-skill
         summary: Generate digest reports
         entrypoint:
-          command: python run.py
+          module: extension
         runtimes:
           claude:
             command_name: ext:xdigest
