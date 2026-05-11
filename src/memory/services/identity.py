@@ -216,7 +216,60 @@ class IdentityService:
                     att_parts.append(att.content)
                 parts.append("\n".join(att_parts))
 
+        # Extension Mirror Mode hook.
+        # After all core sections are assembled, ask the extension
+        # subsystem whether any installed extension has a context
+        # provider bound to the active persona or journey. Each matching
+        # provider returns a string that is appended to the prompt under
+        # its own '=== extension/<id>/<capability> ===' header. Failures
+        # in extensions never propagate — the helper logs and skips.
+        extension_text = self._collect_extension_context(
+            persona_id=persona, journey_id=journey, query=query
+        )
+        if extension_text:
+            parts.append(extension_text)
+
         return "\n\n".join(parts)
+
+    def _collect_extension_context(
+        self,
+        *,
+        persona_id: str | None,
+        journey_id: str | None,
+        query: str | None,
+    ) -> str:
+        """Resolve installed-extension context for the current Mirror Mode turn.
+
+        Failures are isolated by the dispatcher itself; this wrapper
+        additionally guards against the home not being resolvable (e.g.
+        running under a test that did not configure MIRROR_HOME).
+        """
+        if persona_id is None and journey_id is None:
+            return ""
+        try:
+            from memory.config import resolve_mirror_home
+            from memory.extensions.context import (
+                collect_extension_context,
+                render_sections,
+            )
+        except Exception:
+            return ""
+        try:
+            mirror_home = resolve_mirror_home()
+        except Exception:
+            return ""
+        try:
+            sections = collect_extension_context(
+                self.store.conn,
+                mirror_home=mirror_home,
+                persona_id=persona_id,
+                journey_id=journey_id,
+                user=mirror_home.name,
+                query=query,
+            )
+        except Exception:
+            return ""
+        return render_sections(sections)
 
     def load_full_identity(self) -> str:
         """Load all identity rows as formatted text for prompt injection."""
