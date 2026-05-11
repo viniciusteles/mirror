@@ -160,6 +160,64 @@ def test_uninstall_removes_bindings_but_preserves_data_tables(source_root, mirro
         conn.close()
 
 
+def test_install_ignores_vcs_and_cache_directories(source_root, mirror_home):
+    """Real extensions live in real Git repos. Re-installing must not
+    fail on Git's read-only pack files, and the installed tree must
+    not carry the noise (.git/, __pycache__/, .venv/, etc.).
+    """
+    hello_src = source_root / "hello"
+
+    # Plant the kinds of files a real checkout has.
+    git_objects = hello_src / ".git" / "objects" / "pack"
+    git_objects.mkdir(parents=True)
+    pack_file = git_objects / "pack-abcdef.pack"
+    pack_file.write_bytes(b"PACK\x00\x00\x00\x02\x00\x00\x00\x00")
+    pack_file.chmod(0o444)  # read-only, like Git itself does
+
+    pycache = hello_src / "__pycache__"
+    pycache.mkdir(exist_ok=True)
+    (pycache / "extension.cpython-312.pyc").write_bytes(b"\x00\x00")
+
+    venv = hello_src / ".venv"
+    venv.mkdir(exist_ok=True)
+    (venv / "pyvenv.cfg").write_text("home = /usr/bin\n")
+
+    pytest_cache = hello_src / ".pytest_cache"
+    pytest_cache.mkdir(exist_ok=True)
+    (pytest_cache / "CACHEDIR.TAG").write_text("Signature: 8a477f597d28d172789f06886806bc55\n")
+
+    ds_store = hello_src / ".DS_Store"
+    ds_store.write_bytes(b"\x00\x01")
+
+    # First install: should succeed and skip the noisy paths.
+    install_extension("hello", source_root=source_root, mirror_home=mirror_home)
+    installed = mirror_home / "extensions" / "hello"
+    # `.git/`, `.venv/`, `.pytest_cache/`, `.DS_Store` must never be
+    # copied. `__pycache__/` is intentionally not checked here because
+    # the install path imports the extension module to validate
+    # `register(api)`, and that import will legitimately produce a
+    # fresh `__pycache__/` next to the installed module. We assert the
+    # copy did not bring the fake `.pyc` we planted (which would have
+    # had our sentinel bytes).
+    for noise in (".git", ".venv", ".pytest_cache", ".DS_Store"):
+        assert not (installed / noise).exists(), (
+            f"{noise!r} must not be copied into the installed extension"
+        )
+    fake_pyc = installed / "__pycache__" / "extension.cpython-312.pyc"
+    assert not (fake_pyc.exists() and fake_pyc.read_bytes() == b"\x00\x00"), (
+        "the source's __pycache__/*.pyc was copied verbatim; the ignore "
+        "pattern is not stripping cache directories"
+    )
+
+    # The real extension files survived.
+    assert (installed / "extension.py").exists()
+    assert (installed / "migrations" / "001_init.sql").exists()
+
+    # Second install: must not raise PermissionError on the read-only
+    # pack file. This is the regression that motivated the story.
+    install_extension("hello", source_root=source_root, mirror_home=mirror_home)
+
+
 def test_install_prompt_skill_does_not_touch_db(tmp_path, mirror_home):
     """prompt-skill extensions install without running migrations or
     importing any module."""

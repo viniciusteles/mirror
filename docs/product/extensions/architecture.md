@@ -96,10 +96,21 @@ Concretely, loading runs these steps in order:
 3. **Migrate.** Run any pending files in `migrations/` (idempotent; tracked
    by checksum).
 4. **Import.** `importlib` loads `extension.py` from the installed path.
+   Before importing, the loader inserts the extension's own directory on
+   `sys.path` (idempotently) so the entrypoint can use
+   `from src.foo import bar` against its own helpers with no manual
+   prelude.
 5. **Register.** Call `register(api)`. The extension declares subcommands and
    context providers.
 6. **Dispatch.** The caller (CLI or Mirror Mode) uses the registry to invoke
    the relevant handler.
+
+During `extensions install`, the source tree is copied with a fixed
+ignore list (`.git`, `__pycache__`, `.venv`, `.pytest_cache`,
+`.ruff_cache`, `.mypy_cache`, `node_modules`, `*.pyc`, `.DS_Store`).
+This lets authors install directly from a real Git checkout without
+tripping over Git's read-only pack files on re-install, and keeps the
+installed tree free of generated noise.
 
 If any step fails, the extension is marked as failed for the current process.
 A failure in one extension never blocks others.

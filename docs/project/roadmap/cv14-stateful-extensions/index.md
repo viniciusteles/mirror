@@ -2,7 +2,7 @@
 
 # CV14 — Stateful Extension System
 
-**Status:** 🟢 Phase 1 Done · E2–E4 planned
+**Status:** 🟢 Phase 1 + E2 Done · E3–E4 provisional
 **Goal:** Let user-specific features that need their own database tables, CLI surface, and Mirror Mode integration live as installable extensions, fully outside the core repository, while reusing the mirror's storage, embeddings, LLM router, and persona routing.
 
 ---
@@ -63,7 +63,7 @@ for the stateful case. They coexist without conflict in the codebase.
 | Code | Epic | User-visible outcome | Status |
 |------|------|----------------------|--------|
 | [CV14.E1](cv14-e1-command-skill-infrastructure/index.md) | Command-skill infrastructure | Authors can write, install, and run stateful extensions end to end | ✅ Done |
-| CV14.E2 | Authoring quality of life | Scaffolding tooling, better error messages, doctor command, schema dumps | 🟡 Planned |
+| [CV14.E2](cv14-e2-authoring-quality-of-life/index.md) | Authoring quality of life | Three rough edges that surfaced while writing real extensions: install ignores `.git/`, loader exposes the extension root on `sys.path`, migration checksum tolerates comment/whitespace edits | ✅ Done |
 | CV14.E3 | Cross-extension features | Event bus, cross-extension reads, optional `target_kind=global` bindings, cost accounting | ⚪ Provisional |
 | CV14.E4 | Distribution | Package format, remote install, sharing flow between users | ⚪ Provisional |
 
@@ -78,12 +78,14 @@ evidence of need is available.
 
 This CV does not aim to be "Done" as a single moment. It is delivered as its
 epics close. The CV is considered fully delivered when
-[E1](cv14-e1-command-skill-infrastructure/index.md) and E2 are Done; E3 and
-E4 are explicitly optional and will be re-evaluated then.
+[E1](cv14-e1-command-skill-infrastructure/index.md) and
+[E2](cv14-e2-authoring-quality-of-life/index.md) are Done; E3 and E4 are
+explicitly optional and will be re-evaluated then.
 
-[E1](cv14-e1-command-skill-infrastructure/index.md) specifically is done. See
-its [index](cv14-e1-command-skill-infrastructure/index.md) for criteria and
-verification.
+Both [E1](cv14-e1-command-skill-infrastructure/index.md) and
+[E2](cv14-e2-authoring-quality-of-life/index.md) are Done. The CV is
+considered fully delivered for its committed scope; E3 and E4 will be
+planned only when concrete evidence of need arises.
 
 ---
 

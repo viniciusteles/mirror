@@ -59,11 +59,30 @@ _INDEX_TABLE_RE = re.compile(
 
 _STRIP_COMMENTS_RE = re.compile(r"--[^\n]*|/\*.*?\*/", re.DOTALL)
 _STRIP_STRINGS_RE = re.compile(r"'(?:[^']|'')*'")
+_COLLAPSE_WHITESPACE_RE = re.compile(r"\s+")
+# Punctuation that does not need to be space-separated from its
+# neighbours: removing surrounding whitespace lets us treat
+# ``CREATE TABLE t (id INTEGER);`` and the same statement reformatted
+# across multiple indented lines as equivalent for checksum purposes.
+_TRIM_AROUND_PUNCT_RE = re.compile(r"\s*([(),;])\s*")
 
 
 def _strip_noise(sql: str) -> str:
     """Remove comments and string literals before structural inspection."""
     return _STRIP_STRINGS_RE.sub("''", _STRIP_COMMENTS_RE.sub("", sql))
+
+
+def _normalise_for_checksum(sql: str) -> str:
+    """Strip comments and collapse whitespace, but keep string literals.
+
+    String literals are real SQL content (e.g. an ``INSERT`` value), so
+    editing one is a structural change that must trip the drift guard.
+    Comments and whitespace, on the other hand, are pure documentation
+    or formatting and may be edited freely.
+    """
+    without_comments = _STRIP_COMMENTS_RE.sub("", sql)
+    collapsed = _COLLAPSE_WHITESPACE_RE.sub(" ", without_comments)
+    return _TRIM_AROUND_PUNCT_RE.sub(r"\1", collapsed).strip()
 
 
 def _split_statements(sql: str) -> list[str]:
@@ -138,6 +157,21 @@ def _extract_table_targets(sql: str) -> list[str]:
 
 
 def _checksum(content: str) -> str:
+    """Stable hash of the normalised SQL.
+
+    Two files that differ only in comments or whitespace produce the
+    same checksum. Any structural difference (including string-literal
+    values) produces a different checksum. See
+    docs/product/extensions/migrations.md for the contract.
+    """
+    return hashlib.sha256(_normalise_for_checksum(content).encode("utf-8")).hexdigest()
+
+
+def _raw_checksum(content: str) -> str:
+    """Hash of the raw bytes. Used for backwards compatibility only:
+    rows recorded before CV14.E2.S3 carry this hash, and we accept them
+    when they match the current file as-is so existing installs keep
+    working without a manual reset."""
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
@@ -227,15 +261,29 @@ def run_migrations(
             conn, extension_id=extension_id, filename=path.name
         )
         if seen:
-            if recorded_checksum != checksum:
-                raise ExtensionMigrationError(
-                    f"{path.name} has been edited since it was applied "
-                    f"(recorded checksum {recorded_checksum[:8]}..., "
-                    f"current checksum {checksum[:8]}...); never edit an "
-                    "applied migration, add a new file instead",
-                    extension_id=extension_id,
+            if recorded_checksum == checksum:
+                # Happy path: matches the normalised hash exactly.
+                continue
+            if recorded_checksum == _raw_checksum(content):
+                # Backwards-compat: a pre-S3 row that still corresponds
+                # to the current file. Upgrade the stored hash to the
+                # normalised one so the next run takes the fast path.
+                conn.execute(
+                    "UPDATE _ext_migrations SET checksum = ? "
+                    "WHERE extension_id = ? AND filename = ?",
+                    (checksum, extension_id, path.name),
                 )
-            continue
+                conn.commit()
+                continue
+            raise ExtensionMigrationError(
+                f"{path.name} has been edited since it was applied "
+                f"(recorded checksum {recorded_checksum[:8]}..., "
+                f"current checksum {checksum[:8]}...); never edit an "
+                "applied migration in ways that change its SQL semantics "
+                "— comment and whitespace edits are tolerated, but a "
+                "structural change requires a new migration file",
+                extension_id=extension_id,
+            )
 
         _validate_prefix(content, extension_id=extension_id, filename=path.name)
 

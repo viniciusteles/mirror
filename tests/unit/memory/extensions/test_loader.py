@@ -175,3 +175,45 @@ def test_loaded_extension_context_provider_returns_text(db_conn, hello_fixture_d
         ),
     )
     assert out == "Latest ping: alive"
+
+
+# --- CV14.E2.S2: loader exposes extension root on sys.path -----------
+
+
+def test_loader_makes_src_imports_work_without_prelude(db_conn, with_src_fixture_dir):
+    """`extension.py` does `from src.greet import hello` with no
+    `sys.path` manipulation of its own. The loader is expected to
+    insert the extension directory on `sys.path` before exec'ing the
+    module so the import resolves to the extension's own `src/` package.
+    """
+    from memory.extensions.migrations import run_migrations
+
+    run_migrations(
+        db_conn,
+        extension_id="with-src",
+        migrations_dir=with_src_fixture_dir / "migrations",
+    )
+    # No prelude in extension.py; if the loader does not arrange for
+    # `src` to be importable, exec_module raises ModuleNotFoundError
+    # and load_extension wraps it as ExtensionLoadError.
+    api = load_extension(with_src_fixture_dir, connection=db_conn)
+    say = api.cli_registry["say"]
+    rc = say(api, [])
+    assert rc == 0
+
+
+def test_loader_keeps_sys_path_insertion_idempotent(db_conn, with_src_fixture_dir):
+    """Loading the same extension twice must not stack duplicate entries
+    on `sys.path`. The loader inserts the extension root only when it
+    is not already present.
+    """
+    import sys
+
+    extension_root_str = str(with_src_fixture_dir.resolve())
+
+    load_extension(with_src_fixture_dir, connection=db_conn)
+    first_count = sys.path.count(extension_root_str)
+    load_extension(with_src_fixture_dir, connection=db_conn, reload=True)
+    second_count = sys.path.count(extension_root_str)
+    assert first_count == 1
+    assert second_count == 1

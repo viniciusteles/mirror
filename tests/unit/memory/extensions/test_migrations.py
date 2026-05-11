@@ -132,6 +132,136 @@ def test_run_migrations_detects_checksum_mismatch(db_conn, tmp_path):
     assert "edited" in msg or "checksum" in msg
 
 
+# --- CV14.E2.S3: checksum tolerates comment and whitespace edits ----
+
+
+def test_adding_a_line_comment_does_not_trip_checksum_guard(db_conn, tmp_path):
+    """Documentation should never be hostile. Adding a `-- note` to an
+    already-applied migration must be a no-op on the next run.
+    """
+    migrations = tmp_path / "migrations"
+    initial = migrations / "001_init.sql"
+    _write(initial, "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);")
+    run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+    # Append a comment. Semantically identical SQL.
+    initial.write_text(
+        "-- a clarifying note added after the fact\n"
+        "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);\n",
+        encoding="utf-8",
+    )
+    applied = run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+    assert applied == 0
+
+
+def test_block_comment_does_not_trip_checksum_guard(db_conn, tmp_path):
+    migrations = tmp_path / "migrations"
+    initial = migrations / "001_init.sql"
+    _write(initial, "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);")
+    run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+    initial.write_text(
+        "/* multi-line\n   block comment */\n"
+        "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);\n",
+        encoding="utf-8",
+    )
+    applied = run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+    assert applied == 0
+
+
+def test_whitespace_changes_do_not_trip_checksum_guard(db_conn, tmp_path):
+    """Reformatting (extra blank lines, indentation, trailing spaces)
+    must be tolerated."""
+    migrations = tmp_path / "migrations"
+    initial = migrations / "001_init.sql"
+    _write(initial, "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);")
+    run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+    initial.write_text(
+        "\n\nCREATE TABLE ext_hello_pings (\n    id INTEGER PRIMARY KEY\n);\n\n",
+        encoding="utf-8",
+    )
+    applied = run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+    assert applied == 0
+
+
+def test_structural_change_still_trips_checksum_guard(db_conn, tmp_path):
+    """The relaxation is comments+whitespace only. Any real change to
+    the SQL (new column, different table name, value drift) must
+    still be rejected."""
+    migrations = tmp_path / "migrations"
+    initial = migrations / "001_init.sql"
+    _write(initial, "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);")
+    run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+    initial.write_text(
+        "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY, extra TEXT);\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ExtensionMigrationError):
+        run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+
+def test_string_literal_change_still_trips_checksum_guard(db_conn, tmp_path):
+    """String literals are SQL content, not commentary. Editing one is
+    a structural change and must trip the guard."""
+    migrations = tmp_path / "migrations"
+    initial = migrations / "001_init.sql"
+    _write(
+        initial,
+        "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY, label TEXT);\n"
+        "INSERT INTO ext_hello_pings (id, label) VALUES (1, 'alpha');\n",
+    )
+    run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+    initial.write_text(
+        "CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY, label TEXT);\n"
+        "INSERT INTO ext_hello_pings (id, label) VALUES (1, 'beta');\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ExtensionMigrationError):
+        run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+
+
+def test_legacy_raw_checksum_is_silently_upgraded(db_conn, tmp_path):
+    """Backwards-compat: a row recorded under the old raw-bytes scheme
+    that still matches the file as-is must be accepted and silently
+    upgraded to the normalised checksum on the next run.
+    """
+    import hashlib
+
+    migrations = tmp_path / "migrations"
+    initial = migrations / "001_init.sql"
+    sql = "-- pre-existing migration\nCREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY);"
+    _write(initial, sql)
+
+    # Hand-write the bookkeeping the way pre-S3 code would have: hash
+    # of the raw bytes, no normalisation. The table itself is created
+    # below so the migration can be "already applied".
+    db_conn.execute("CREATE TABLE ext_hello_pings (id INTEGER PRIMARY KEY)")
+    raw_checksum = hashlib.sha256(sql.encode("utf-8")).hexdigest()
+    db_conn.execute(
+        "INSERT INTO _ext_migrations (extension_id, filename, checksum, applied_at) "
+        "VALUES (?, ?, ?, ?)",
+        ("hello", "001_init.sql", raw_checksum, "2026-01-01T00:00:00Z"),
+    )
+    db_conn.commit()
+
+    # Re-run: should accept, upgrade the stored checksum to the
+    # normalised one, and report zero newly applied files.
+    applied = run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+    assert applied == 0
+
+    stored = db_conn.execute(
+        "SELECT checksum FROM _ext_migrations WHERE extension_id='hello'"
+    ).fetchone()["checksum"]
+    assert stored != raw_checksum  # upgraded
+
+    # And a subsequent run is still a clean no-op.
+    applied = run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
+    assert applied == 0
+
+
 def test_run_migrations_rolls_back_on_failure(db_conn, tmp_path):
     migrations = tmp_path / "migrations"
     _write(
