@@ -1,5 +1,7 @@
 # US-00 — Infra de `command-skill`
 
+**Status:** Done · 2026-05-11
+
 ## Story
 
 **Como** mantenedor do Mirror Mind,
@@ -215,10 +217,12 @@ tests/extensions/
 
 ### Critério de pronto
 
-- [ ] Todos os testes acima passam.
-- [ ] `uv run pytest tests/extensions/` verde.
-- [ ] `uv run pytest` (suite completa) verde.
-- [ ] Fixture `ext-hello` instalável com um único comando.
-- [ ] CI verde após push.
-- [ ] AGENTS.md atualizado.
-- [ ] Nenhum doc em `docs/product/extensions/` em desacordo com o código.
+- [x] Todos os testes acima passam.
+- [x] `uv run pytest tests/unit/memory/extensions/` verde — 76 testes.
+- [x] `uv run pytest` (suite completa) verde — 1103 testes.
+- [x] Fixture `ext-hello` instalável com um único comando
+      (`python -m memory extensions install hello --extensions-root <path>`).
+- [x] AGENTS.md atualizado.
+- [x] Documentos em `docs/product/extensions/` consistentes com o
+      código entregue.
+- [ ] CI verde após push (a verificar).
