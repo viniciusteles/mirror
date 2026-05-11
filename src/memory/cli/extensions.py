@@ -547,12 +547,34 @@ def uninstall_extension(
         )
         removed[runtime_name] = [str(target_dir)]
 
+    bindings_removed = 0
     if runtime is None and installed_dir.exists():
+        # Full uninstall: also delete every binding row that references
+        # this extension. The bindings cannot resolve anymore (the source
+        # tree is about to disappear) so leaving them would just produce
+        # 'uninstalled extension' warnings on every Mirror Mode turn.
+        # The extension's data tables (ext_<id>_*) are preserved on
+        # purpose: code goes, user data stays. A separate purge command
+        # can drop them later if the user asks.
+        if manifest.get("kind") == "command-skill":
+            from memory.db.connection import get_connection
+
+            conn = get_connection(mirror_home / "memory.db")
+            try:
+                cursor = conn.execute(
+                    "DELETE FROM _ext_bindings WHERE extension_id = ?",
+                    (extension_id,),
+                )
+                bindings_removed = cursor.rowcount or 0
+                conn.commit()
+            finally:
+                conn.close()
         shutil.rmtree(installed_dir)
 
     return {
         "extension_id": extension_id,
         "installed_dir": str(installed_dir),
+        "bindings_removed": bindings_removed,
         "removed": removed,
         "source_removed": runtime is None,
     }
@@ -626,6 +648,9 @@ def cmd_extensions(args: list[str]) -> None:
         print(f"  installed: {result['installed_dir']}")
         if result["source_removed"]:
             print("  source tree: removed")
+        bindings_removed = result.get("bindings_removed", 0)
+        if bindings_removed:
+            print(f"  bindings: {bindings_removed} row(s) removed")
         for runtime_name, items in result["removed"].items():
             print(f"  runtime {runtime_name}:")
             for item in items:

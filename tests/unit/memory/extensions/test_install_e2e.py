@@ -118,6 +118,48 @@ def test_install_surfaces_register_failure_as_validation_error(tmp_path, mirror_
     assert "register(api) failed" in str(excinfo.value)
 
 
+def test_uninstall_removes_bindings_but_preserves_data_tables(source_root, mirror_home):
+    """A full uninstall should sweep the binding rows that point at the
+    departing extension (otherwise Mirror Mode logs warnings on every
+    turn) but must leave the extension's own data tables intact.
+    The user can run a separate purge later if they really want the
+    rows gone.
+    """
+    from memory.cli.extensions import uninstall_extension
+    from memory.db.connection import get_connection
+
+    install_extension("hello", source_root=source_root, mirror_home=mirror_home)
+
+    # Seed a row in the data table and a binding.
+    conn = get_connection(mirror_home / "memory.db")
+    conn.execute(
+        "INSERT INTO ext_hello_pings (message, created_at) VALUES (?, ?)",
+        ("survive me", "2026-05-11T00:00:00Z"),
+    )
+    conn.execute(
+        "INSERT INTO _ext_bindings VALUES (?, ?, ?, ?, ?)",
+        ("hello", "greeting", "persona", "tester", "2026-05-11T00:00:00Z"),
+    )
+    conn.commit()
+    conn.close()
+
+    result = uninstall_extension("hello", mirror_home=mirror_home)
+    assert result["bindings_removed"] == 1
+
+    conn = get_connection(mirror_home / "memory.db")
+    try:
+        # Bindings: gone.
+        rows = conn.execute(
+            "SELECT COUNT(*) AS c FROM _ext_bindings WHERE extension_id='hello'"
+        ).fetchone()
+        assert rows["c"] == 0
+        # Data table: still present, with the row preserved.
+        rows = conn.execute("SELECT message FROM ext_hello_pings").fetchall()
+        assert [r["message"] for r in rows] == ["survive me"]
+    finally:
+        conn.close()
+
+
 def test_install_prompt_skill_does_not_touch_db(tmp_path, mirror_home):
     """prompt-skill extensions install without running migrations or
     importing any module."""
