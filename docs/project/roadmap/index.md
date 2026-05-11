@@ -116,4 +116,47 @@ the [CV8 index](cv8-runtime-expansion/index.md).
 
 ---
 
-**See also:** [Briefing](../briefing.md) · [Decisions](../decisions.md) · [Worklog](../../process/worklog.md)
+## Radar
+
+Forward-looking improvements that have been identified but are not yet
+committed to a CV or Epic. Items here are surfaced for visibility, not
+planned for a specific cycle. When one of these becomes urgent or fits a
+larger arc, it graduates into a CV/Epic and leaves the radar.
+
+Add new items at the top. Each entry should name the problem (not just the
+solution), point at evidence or source, and sketch the rough shape of the
+work.
+
+### Surface silent failures in runtime extensions
+
+**Source:** [Troubleshooting: Pi logger fix](../../process/troubleshooting.md#pi-logger-fails-silently-when-python3-resolves-outside-the-project-venv)  
+**Surfaced:** 2026-05-10
+
+Runtime extensions (currently the Pi `mirror-logger`, eventually equivalent
+hooks in Gemini CLI and Codex) are designed to **swallow failures** so that a
+bug in the persistence pipeline never blocks the user's session. This is the
+right call for usability, but it also means defects in that layer can persist
+for a long time with no visible signal: the recent Pi logger fix surfaced
+only after the bug had been accumulating silent failures for over a month,
+and only because someone (the user) verified the database state directly.
+
+The radar item is to add a discreet, non-blocking signal that surfaces
+recent persistence failures to the user without breaking the
+fail-quietly contract. Possible shapes, in increasing weight:
+
+- A health subcommand: `uv run python -m memory conversation-logger health` that
+  scans `~/.mirror/mirror-logger.log` for recent WARN/ERROR lines and reports
+  a green/yellow/red status with the last error message.
+- An automatic one-line note at the top of `mm-mirror` output when the
+  health check is non-green, e.g. `⚠️ Mirror logger has 47 errors in the
+  last 24h. Run ‘mm-help diagnose’.`
+- A periodic backfill on `session-start` that runs even when no orphaned
+  sessions are detected, simply to prove the path is alive.
+
+Scope: small to medium, depending on how much UI integration is desired.
+Low-risk because all options are additive and do not change the
+fail-quietly behavior of the extensions themselves.
+
+---
+
+**See also:** [Briefing](../briefing.md) · [Decisions](../decisions.md) · [Worklog](../../process/worklog.md) · [Troubleshooting](../../process/troubleshooting.md)

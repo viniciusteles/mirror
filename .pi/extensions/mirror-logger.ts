@@ -66,7 +66,12 @@ export default function (pi: ExtensionAPI) {
 
 	async function runPy(args: string[]): Promise<string> {
 		try {
-			const result = await pi.exec("python3", args, {
+			// Use `uv run python` so the project's venv (which has the `memory`
+			// package installed) is used. Plain `python3` resolves to whatever PATH
+			// finds first (often a pyenv shim without project deps), causing
+			// `ModuleNotFoundError: No module named 'memory'`. See conversa
+			// 2026-05-10 for full diagnosis.
+			const result = await pi.exec("uv", ["run", "python", ...args], {
 				timeout: 30_000,
 			});
 			const stderr = (result?.stderr ?? "").trim();
