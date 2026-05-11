@@ -19,9 +19,15 @@ def make_repo(tmp_path: Path) -> Path:
     (root / "docs" / "product" / "envisioning" / "index.md").write_text(
         "# Coherence\n\n| A | B |\n|---|---|\n| 1 | 2 |\n", encoding="utf-8"
     )
-    (root / "docs" / "project" / "roadmap" / "cv1-one" / "index.md").write_text("# CV1\n", encoding="utf-8")
-    (root / "docs" / "project" / "roadmap" / "cv10-ten" / "index.md").write_text("# CV10\n", encoding="utf-8")
-    (root / "docs" / "project" / "roadmap" / "cv2-two" / "index.md").write_text("# CV2\n", encoding="utf-8")
+    (root / "docs" / "project" / "roadmap" / "cv1-one" / "index.md").write_text(
+        "# CV1\n", encoding="utf-8"
+    )
+    (root / "docs" / "project" / "roadmap" / "cv10-ten" / "index.md").write_text(
+        "# CV10\n", encoding="utf-8"
+    )
+    (root / "docs" / "project" / "roadmap" / "cv2-two" / "index.md").write_text(
+        "# CV2\n", encoding="utf-8"
+    )
     (root / "docs" / "product" / "principles.md").write_text("# Principles\n", encoding="utf-8")
     (root / "docs" / "product" / "specs" / "index.md").write_text("# Specs\n", encoding="utf-8")
     (root / "docs" / "product" / "specs" / "coherence-runtime" / "index.md").write_text(
