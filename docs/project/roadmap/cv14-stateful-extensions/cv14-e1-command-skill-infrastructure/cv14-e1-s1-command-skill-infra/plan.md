@@ -1,6 +1,6 @@
-[< CV14.E1 Command-Skill Infrastructure](../index.md)
+[Roadmap](../../../index.md) › [CV14](../../index.md) › [E1](../index.md) › **S1 · Plan**
 
-# CV14.E1.S1 — Plan: Infra de command-skill
+# CV14.E1.S1 — Plan: Command-Skill Infrastructure
 
 **Status:** ✅ Done · delivered in [PR #7](https://github.com/viniciusteles/mirror/pull/7)
 
@@ -9,9 +9,9 @@
 The substantive plan lives in the product documentation alongside the rest of
 the extension system specification:
 
-> [docs/product/extensions/user-stories/US-00-infra-de-command-skill.md](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
+> [US-00 — Command-Skill Infrastructure](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
 
-That file carries the full **Story / Plan / Test Guide** for this delivery:
+That document carries the full **Story / Plan / Test Guide** for this delivery:
 narrative motivation, list of files added or changed, sequenced TDD
 implementation steps, and the testing matrix per component.
 
@@ -29,7 +29,8 @@ specification in `docs/product/extensions/` means:
 ## What this entry tracks
 
 - **Where:** [CV14.E1](../index.md) of the project roadmap.
-- **What:** the single story that closed E1 of CV14.
+- **What:** the single story that closed [E1](../index.md) of
+  [CV14](../../index.md).
 - **Status:** Done, 2026-05-11.
 - **Pull request:** [#7 — Design and implement the command-skill extension system (Phase 1)](https://github.com/viniciusteles/mirror/pull/7)
 
@@ -47,9 +48,10 @@ End-to-end infrastructure for stateful extensions:
 - fixture `ext-hello` exercising the full contract;
 - 95 new tests; suite at 1103 passing.
 
-For the full breakdown and rationale per change, see the canonical user
-story and the PR description.
+For the full breakdown and rationale per change, see the
+[canonical user story](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
+and the [PR description](https://github.com/viniciusteles/mirror/pull/7).
 
 ---
 
-**See also:** [Test Guide](test-guide.md) · [Canonical user story](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
+**See also:** [Roadmap](../../../index.md) · [CV14](../../index.md) · [CV14.E1](../index.md) · [CV14.E1.S1 Test Guide](test-guide.md) · [US-00 (product)](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)

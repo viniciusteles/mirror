@@ -1,4 +1,4 @@
-[< Roadmap](../index.md)
+[Roadmap](../index.md) › **CV14 Stateful Extension System**
 
 # CV14 — Stateful Extension System
 
@@ -9,17 +9,20 @@
 
 ## What This Is
 
-CV6.E5 closed the door on user-specific capabilities accidentally landing in
-core by defining the **prompt-skill** extension model: a markdown manifest that
-orchestrates existing Mirror commands, with `review-copy` as the reference path.
-That solved the simple case — workflows with no state.
+[CV6.E5](../cv6-intelligence-runtime-maturity/cv6-e5-extension-model/index.md)
+closed the door on user-specific capabilities accidentally landing in core by
+defining the **prompt-skill** extension model: a markdown manifest that
+orchestrates existing Mirror commands, with `review-copy` as the reference
+path. That solved the simple case — workflows with no state.
 
-CV14 picks up where CV6.E5 stopped. Real user features tend to need more than
-prompt orchestration: a finance tracker needs tables for accounts and
-transactions, importers, a runway calculator, and a way to surface that data to
-the Mirror at conversation time. A testimonials tool needs persistent records,
-embeddings, and semantic search. These are stateful capabilities, and they need
-a real contract:
+This CV picks up where
+[CV6.E5](../cv6-intelligence-runtime-maturity/cv6-e5-extension-model/index.md)
+stopped. Real user features tend to need more than prompt orchestration: a
+finance tracker needs tables for accounts and transactions, importers, a
+runway calculator, and a way to surface that data to the Mirror at
+conversation time. A testimonials tool needs persistent records, embeddings,
+and semantic search. These are stateful capabilities, and they need a real
+contract:
 
 - their own SQLite tables under a forced `ext_<id>_*` prefix
 - a Python entrypoint with `register(api)` that receives a stable API surface
@@ -28,10 +31,11 @@ a real contract:
 - a binding model that wires extension capabilities to user-defined personas
 - automatic Mirror Mode context injection, with isolated failure modes
 
-CV14 delivers exactly that contract, in phases that match the
+This CV delivers exactly that contract, in phases that match the
 [product extensions roadmap](../../../product/extensions/roadmap.md). Phase 1
 ships the full `command-skill` infrastructure and an end-to-end fixture; later
-phases polish authoring, add cross-extension features, and explore distribution.
+phases polish authoring, add cross-extension features, and explore
+distribution.
 
 This CV is about **platform capability**: the mirror gains the ability to host
 stateful extensions safely. Specific extensions a user might write (finance,
@@ -40,15 +44,17 @@ repository and have their own user-story trail there.
 
 ---
 
-## Relationship to CV6.E5
+## Relationship to [CV6.E5](../cv6-intelligence-runtime-maturity/cv6-e5-extension-model/index.md)
 
-CV6.E5 — **prompt-skill** model — remains valid and Done. It is the right
-choice for stateless workflows. CV14 — **command-skill** model — is the
-stateful complement. The manifest validator accepts both `kind` values;
-extension authors choose the simpler one when no state is needed.
+[CV6.E5](../cv6-intelligence-runtime-maturity/cv6-e5-extension-model/index.md)
+— **prompt-skill** model — remains valid and Done. It is the right choice for
+stateless workflows. This CV — **command-skill** model — is the stateful
+complement. The manifest validator accepts both `kind` values; extension
+authors choose the simpler one when no state is needed.
 
-Conceptually, CV14 is the successor of CV6.E5 for the stateful case. They
-coexist without conflict in the codebase.
+Conceptually, CV14 is the successor of
+[CV6.E5](../cv6-intelligence-runtime-maturity/cv6-e5-extension-model/index.md)
+for the stateful case. They coexist without conflict in the codebase.
 
 ---
 
@@ -70,12 +76,13 @@ evidence of need is available.
 
 ## Done Condition (for the CV as a whole)
 
-CV14 does not aim to be "Done" as a single moment. It is delivered as its
-epics close. The CV is considered fully delivered when E1 and E2 are Done; E3
-and E4 are explicitly optional and will be re-evaluated then.
+This CV does not aim to be "Done" as a single moment. It is delivered as its
+epics close. The CV is considered fully delivered when
+[E1](cv14-e1-command-skill-infrastructure/index.md) and E2 are Done; E3 and
+E4 are explicitly optional and will be re-evaluated then.
 
-E1 specifically is done. See its
-[index](cv14-e1-command-skill-infrastructure/index.md) for criteria and
+[E1](cv14-e1-command-skill-infrastructure/index.md) specifically is done. See
+its [index](cv14-e1-command-skill-infrastructure/index.md) for criteria and
 verification.
 
 ---
@@ -89,7 +96,8 @@ verification.
 - hot-reload of extensions inside a running process
 - sandboxing beyond the table-prefix contract (extensions are trusted code
   installed explicitly by the user)
-- prompt-skill scope, already delivered by CV6.E5
+- prompt-skill scope, already delivered by
+  [CV6.E5](../cv6-intelligence-runtime-maturity/cv6-e5-extension-model/index.md)
 
 ---
 
@@ -102,9 +110,10 @@ E1 Command-skill infrastructure   (Done)
             └── E4 Distribution             (provisional)
 ```
 
-E1 unblocks the construction of any stateful extension a user wants to write.
-E2 is incremental polish; it sharpens the authoring experience based on
-learnings from the first real extensions. E3 and E4 are gated on evidence.
+[E1](cv14-e1-command-skill-infrastructure/index.md) unblocks the construction
+of any stateful extension a user wants to write. E2 is incremental polish; it
+sharpens the authoring experience based on learnings from the first real
+extensions. E3 and E4 are gated on evidence.
 
 ---
 

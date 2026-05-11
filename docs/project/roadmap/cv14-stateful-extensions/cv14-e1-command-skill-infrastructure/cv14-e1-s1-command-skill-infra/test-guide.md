@@ -1,6 +1,6 @@
-[< CV14.E1.S1 Plan](plan.md)
+[Roadmap](../../../index.md) › [CV14](../../index.md) › [E1](../index.md) › [S1](plan.md) · **Test Guide**
 
-# CV14.E1.S1 — Test Guide: Infra de command-skill
+# CV14.E1.S1 — Test Guide: Command-Skill Infrastructure
 
 **Status:** ✅ Done · all listed verifications executed and green in [PR #7](https://github.com/viniciusteles/mirror/pull/7)
 
@@ -8,7 +8,7 @@
 
 The full per-component test matrix lives in the product user story:
 
-> [docs/product/extensions/user-stories/US-00-infra-de-command-skill.md](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
+> [US-00 — Command-Skill Infrastructure](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
 > (section **Test Guide**)
 
 It enumerates the cases for each new module — errors, schema bootstrap,
@@ -35,7 +35,7 @@ The story closed against the following acceptance evidence:
   the extension's data table was preserved. Cleaned up the smoke artifacts
   after.
 
-## Acceptance criteria (from US-00)
+## Acceptance criteria (from [US-00](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md))
 
 - [x] `python -m memory extensions install` runs migrations and `register`.
 - [x] `python -m memory ext hello ping` works end to end on the fixture.
@@ -50,4 +50,4 @@ The story closed against the following acceptance evidence:
 
 ---
 
-**See also:** [Plan](plan.md) · [Canonical user story](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)
+**See also:** [Roadmap](../../../index.md) · [CV14](../../index.md) · [CV14.E1](../index.md) · [CV14.E1.S1 Plan](plan.md) · [US-00 (product)](../../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md)

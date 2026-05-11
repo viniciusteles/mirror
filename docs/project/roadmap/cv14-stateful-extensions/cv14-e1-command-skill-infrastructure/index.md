@@ -1,4 +1,4 @@
-[< CV14 Stateful Extension System](../index.md)
+[Roadmap](../../index.md) › [CV14](../index.md) › **E1 Command-Skill Infrastructure**
 
 # CV14.E1 — Command-Skill Infrastructure
 
@@ -9,10 +9,11 @@
 
 ## What This Is
 
-The base layer of the stateful extension system. Everything else in CV14 (and
-every concrete extension a user might build) depends on what this epic ships:
-the manifest contract, the API surface, the migration runner, the loader, the
-CLI dispatcher, the binding registry, and the Mirror Mode injection point.
+The base layer of the stateful extension system. Everything else in
+[CV14](../index.md) (and every concrete extension a user might build) depends
+on what this epic ships: the manifest contract, the API surface, the migration
+runner, the loader, the CLI dispatcher, the binding registry, and the Mirror
+Mode injection point.
 
 When this epic is Done, a user can:
 
@@ -94,14 +95,14 @@ through the API surface defined by this epic.
 
 | Code | Story | Status |
 |------|-------|--------|
-| [CV14.E1.S1](cv14-e1-s1-command-skill-infra/plan.md) | Infra de command-skill (manifest, migrations, API, loader, CLI dispatcher, binding registry, Mirror Mode hook, install path) | ✅ Done |
+| [CV14.E1.S1](cv14-e1-s1-command-skill-infra/plan.md) | Command-skill infrastructure (manifest, migrations, API, loader, CLI dispatcher, binding registry, Mirror Mode hook, install path) | ✅ Done |
 
-The story plan and test guide both delegate to the canonical user story under
-the product docs:
-[US-00 — Infra de command-skill](../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md).
-The roadmap-side `plan.md` and `test-guide.md` exist as thin pointers so the
-project tracking and the product specification stay in sync without
-duplicating the substance.
+The [story plan](cv14-e1-s1-command-skill-infra/plan.md) and
+[test guide](cv14-e1-s1-command-skill-infra/test-guide.md) both delegate to
+the canonical user story under the product docs:
+[US-00 — Command-Skill Infrastructure](../../../../product/extensions/user-stories/US-00-infra-de-command-skill.md).
+The roadmap-side files exist as thin pointers so the project tracking and the
+product specification stay in sync without duplicating the substance.
 
 ---
 
@@ -116,4 +117,4 @@ duplicating the substance.
 
 ---
 
-**See also:** [CV14](../index.md) · [Product · Extensions](../../../../product/extensions/index.md) · [PR #7](https://github.com/viniciusteles/mirror/pull/7)
+**See also:** [Roadmap](../../index.md) · [CV14](../index.md) · [CV14.E1.S1 Plan](cv14-e1-s1-command-skill-infra/plan.md) · [CV14.E1.S1 Test Guide](cv14-e1-s1-command-skill-infra/test-guide.md) · [Product · Extensions](../../../../product/extensions/index.md) · [PR #7](https://github.com/viniciusteles/mirror/pull/7)

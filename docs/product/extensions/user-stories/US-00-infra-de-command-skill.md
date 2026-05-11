@@ -1,49 +1,54 @@
-# US-00 — Infra de `command-skill`
+# US-00 — Command-Skill Infrastructure
 
 **Status:** Done · 2026-05-11
 
 ## Story
 
-**Como** mantenedor do Mirror Mind,
-**quero** uma infraestrutura que permita carregar extensions com estado
-(schema próprio, CLI próprio, integração com Mirror Mode),
-**para que** features específicas de um usuário (finanças, depoimentos,
-integrações) possam viver fora do core sem perder acesso à infraestrutura
-compartilhada (banco, embeddings, LLM, personas).
+**As a** maintainer of Mirror Mind,
+**I want** an infrastructure that supports stateful extensions
+(extensions with their own schema, their own CLI, and Mirror Mode
+integration),
+**so that** features specific to a single user (finance, testimonials,
+integrations) can live outside the core without losing access to the
+shared infrastructure (database, embeddings, LLM, persona routing).
 
-### Por que agora
+### Why now
 
-O Mirror Mind tem hoje um único tipo de extension (`prompt-skill`), que só
-serve para orquestrar comandos shell. Features que precisam de persistência,
-schema próprio e integração com Mirror Mode não têm onde morar — ou viram
-código no core (errado, mistura framework com identidade pessoal), ou ficam
-fora do mirror inteiramente (errado, perdem acesso a embeddings, LLM router,
-persona routing).
+Mirror Mind only had one kind of extension (`prompt-skill`), useful for
+orchestrating shell commands but not for anything that needs
+persistence, a schema of its own, or Mirror Mode integration. Features
+of that kind had no place to live: either they were absorbed into the
+core (wrong — that mixes the framework with personal identity), or
+they stayed completely outside Mirror Mind (also wrong — they would
+lose access to embeddings, the LLM router, persona routing, and Mirror
+Mode).
 
-A primeira motivação concreta são duas features que existiam no mirror legado
-(`~/Code/mirror-poc/`) e cujos dados ainda estão preservados no DB antigo: o
-módulo de finanças (18 contas, 554 transações, 68 snapshots, 41 contas
-recorrentes) e o de depoimentos (5 registros com embeddings). Sem esta
-infraestrutura, nenhuma das duas pode voltar.
+The first concrete motivation is two features that existed in the
+legacy mirror (`~/Code/mirror-poc/`) and whose data is still preserved
+in the legacy database: the finance module (18 accounts, 554
+transactions, 68 balance snapshots, 41 recurring bills) and the
+testimonials module (5 records with embeddings). Without this
+infrastructure, neither one can come back.
 
-### Valor de aceitação
+### Acceptance value
 
-Ao fim desta story, um autor de extension consegue:
+When this story is Done, an extension author can:
 
-1. Criar um repositório com um `skill.yaml`, um `extension.py`, uma
-   migration SQL e um `SKILL.md`.
-2. Rodar `python -m memory extensions install <id>` — o mirror copia o
-   tree, roda as migrations, importa o entrypoint, chama `register(api)`.
-3. Rodar `python -m memory ext <id> <subcomando>` — o subcomando registrado
-   executa.
-4. Rodar `python -m memory ext <id> bind <capability> --persona <p>` — o
-   binding é persistido.
-5. Em uma sessão Mirror Mode com a persona `p` ativa, o texto retornado
-   pelo provider aparece no prompt.
+1. Create a repository with a `skill.yaml`, an `extension.py`, a SQL
+   migration, and a `SKILL.md`.
+2. Run `python -m memory extensions install <id>` — the mirror copies
+   the source tree, runs the migrations, imports the entrypoint, and
+   calls `register(api)`.
+3. Run `python -m memory ext <id> <subcommand>` — the registered
+   subcommand executes.
+4. Run `python -m memory ext <id> bind <capability> --persona <p>` —
+   the binding is persisted.
+5. In a Mirror Mode session with persona `p` active, the text returned
+   by the provider appears in the prompt.
 
 ## Plan
 
-### Arquivos novos
+### New files
 
 ```
 src/memory/extensions/
@@ -75,154 +80,160 @@ tests/extensions/
       migrations/001_init.sql
 ```
 
-### Arquivos alterados
+### Changed files
 
-- `src/memory/__main__.py` — adicionar dispatch de `ext` para
+- `src/memory/__main__.py` — add `ext` dispatch to
   `memory.cli.ext.cmd_ext`.
-- `src/memory/cli/extensions.py` — após copiar o source tree, chamar
-  `loader.install(...)` que dispara migrations e `register`.
-- `src/memory/services/identity.py` — em `load_mirror_context`, após
-  resolver persona, chamar `context.collect_for_persona(persona_id,
-  journey_id, query)` e anexar o resultado ao prompt sob seções
-  `=== extension/<id>/<capability> ===`.
-- `src/memory/db/schema.py` — adicionar criação de `_ext_migrations` e
-  `_ext_bindings` (idempotente, no bootstrap).
-- `AGENTS.md` — nova seção curta "Extensions" apontando para
+- `src/memory/cli/extensions.py` — after copying the source tree, call
+  `loader.install(...)` which runs migrations and `register`.
+- `src/memory/services/identity.py` — in `load_mirror_context`, after
+  resolving the persona, call `context.collect_for_persona(persona_id,
+  journey_id, query)` and append the result to the prompt under
+  `=== extension/<id>/<capability> ===` sections.
+- `src/memory/db/schema.py` — add the creation of `_ext_migrations`
+  and `_ext_bindings` (idempotent, in the bootstrap).
+- `AGENTS.md` — short "Extensions" section pointing at
   `docs/product/extensions/`.
 
-### Sequência sugerida de implementação (TDD)
+### Suggested implementation sequence (TDD)
 
-1. **Errors + API skeleton.** Tipos de exceção + assinatura do
-   `ExtensionAPI` sem implementação. Teste que importa, instancia (mock),
-   verifica tipos.
-2. **Schema bootstrap.** `_ext_migrations` e `_ext_bindings` criadas no
-   bootstrap do DB. Teste lê `sqlite_master` e confirma.
-3. **Migrations runner.** Aplica arquivos em ordem, checksum, prefix
-   enforcement, idempotência. Testes cobrem: aplica do zero, re-aplica
-   (skip), checksum mismatch (erro), prefix violation (erro), DML em
-   tabela própria (ok), DML em tabela alheia (erro).
+1. **Errors + API skeleton.** Exception types + `ExtensionAPI`
+   signatures without implementation. Test that the module imports,
+   instantiates (mock), and exposes the expected types.
+2. **Schema bootstrap.** `_ext_migrations` and `_ext_bindings` created
+   in the database bootstrap. The test reads `sqlite_master` and
+   confirms.
+3. **Migrations runner.** Applies files in order, checksum, prefix
+   enforcement, idempotence. Tests cover: apply from scratch, re-apply
+   (skip), checksum mismatch (error), prefix violation (error), DML on
+   own table (ok), DML on a foreign table (error).
 4. **API DB methods.** `execute`, `read`, `executemany`, `transaction`.
-   Testes: write fora do prefixo é rejeitado, read em qualquer tabela
-   permitido, transaction rollback funciona.
-5. **API embeddings e LLM.** Wrappers finos sobre
-   `intelligence.embeddings` e `intelligence.llm_router`. Testes com
+   Tests: write outside the prefix is rejected, read on any table is
+   allowed, transaction rollback works.
+5. **API embeddings and LLM.** Thin wrappers around
+   `intelligence.embeddings` and `intelligence.llm_router`. Tests use
    mocks.
-6. **Loader.** Descobre, valida manifest, importa entrypoint, chama
-   `register`. Testes: manifest válido, manifest inválido (cada campo),
-   `register` ausente, `register` levanta.
-7. **CLI registry e dispatcher.** `register_cli` + `cmd_ext` em
-   `memory.cli.ext`. Testes: subcomando registrado executa, subcomando
-   inexistente erro claro, `--help` lista subcomandos.
-8. **Context registry e bindings.** Tabela `_ext_bindings`, métodos
-   `bind`/`unbind`/`bindings`, dispatcher `collect_for_persona`.
-   Testes: CRUD, dispatch chama provider, provider levanta é capturado,
-   provider retorna None é skip.
-9. **Mirror Mode hook.** Integração em `IdentityService.load_mirror_context`.
-   Teste end-to-end: instala fixture, binda capability a persona, chama
-   `load_mirror_context` com essa persona, confirma texto presente.
-10. **Install path completo.** `python -m memory extensions install`
-    chama loader que roda migrations e `register`. Teste de integração
-    contra o fixture `ext-hello`.
-11. **Documentação alinhada.** Reler todos os docs de
-    `docs/product/extensions/` e ajustar onde a implementação divergiu.
+6. **Loader.** Discovers, validates the manifest, imports the
+   entrypoint, calls `register`. Tests: valid manifest, invalid
+   manifest (each field), missing `register`, `register` raising.
+7. **CLI registry and dispatcher.** `register_cli` + `cmd_ext` in
+   `memory.cli.ext`. Tests: registered subcommand runs, unknown
+   subcommand reports a clear error, `--help` lists subcommands.
+8. **Context registry and bindings.** `_ext_bindings` table,
+   `bind`/`unbind`/`bindings` methods, `collect_for_persona`
+   dispatcher. Tests: CRUD, dispatch calls the provider, provider
+   raising is caught, provider returning `None` is skipped.
+9. **Mirror Mode hook.** Integration in
+   `IdentityService.load_mirror_context`. End-to-end test: install the
+   fixture, bind a capability to a persona, call `load_mirror_context`
+   with that persona, confirm the text is present.
+10. **Full install path.** `python -m memory extensions install`
+    invokes the loader which runs migrations and `register`.
+    Integration test against the `ext-hello` fixture.
+11. **Documentation alignment.** Re-read every document in
+    `docs/product/extensions/` and adjust anything that diverged from
+    the implementation.
 
-### Decisões herdadas (não revisitar nesta story)
+### Inherited decisions (not revisited in this story)
 
-- Prefixo de tabela forçado `ext_<id>_*`.
-- DB compartilhado (uma única `memory.db`).
-- Binding modelos `persona` e `journey` em Phase 1; `global` só na schema.
-- Bindings não auto-aplicam de `suggested_personas` no install.
-- Falha de extension nunca quebra Mirror Mode.
-- `prompt-skill` continua funcionando sem mudanças.
+- Forced `ext_<id>_*` table prefix.
+- Shared database (a single `memory.db`).
+- Binding kinds `persona` and `journey` in Phase 1; `global` is in the
+  schema only.
+- Bindings do not auto-apply from `suggested_personas` on install.
+- An extension failure never breaks Mirror Mode.
+- `prompt-skill` keeps working without changes.
 
 ## Test Guide
 
-### Casos por componente
+### Cases by component
 
 #### `errors.py`
 
-- Hierarquia: todos herdam de `ExtensionError`.
-- Mensagens incluem `extension_id` quando aplicável.
+- Hierarchy: every error inherits from `ExtensionError`.
+- Messages include the `extension_id` when applicable.
 
 #### `migrations.py`
 
-- Aplica `001_init.sql` em DB virgem; `_ext_migrations` registra uma linha.
-- Re-rodar é no-op.
-- Editar `001_init.sql` após aplicado e re-rodar levanta
-  `ExtensionMigrationError` com mensagem mencionando checksum.
-- Migration com `CREATE TABLE foo` (sem prefixo) é rejeitada antes de
-  qualquer SQL rodar.
-- Migration com `INSERT INTO ext_hello_pings ...` aplica normalmente.
-- Falha no meio do arquivo: nenhuma alteração persiste (transação),
-  `_ext_migrations` não atualiza.
+- Apply `001_init.sql` on a virgin database; `_ext_migrations` records
+  a row.
+- Re-running is a no-op.
+- Editing `001_init.sql` after it was applied and re-running raises
+  `ExtensionMigrationError` with a message mentioning the checksum.
+- A migration with `CREATE TABLE foo` (no prefix) is rejected before
+  any SQL runs.
+- A migration with `INSERT INTO ext_hello_pings ...` applies normally.
+- Failure mid-file: nothing persists (transaction); `_ext_migrations`
+  is not updated.
 
 #### `api.py`
 
-- `execute("INSERT INTO ext_hello_pings ...")` funciona.
-- `execute("INSERT INTO memories ...")` levanta
+- `execute("INSERT INTO ext_hello_pings ...")` works.
+- `execute("INSERT INTO memories ...")` raises
   `ExtensionPermissionError`.
-- `read("SELECT * FROM memories")` funciona.
-- `read("UPDATE memories ...")` levanta (read enforcement).
-- `transaction()` aninhado reusa.
-- `embed("text")` retorna bytes não-vazios (com mock).
-- `llm(prompt)` retorna string (com mock).
+- `read("SELECT * FROM memories")` works.
+- `read("UPDATE memories ...")` raises (read enforcement).
+- Nested `transaction()` reuses the savepoint structure.
+- `embed("text")` returns non-empty bytes (with a mock).
+- `llm(prompt)` returns a string (with a mock).
 
 #### `loader.py`
 
-- Carrega fixture `ext-hello` com sucesso.
-- Manifest sem `id` → erro de validação claro.
-- Manifest com `kind: command-skill` e sem `entrypoint` → erro.
-- `extension.py` sem função `register` → erro.
-- `register` que levanta → erro envolvido em `ExtensionLoadError`.
+- Loads the `ext-hello` fixture successfully.
+- Manifest without `id` -> clear validation error.
+- Manifest with `kind: command-skill` and no `entrypoint` -> error.
+- `extension.py` without a `register` function -> error.
+- `register` that raises -> wrapped in `ExtensionLoadError`.
 
 #### `context.py`
 
-- `bind("finances", "financial_summary", "persona", "tesoureira")` cria
-  linha em `_ext_bindings`.
-- `bind` duplicado é no-op (PK).
-- `unbind` remove a linha.
-- `bindings("finances")` lista as bindings.
-- `collect_for_persona("tesoureira", ...)` chama o provider registrado e
-  retorna o texto.
-- Provider que levanta: log emitido, texto vazio retornado.
-- Provider que retorna `None`: texto vazio, sem warning.
+- `bind("finances", "financial_summary", "persona", "treasurer")`
+  inserts into `_ext_bindings`.
+- A duplicate `bind` is a no-op (composite PK).
+- `unbind` removes the row.
+- `bindings("finances")` lists the active bindings.
+- `collect_for_persona("treasurer", ...)` invokes the registered
+  provider and returns its text.
+- A provider that raises: a warning is logged, the text is empty.
+- A provider that returns `None`: empty text, no warning.
 
 #### `cli.ext`
 
-- `python -m memory ext list` mostra extensions instaladas.
-- `python -m memory ext hello ping foo` insere e imprime `ping: foo`.
-- `python -m memory ext hello nope` retorna exit code não-zero e mensagem
-  clara.
-- `python -m memory ext hello --help` lista subcomandos.
+- `python -m memory ext list` shows installed extensions.
+- `python -m memory ext hello ping foo` inserts and prints
+  `ping: foo`.
+- `python -m memory ext hello nope` returns a non-zero exit code and
+  a clear message.
+- `python -m memory ext hello --help` lists subcommands.
 
 #### Mirror Mode hook (end-to-end)
 
-- Instala fixture `ext-hello`.
-- Cria persona `tester` na identity (via API direta).
-- Binda `hello.greeting` à persona `tester`.
-- Insere uma ping.
-- Chama `IdentityService.load_mirror_context(persona="tester", ...)`.
-- O retorno contém `=== extension/hello/greeting ===` seguido do texto
-  produzido pelo provider.
+- Install the `ext-hello` fixture.
+- Create a `tester` persona in identity (through the API directly).
+- Bind `hello.greeting` to the `tester` persona.
+- Insert a ping.
+- Call `IdentityService.load_mirror_context(persona="tester", ...)`.
+- The result contains `=== extension/hello/greeting ===` followed by
+  the text the provider produced.
 
 ### Edge cases
 
-- Mirror Mode sem persona ativa: nenhum provider é chamado.
-- Binding aponta para extension que falhou ao carregar: log uma vez,
-  Mirror Mode segue.
-- Binding aponta para persona inexistente: nunca dispara (persona nunca
-  é roteada).
-- Múltiplas extensions com bindings para a mesma persona: todas disparam,
-  ordem estável (ordenação por `extension_id, capability_id`).
+- Mirror Mode with no active persona: no provider is called.
+- A binding pointing at an extension that failed to load: logged once,
+  Mirror Mode keeps going.
+- A binding pointing at a persona that does not exist: never fires
+  (the persona is never the active one).
+- Multiple extensions bound to the same persona: all fire, in stable
+  order (sorted by `extension_id, capability_id`).
 
-### Critério de pronto
+### Done criteria
 
-- [x] Todos os testes acima passam.
-- [x] `uv run pytest tests/unit/memory/extensions/` verde — 76 testes.
-- [x] `uv run pytest` (suite completa) verde — 1103 testes.
-- [x] Fixture `ext-hello` instalável com um único comando
+- [x] All tests above pass.
+- [x] `uv run pytest tests/unit/memory/extensions/` green — 76 tests.
+- [x] `uv run pytest` (full suite) green — 1103 tests.
+- [x] `ext-hello` fixture installable with a single command
       (`python -m memory extensions install hello --extensions-root <path>`).
-- [x] AGENTS.md atualizado.
-- [x] Documentos em `docs/product/extensions/` consistentes com o
-      código entregue.
-- [ ] CI verde após push (a verificar).
+- [x] AGENTS.md updated.
+- [x] Documents under `docs/product/extensions/` consistent with the
+      shipped code.
+- [ ] CI green after push (to be confirmed).
