@@ -30,6 +30,7 @@ folder and index. Stories that are non-trivial have a `plan.md` and a
 | [CV11](cv11-localization/index.md) | Localization | ⚪ Future |
 | [CV12](cv12-audience-modes/index.md) | Audience Modes | ⚪ Future |
 | [CV13](cv13-mirror-web-console/index.md) | Mirror Web Console | 🟡 Planned |
+| [CV14](cv14-stateful-extensions/index.md) | Stateful Extension System | 🟢 Phase 1 Done · E2–E4 planned |
 
 ---
 

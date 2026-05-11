@@ -138,6 +138,35 @@ context, research notes, or any document the mirror should be able to draw from.
 `MEMORY_DIR`, `DB_PATH`, `BACKUP_DIR`, and `DB_BACKUP_PATH`. See
 `.env.example.advanced` for the full reference.
 
+## Extensions
+
+Mirror Mind has an extension system that lets user-specific features live
+outside the core. Two kinds exist:
+
+- **`prompt-skill`** — markdown-only extensions that orchestrate existing
+  Mirror commands. Example in `examples/extensions/review-copy/`.
+- **`command-skill`** — stateful extensions with their own SQLite tables
+  (under the forced `ext_<id>_*` prefix), CLI subcommands, and optional
+  Mirror Mode context providers. Installed under
+  `~/.mirror/<user>/extensions/<id>/`.
+
+Extensions never live in this repository. The core only documents the
+contract; each extension carries its own source and its own documentation
+in its own repository.
+
+Full specification of the extension system: [`docs/product/extensions/`](docs/product/extensions/).
+
+Key CLI entry points:
+
+- `python -m memory extensions install <id> --extensions-root <path>` —
+  install from a source root. The target mirror home is resolved from
+  `MIRROR_HOME` or `MIRROR_USER`; pass `--mirror-home <path>` only when
+  overriding the active home.
+- `python -m memory ext list` — list installed extensions.
+- `python -m memory ext <id> <subcommand>` — invoke an extension subcommand.
+- `python -m memory ext <id> bind <capability> --persona <persona_id>` —
+  bind a capability to a persona for automatic Mirror Mode injection.
+
 ## Core Principles
 
 1. **First person:** the AI speaks as the user, not about the user.

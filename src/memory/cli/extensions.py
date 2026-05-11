@@ -90,9 +90,36 @@ def load_extension_manifest(extension_dir: Path) -> dict:
 
     entrypoint = data.get("entrypoint")
     if kind == "command-skill":
-        if not isinstance(entrypoint, dict) or not entrypoint.get("command"):
+        if not isinstance(entrypoint, dict) or not entrypoint.get("module"):
             raise ExtensionValidationError(
-                f"command-skill requires entrypoint.command in {manifest_path}"
+                f"command-skill requires entrypoint.module (a Python module "
+                f"name under the extension directory) in {manifest_path}"
+            )
+        module_name = entrypoint["module"]
+        if not isinstance(module_name, str) or not module_name:
+            raise ExtensionValidationError(
+                f"entrypoint.module must be a non-empty string in {manifest_path}"
+            )
+        module_path = extension_dir / f"{module_name}.py"
+        if not module_path.exists():
+            raise ExtensionValidationError(
+                f"entrypoint.module '{module_name}' not found at {module_path}"
+            )
+        # Cache the resolved path so the loader does not have to recompute it.
+        entrypoint["module_path"] = str(module_path)
+
+        # Validate the table prefix is consistent with the id.
+        from memory.extensions.migrations import table_prefix_for
+
+        expected_prefix = table_prefix_for(skill_id)
+        declared_prefix = data.get("table_prefix")
+        if declared_prefix is None:
+            data["table_prefix"] = expected_prefix
+        elif declared_prefix != expected_prefix:
+            raise ExtensionValidationError(
+                f"table_prefix '{declared_prefix}' does not match the "
+                f"required prefix '{expected_prefix}' for id '{skill_id}' "
+                f"in {manifest_path}"
             )
 
     validated_runtimes: dict[str, dict] = {}
@@ -113,12 +140,16 @@ def load_extension_manifest(extension_dir: Path) -> dict:
         _validate_command_name(runtime_name, command_name)
 
         validated_runtime = dict(runtime_data)
+        # skill_file is required for prompt-skill (the skill IS the
+        # prompt) and optional but conventional for command-skill
+        # (the skill describes how the agent should use the CLI).
+        skill_file = runtime_data.get("skill_file")
         if kind == "prompt-skill":
-            skill_file = runtime_data.get("skill_file")
             if not isinstance(skill_file, str) or not skill_file:
                 raise ExtensionValidationError(
                     f"prompt-skill runtime '{runtime_name}' missing skill_file in {manifest_path}"
                 )
+        if isinstance(skill_file, str) and skill_file:
             skill_path = extension_dir / skill_file
             if not skill_path.exists():
                 raise ExtensionValidationError(
@@ -332,6 +363,18 @@ def install_extension(
     installed_manifest = load_extension_manifest(target_extension_dir)
     runtimes = [runtime] if runtime is not None else sorted(installed_manifest["runtimes"].keys())
 
+    # command-skill extensions: run SQL migrations against the shared
+    # memory.db and validate the entrypoint by loading the module and
+    # calling register(api). prompt-skill extensions skip both steps.
+    migrations_applied = 0
+    register_validated = False
+    if installed_manifest.get("kind") == "command-skill":
+        migrations_applied, register_validated = _post_install_command_skill(
+            target_extension_dir=target_extension_dir,
+            mirror_home=mirror_home,
+            extension_id=extension_id,
+        )
+
     synced: dict[str, list[dict[str, str]]] = {}
     for runtime_name in runtimes:
         runtime_target_root = default_runtime_skills_dir_for_home(mirror_home, runtime_name)
@@ -344,7 +387,53 @@ def install_extension(
         "source_dir": str(source_dir),
         "installed_dir": str(target_extension_dir),
         "synced": synced,
+        "migrations_applied": migrations_applied,
+        "register_validated": register_validated,
     }
+
+
+def _post_install_command_skill(
+    *,
+    target_extension_dir: Path,
+    mirror_home: Path,
+    extension_id: str,
+) -> tuple[int, bool]:
+    """Apply migrations and validate the entrypoint for a command-skill.
+
+    Returns ``(migrations_applied, register_validated)``. Raises
+    :class:`ExtensionValidationError` (re-raised from the underlying
+    extension errors) when the post-install step fails so the CLI
+    surfaces a single error type.
+    """
+    from memory.db.connection import get_connection
+    from memory.extensions.errors import ExtensionError
+    from memory.extensions.loader import load_extension
+    from memory.extensions.migrations import run_migrations
+
+    migrations_dir = target_extension_dir / "migrations"
+    db_path = mirror_home / "memory.db"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = get_connection(db_path)
+    try:
+        try:
+            applied = run_migrations(
+                conn,
+                extension_id=extension_id,
+                migrations_dir=migrations_dir,
+            )
+        except ExtensionError as exc:
+            raise ExtensionValidationError(
+                f"migrations failed for extension/{extension_id}: {exc}"
+            ) from exc
+        try:
+            load_extension(target_extension_dir, connection=conn, reload=True)
+        except ExtensionError as exc:
+            raise ExtensionValidationError(
+                f"register(api) failed for extension/{extension_id}: {exc}"
+            ) from exc
+    finally:
+        conn.close()
+    return applied, True
 
 
 def _load_claude_overlay_catalog(path: Path) -> list[dict[str, Any]]:
@@ -458,12 +547,34 @@ def uninstall_extension(
         )
         removed[runtime_name] = [str(target_dir)]
 
+    bindings_removed = 0
     if runtime is None and installed_dir.exists():
+        # Full uninstall: also delete every binding row that references
+        # this extension. The bindings cannot resolve anymore (the source
+        # tree is about to disappear) so leaving them would just produce
+        # 'uninstalled extension' warnings on every Mirror Mode turn.
+        # The extension's data tables (ext_<id>_*) are preserved on
+        # purpose: code goes, user data stays. A separate purge command
+        # can drop them later if the user asks.
+        if manifest.get("kind") == "command-skill":
+            from memory.db.connection import get_connection
+
+            conn = get_connection(mirror_home / "memory.db")
+            try:
+                cursor = conn.execute(
+                    "DELETE FROM _ext_bindings WHERE extension_id = ?",
+                    (extension_id,),
+                )
+                bindings_removed = cursor.rowcount or 0
+                conn.commit()
+            finally:
+                conn.close()
         shutil.rmtree(installed_dir)
 
     return {
         "extension_id": extension_id,
         "installed_dir": str(installed_dir),
+        "bindings_removed": bindings_removed,
         "removed": removed,
         "source_removed": runtime is None,
     }
@@ -553,6 +664,9 @@ def cmd_extensions(args: list[str]) -> None:
         print(f"  installed: {result['installed_dir']}")
         if result["source_removed"]:
             print("  source tree: removed")
+        bindings_removed = result.get("bindings_removed", 0)
+        if bindings_removed:
+            print(f"  bindings: {bindings_removed} row(s) removed")
         for runtime_name, items in result["removed"].items():
             print(f"  runtime {runtime_name}:")
             for item in items:

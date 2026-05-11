@@ -199,4 +199,35 @@ CREATE TABLE IF NOT EXISTS llm_calls (
 CREATE INDEX IF NOT EXISTS idx_llm_calls_conversation ON llm_calls(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_llm_calls_role ON llm_calls(role);
 CREATE INDEX IF NOT EXISTS idx_llm_calls_called_at ON llm_calls(called_at);
+
+-- Extension subsystem bookkeeping.
+--
+-- _ext_migrations tracks which SQL migration files have been applied per
+-- extension. The checksum guards against in-place edits to an applied
+-- migration: the runner refuses to skip or replay a file whose contents
+-- changed since it was first applied.
+--
+-- _ext_bindings maps an extension's capabilities to integration targets
+-- (typically a persona). The Mirror Mode context dispatcher reads this
+-- table after persona resolution to decide which extension providers to
+-- invoke. See docs/product/extensions/binding-model.md.
+CREATE TABLE IF NOT EXISTS _ext_migrations (
+    extension_id TEXT NOT NULL,
+    filename     TEXT NOT NULL,
+    checksum     TEXT NOT NULL,
+    applied_at   TEXT NOT NULL,
+    PRIMARY KEY (extension_id, filename)
+);
+
+CREATE TABLE IF NOT EXISTS _ext_bindings (
+    extension_id  TEXT NOT NULL,
+    capability_id TEXT NOT NULL,
+    target_kind   TEXT NOT NULL,    -- 'persona' | 'journey' | 'global'
+    target_id     TEXT,             -- NULL only when target_kind = 'global'
+    created_at    TEXT NOT NULL,
+    PRIMARY KEY (extension_id, capability_id, target_kind, target_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ext_bindings_target
+    ON _ext_bindings(target_kind, target_id);
 """
