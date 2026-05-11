@@ -66,10 +66,7 @@ def test_run_migrations_applies_files_in_lexicographic_order(db_conn, tmp_path):
 
     applied = run_migrations(db_conn, extension_id="hello", migrations_dir=migrations)
     assert applied == 2
-    cols = [
-        row["name"]
-        for row in db_conn.execute("PRAGMA table_info(ext_hello_pings)")
-    ]
+    cols = [row["name"] for row in db_conn.execute("PRAGMA table_info(ext_hello_pings)")]
     assert "created_at" in cols
 
 
@@ -87,8 +84,7 @@ def test_run_migrations_rejects_dml_outside_prefix(db_conn, tmp_path):
     migrations = tmp_path / "migrations"
     _write(
         migrations / "001_init.sql",
-        "CREATE TABLE ext_hello_x (id INTEGER PRIMARY KEY);\n"
-        "INSERT INTO memories (id) VALUES (1);",
+        "CREATE TABLE ext_hello_x (id INTEGER PRIMARY KEY);\nINSERT INTO memories (id) VALUES (1);",
     )
 
     with pytest.raises(ExtensionMigrationError):
@@ -181,8 +177,6 @@ def test_extension_id_with_dash_maps_to_underscored_prefix(db_conn, tmp_path):
         "CREATE TABLE ext_review_copy_reports (id INTEGER PRIMARY KEY);",
     )
 
-    applied = run_migrations(
-        db_conn, extension_id="review-copy", migrations_dir=migrations
-    )
+    applied = run_migrations(db_conn, extension_id="review-copy", migrations_dir=migrations)
 
     assert applied == 1

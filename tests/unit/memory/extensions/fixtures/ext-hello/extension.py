@@ -42,9 +42,7 @@ def _cmd_list(api: ExtensionAPI, args: list[str]) -> int:
 
 
 def _provide_greeting(api: ExtensionAPI, ctx: ContextRequest) -> str | None:
-    row = api.read(
-        "SELECT message FROM ext_hello_pings ORDER BY id DESC LIMIT 1"
-    ).fetchone()
+    row = api.read("SELECT message FROM ext_hello_pings ORDER BY id DESC LIMIT 1").fetchone()
     if not row:
         return None
     return f"Latest ping: {row['message']}"

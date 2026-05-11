@@ -15,8 +15,8 @@ from __future__ import annotations
 import importlib.util
 import sqlite3
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from memory.cli.extensions import (
     ExtensionValidationError,
@@ -24,7 +24,6 @@ from memory.cli.extensions import (
 )
 from memory.extensions.api import ExtensionAPI
 from memory.extensions.errors import ExtensionLoadError
-
 
 # Cached, keyed by absolute path of the installed extension directory.
 # Loading the same extension twice in the same process reuses the API.
@@ -86,8 +85,7 @@ def load_extension(
     manifest = load_extension_manifest(Path(extension_dir))
     if manifest.get("kind") != "command-skill":
         raise ExtensionValidationError(
-            f"load_extension only supports kind: command-skill (got "
-            f"{manifest.get('kind')!r})"
+            f"load_extension only supports kind: command-skill (got {manifest.get('kind')!r})"
         )
     extension_id = manifest["id"]
     entrypoint = manifest.get("entrypoint", {})
@@ -95,9 +93,7 @@ def load_extension(
     module_path_str = entrypoint.get("module_path")
     if not module_name or not module_path_str:
         # Should have been caught by the manifest validator; defensive.
-        raise ExtensionValidationError(
-            f"manifest for {extension_id} is missing entrypoint.module"
-        )
+        raise ExtensionValidationError(f"manifest for {extension_id} is missing entrypoint.module")
     module_path = Path(module_path_str)
 
     module = _import_extension_module(

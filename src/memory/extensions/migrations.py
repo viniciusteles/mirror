@@ -171,8 +171,7 @@ def _validate_prefix(content: str, *, extension_id: str, filename: str) -> None:
     for table in _extract_table_targets(content):
         if not table.startswith(prefix):
             raise ExtensionMigrationError(
-                f"{filename} targets table '{table}' "
-                f"outside the required prefix '{prefix}*'",
+                f"{filename} targets table '{table}' outside the required prefix '{prefix}*'",
                 extension_id=extension_id,
             )
 

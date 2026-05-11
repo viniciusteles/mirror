@@ -9,9 +9,7 @@ from memory.extensions.errors import ExtensionLoadError
 from memory.extensions.loader import load_extension
 
 
-def test_load_extension_returns_api_with_populated_registries(
-    db_conn, hello_fixture_dir
-):
+def test_load_extension_returns_api_with_populated_registries(db_conn, hello_fixture_dir):
     # The fixture's migrations need to run before extension.py touches the
     # ext_hello_pings table; loader does not run migrations itself.
     from memory.extensions.migrations import run_migrations
@@ -91,8 +89,7 @@ def test_load_extension_wraps_register_failure(db_conn, tmp_path):
     ext_dir = tmp_path / "boom"
     ext_dir.mkdir()
     (ext_dir / "extension.py").write_text(
-        "def register(api):\n"
-        "    raise RuntimeError('boom on purpose')\n"
+        "def register(api):\n    raise RuntimeError('boom on purpose')\n"
     )
     (ext_dir / "skill.yaml").write_text(
         "id: boom\n"
@@ -148,9 +145,7 @@ def test_loaded_extension_can_actually_execute_its_handler(db_conn, hello_fixtur
     rc = ping(api, ["from", "the", "test"])
     assert rc == 0
 
-    row = db_conn.execute(
-        "SELECT message FROM ext_hello_pings ORDER BY id DESC LIMIT 1"
-    ).fetchone()
+    row = db_conn.execute("SELECT message FROM ext_hello_pings ORDER BY id DESC LIMIT 1").fetchone()
     assert row["message"] == "from the test"
 
 

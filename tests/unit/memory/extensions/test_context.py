@@ -164,9 +164,7 @@ def test_provider_returning_none_is_skipped(tmp_path, hello_fixture_dir):
     )
     conn.commit()
 
-    sections = collect_extension_context(
-        conn, mirror_home=home, persona_id="tester", user="u"
-    )
+    sections = collect_extension_context(conn, mirror_home=home, persona_id="tester", user="u")
     conn.close()
     assert sections == []
 
@@ -244,9 +242,7 @@ def test_provider_raising_is_caught(tmp_path, caplog):
     conn.commit()
 
     with caplog.at_level("WARNING", logger="memory.extensions.context"):
-        sections = collect_extension_context(
-            conn, mirror_home=home, persona_id="tester", user="u"
-        )
+        sections = collect_extension_context(conn, mirror_home=home, persona_id="tester", user="u")
     conn.close()
     assert sections == []
     assert any("provider raised" in rec.message for rec in caplog.records)
@@ -333,8 +329,6 @@ def test_multiple_bindings_fire_in_stable_order(tmp_path, hello_fixture_dir):
         )
     conn.commit()
 
-    sections = collect_extension_context(
-        conn, mirror_home=home, persona_id="tester", user="u"
-    )
+    sections = collect_extension_context(conn, mirror_home=home, persona_id="tester", user="u")
     conn.close()
     assert [s.extension_id for s in sections] == ["echo", "hello"]

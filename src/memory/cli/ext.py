@@ -22,7 +22,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from memory.cli.extensions import (
-    ExtensionValidationError,
     discover_extensions,
 )
 from memory.config import (
@@ -32,7 +31,6 @@ from memory.config import (
 from memory.db.connection import get_connection
 from memory.extensions.errors import ExtensionError
 from memory.extensions.loader import load_extension
-
 
 # --- argv helpers ---------------------------------------------------------
 
@@ -186,9 +184,7 @@ def _cmd_migrate(*, mirror_home: Path, extension_id: str) -> int:
     try:
         from memory.extensions.migrations import run_migrations
 
-        applied = run_migrations(
-            conn, extension_id=extension_id, migrations_dir=migrations_dir
-        )
+        applied = run_migrations(conn, extension_id=extension_id, migrations_dir=migrations_dir)
     except ExtensionError as exc:
         print(str(exc))
         return 1
@@ -330,8 +326,10 @@ def _handle_binding(
 ) -> int:
     """Parse ``<capability> --persona <id>`` / ``--journey <id>`` / ``--global``."""
     if not tail:
-        print(f"usage: python -m memory ext {extension_id} {action} <capability> "
-              f"(--persona <id> | --journey <id> | --global)")
+        print(
+            f"usage: python -m memory ext {extension_id} {action} <capability> "
+            f"(--persona <id> | --journey <id> | --global)"
+        )
         return 1
     capability = tail[0]
     target_kind: str | None = None

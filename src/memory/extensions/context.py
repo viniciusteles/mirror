@@ -88,9 +88,7 @@ def collect_extension_context(
     Returns a list of :class:`ContextSection` (zero or more). Empty when
     no bindings match, all providers returned None, or every load failed.
     """
-    bindings = _select_bindings(
-        conn, persona_id=persona_id, journey_id=journey_id
-    )
+    bindings = _select_bindings(conn, persona_id=persona_id, journey_id=journey_id)
     if not bindings:
         return []
 
@@ -138,7 +136,7 @@ def collect_extension_context(
 
         try:
             text = provider(api, request)
-        except Exception as exc:  # noqa: BLE001 — extensions are user code
+        except Exception as exc:
             _logger.warning(
                 "context provider raised extension_id=%s capability=%s error=%s",
                 extension_id,

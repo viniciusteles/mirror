@@ -134,9 +134,7 @@ def test_bind_persona_creates_row(mirror_home, capsys):
     from memory.db.connection import get_connection
 
     conn = get_connection(mirror_home / "memory.db")
-    rows = conn.execute(
-        "SELECT * FROM _ext_bindings WHERE extension_id='hello'"
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM _ext_bindings WHERE extension_id='hello'").fetchall()
     conn.close()
     assert len(rows) == 1
     assert rows[0]["target_kind"] == "persona"
@@ -151,9 +149,7 @@ def test_bind_is_idempotent(mirror_home, capsys):
     from memory.db.connection import get_connection
 
     conn = get_connection(mirror_home / "memory.db")
-    rows = conn.execute(
-        "SELECT * FROM _ext_bindings WHERE extension_id='hello'"
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM _ext_bindings WHERE extension_id='hello'").fetchall()
     conn.close()
     assert len(rows) == 1
 
@@ -182,9 +178,7 @@ def test_unbind_removes_binding(mirror_home, capsys):
     from memory.db.connection import get_connection
 
     conn = get_connection(mirror_home / "memory.db")
-    rows = conn.execute(
-        "SELECT * FROM _ext_bindings WHERE extension_id='hello'"
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM _ext_bindings WHERE extension_id='hello'").fetchall()
     conn.close()
     assert rows == []
 
@@ -201,9 +195,7 @@ def test_bind_journey(mirror_home):
     from memory.db.connection import get_connection
 
     conn = get_connection(mirror_home / "memory.db")
-    rows = conn.execute(
-        "SELECT * FROM _ext_bindings WHERE target_kind='journey'"
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM _ext_bindings WHERE target_kind='journey'").fetchall()
     conn.close()
     assert len(rows) == 1
     assert rows[0]["target_id"] == "eudaimon"
@@ -215,9 +207,7 @@ def test_bind_global(mirror_home):
     from memory.db.connection import get_connection
 
     conn = get_connection(mirror_home / "memory.db")
-    rows = conn.execute(
-        "SELECT * FROM _ext_bindings WHERE target_kind='global'"
-    ).fetchall()
+    rows = conn.execute("SELECT * FROM _ext_bindings WHERE target_kind='global'").fetchall()
     conn.close()
     assert len(rows) == 1
     assert rows[0]["target_id"] is None

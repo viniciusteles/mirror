@@ -104,15 +104,13 @@ class ExtensionAPI:
         connection: sqlite3.Connection,
         cli_registry: dict[str, CLIHandler] | None = None,
         context_registry: dict[str, ContextProvider] | None = None,
-        embed_fn: Callable[[str], "np.ndarray"] | None = None,
+        embed_fn: Callable[[str], np.ndarray] | None = None,
         llm_fn: Callable[..., str] | None = None,
     ) -> None:
         self.extension_id = extension_id
         self.table_prefix = table_prefix_for(extension_id)
         self._db = connection
-        self._cli_registry: dict[str, CLIHandler] = (
-            cli_registry if cli_registry is not None else {}
-        )
+        self._cli_registry: dict[str, CLIHandler] = cli_registry if cli_registry is not None else {}
         self._context_registry: dict[str, ContextProvider] = (
             context_registry if context_registry is not None else {}
         )
@@ -132,25 +130,19 @@ class ExtensionAPI:
         """
         return self._db
 
-    def execute(
-        self, sql: str, params: tuple | list = ()
-    ) -> sqlite3.Cursor:
+    def execute(self, sql: str, params: tuple | list = ()) -> sqlite3.Cursor:
         """Run a SQL statement. Writes must target ``ext_<id>_*`` tables."""
         if _is_write(sql):
             self._enforce_prefix(sql)
         return self._db.execute(sql, params)
 
-    def executemany(
-        self, sql: str, seq_of_params: Iterable[tuple | list]
-    ) -> sqlite3.Cursor:
+    def executemany(self, sql: str, seq_of_params: Iterable[tuple | list]) -> sqlite3.Cursor:
         """Bulk write. Same prefix rules as ``execute``."""
         if _is_write(sql):
             self._enforce_prefix(sql)
         return self._db.executemany(sql, seq_of_params)
 
-    def read(
-        self, sql: str, params: tuple | list = ()
-    ) -> sqlite3.Cursor:
+    def read(self, sql: str, params: tuple | list = ()) -> sqlite3.Cursor:
         """Read-only query. May touch any table; raises if SQL writes."""
         if _is_write(sql):
             raise ExtensionPermissionError(

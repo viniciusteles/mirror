@@ -56,8 +56,10 @@ def test_execute_allows_write_to_own_table(db_conn):
 def test_execute_rejects_write_to_core_table(db_conn):
     api = _api(db_conn)
     with pytest.raises(ExtensionPermissionError) as excinfo:
-        api.execute("INSERT INTO memories (id, memory_type, layer, title, content, created_at) "
-                    "VALUES ('x', 'insight', 'ego', 't', 'c', '2026-05-11')")
+        api.execute(
+            "INSERT INTO memories (id, memory_type, layer, title, content, created_at) "
+            "VALUES ('x', 'insight', 'ego', 't', 'c', '2026-05-11')"
+        )
     assert "memories" in str(excinfo.value)
 
 
@@ -212,5 +214,9 @@ def test_context_request_is_frozen_dataclass():
         binding_target="tesoureira",
     )
     assert ctx.persona_id == "tesoureira"
-    with pytest.raises(Exception):
+    # Frozen dataclass: any attribute assignment raises FrozenInstanceError
+    # (a subclass of AttributeError).
+    import dataclasses
+
+    with pytest.raises(dataclasses.FrozenInstanceError):
         ctx.persona_id = "other"  # type: ignore[misc]
