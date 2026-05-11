@@ -140,12 +140,16 @@ def load_extension_manifest(extension_dir: Path) -> dict:
         _validate_command_name(runtime_name, command_name)
 
         validated_runtime = dict(runtime_data)
+        # skill_file is required for prompt-skill (the skill IS the
+        # prompt) and optional but conventional for command-skill
+        # (the skill describes how the agent should use the CLI).
+        skill_file = runtime_data.get("skill_file")
         if kind == "prompt-skill":
-            skill_file = runtime_data.get("skill_file")
             if not isinstance(skill_file, str) or not skill_file:
                 raise ExtensionValidationError(
                     f"prompt-skill runtime '{runtime_name}' missing skill_file in {manifest_path}"
                 )
+        if isinstance(skill_file, str) and skill_file:
             skill_path = extension_dir / skill_file
             if not skill_path.exists():
                 raise ExtensionValidationError(
@@ -359,6 +363,18 @@ def install_extension(
     installed_manifest = load_extension_manifest(target_extension_dir)
     runtimes = [runtime] if runtime is not None else sorted(installed_manifest["runtimes"].keys())
 
+    # command-skill extensions: run SQL migrations against the shared
+    # memory.db and validate the entrypoint by loading the module and
+    # calling register(api). prompt-skill extensions skip both steps.
+    migrations_applied = 0
+    register_validated = False
+    if installed_manifest.get("kind") == "command-skill":
+        migrations_applied, register_validated = _post_install_command_skill(
+            target_extension_dir=target_extension_dir,
+            mirror_home=mirror_home,
+            extension_id=extension_id,
+        )
+
     synced: dict[str, list[dict[str, str]]] = {}
     for runtime_name in runtimes:
         runtime_target_root = default_runtime_skills_dir_for_home(mirror_home, runtime_name)
@@ -371,7 +387,53 @@ def install_extension(
         "source_dir": str(source_dir),
         "installed_dir": str(target_extension_dir),
         "synced": synced,
+        "migrations_applied": migrations_applied,
+        "register_validated": register_validated,
     }
+
+
+def _post_install_command_skill(
+    *,
+    target_extension_dir: Path,
+    mirror_home: Path,
+    extension_id: str,
+) -> tuple[int, bool]:
+    """Apply migrations and validate the entrypoint for a command-skill.
+
+    Returns ``(migrations_applied, register_validated)``. Raises
+    :class:`ExtensionValidationError` (re-raised from the underlying
+    extension errors) when the post-install step fails so the CLI
+    surfaces a single error type.
+    """
+    from memory.db.connection import get_connection
+    from memory.extensions.errors import ExtensionError
+    from memory.extensions.loader import load_extension
+    from memory.extensions.migrations import run_migrations
+
+    migrations_dir = target_extension_dir / "migrations"
+    db_path = mirror_home / "memory.db"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = get_connection(db_path)
+    try:
+        try:
+            applied = run_migrations(
+                conn,
+                extension_id=extension_id,
+                migrations_dir=migrations_dir,
+            )
+        except ExtensionError as exc:
+            raise ExtensionValidationError(
+                f"migrations failed for extension/{extension_id}: {exc}"
+            ) from exc
+        try:
+            load_extension(target_extension_dir, connection=conn, reload=True)
+        except ExtensionError as exc:
+            raise ExtensionValidationError(
+                f"register(api) failed for extension/{extension_id}: {exc}"
+            ) from exc
+    finally:
+        conn.close()
+    return applied, True
 
 
 def _load_claude_overlay_catalog(path: Path) -> list[dict[str, Any]]:
