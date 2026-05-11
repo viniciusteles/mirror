@@ -9,3 +9,4 @@ and future-facing design synthesis.
 
 - [Principles](principles.md) — product, code, testing, and process guidelines
 - [Envisioning](envisioning/index.md) — product architecture explorations and future-facing synthesis
+- [Extensions](extensions/index.md) — system for user-owned, stateful extensions that live outside the core

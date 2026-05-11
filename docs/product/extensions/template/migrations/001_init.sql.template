@@ -1,0 +1,18 @@
+-- Initial schema for the <id> extension.
+-- Replace <id> with the extension's id (use underscores in table names).
+--
+-- Rules (enforced by the migration runner):
+--   * Every CREATE/ALTER/DROP must target tables matching ext_<id>_*.
+--   * Index names follow ext_<id>_* by convention.
+--   * The whole file runs in a single transaction.
+--   * Never edit this file after it has been applied. Add a new migration
+--     file instead (002_*.sql, 003_*.sql, ...).
+
+CREATE TABLE ext_<id>_examples (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  name        TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+
+CREATE INDEX idx_ext_<id>_examples_created
+  ON ext_<id>_examples(created_at);

@@ -1,0 +1,41 @@
+# Replace <id> with the extension id (lowercase, dash-separated).
+# Replace <Human Name> with a short display name.
+# Replace <one-line summary> with a single-sentence description.
+
+id: <id>
+name: <Human Name>
+category: extension
+kind: command-skill
+summary: <one-line summary>
+table_prefix: ext_<id>_
+
+entrypoint:
+  module: extension          # filename without .py
+  # function: register       # default; omit unless renamed
+
+runtimes:
+  pi:
+    command_name: ext-<id>
+    skill_file: SKILL.md
+  claude:
+    command_name: ext:<id>
+    skill_file: SKILL.md
+  # Add gemini / codex entries if the extension supports them.
+
+# Declare capabilities that the extension exposes for Mirror Mode injection.
+# Remove the section entirely if the extension does not provide context.
+mirror_context_providers:
+  - id: <capability_id>
+    description: <one-line description of what this capability returns>
+    suggested_personas: []   # informational only; never auto-binds
+
+# Optional: declared CLI subcommands. Informational; runtime truth is what
+# extension.py registers via api.register_cli.
+cli:
+  subcommands:
+    - name: <subcommand>
+      summary: <one-line>
+
+# Optional: declare a minimum core API version.
+requires:
+  extension_api: ">=1.0,<2.0"

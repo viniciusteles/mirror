@@ -1,0 +1,25 @@
+---
+name: "ext-<id>"
+description: <one-line summary, same as skill.yaml:summary>
+user-invocable: true
+---
+
+# <Human Name>
+
+<One paragraph: what this extension does, when to use it.>
+
+## Commands
+
+- `python -m memory ext <id> <subcommand>` — <one-line description>.
+- `python -m memory ext <id> <subcommand>` — <one-line description>.
+
+## When the agent should use this
+
+<Plain-language guidance. Tell the agent which user queries map to which
+subcommand. Be concrete; give examples.>
+
+## What the agent should not do
+
+<Anti-patterns. Common mistakes to avoid. For example: do not parse the
+output of a subcommand to compute totals — call the dedicated subcommand
+instead.>
