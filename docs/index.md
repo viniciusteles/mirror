@@ -35,6 +35,7 @@ How we work.
 
 - [Development Guide](process/development-guide.md) — navigator/driver model, TDD, verification checklist
 - [Worklog](process/worklog.md) — operational progress (what was done, what is next)
+- [Troubleshooting](process/troubleshooting.md) — known bugs in the wild, their root causes, and the fixes that addressed them
 
 ---
 
