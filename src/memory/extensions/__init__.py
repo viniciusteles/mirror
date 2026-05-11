@@ -8,6 +8,7 @@ Public surface re-exported here. Internal modules are not part of the
 contract and may change between versions.
 """
 
+from memory.extensions.api import ContextRequest, ExtensionAPI
 from memory.extensions.errors import (
     ExtensionError,
     ExtensionLoadError,
@@ -20,6 +21,8 @@ VERSION = "1.0"
 
 __all__ = [
     "VERSION",
+    "ContextRequest",
+    "ExtensionAPI",
     "ExtensionError",
     "ExtensionLoadError",
     "ExtensionMigrationError",
