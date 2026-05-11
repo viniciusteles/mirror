@@ -20,6 +20,8 @@ Commands:
                        Usage: python -m memory detect-persona <query> [--mirror-home PATH]
   extensions           List, validate, sync, install, uninstall, expose, or clean external skills under the active Mirror home
                        Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude|clean-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]
+  ext                  Dispatch into a command-skill extension's CLI
+                       Usage: python -m memory ext [list | <id> [--help] | <id> <subcommand> [args...] | <id> bind|unbind|bindings|migrate ...]
   mirror               Mirror skill commands
                        Usage: python -m memory mirror <load|deactivate|log|journeys> [args]
   conversation-logger  Conversation logging commands
@@ -107,6 +109,11 @@ def main() -> None:
         from memory.cli.extensions import cmd_extensions
 
         cmd_extensions(sys.argv[2:])
+
+    elif command == "ext":
+        from memory.cli.ext import cmd_ext
+
+        sys.exit(cmd_ext(sys.argv[2:]))
 
     elif command == "mirror":
         from memory.skills.mirror import main as _mirror_main
