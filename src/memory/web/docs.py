@@ -108,7 +108,9 @@ class DocsBrowser:
             for part in parts:
                 cursor = cursor.setdefault(part, {})  # type: ignore[assignment]
 
-        return self._dict_to_nodes(tree, prefix=strip_prefix.rstrip("/"), entry_by_path=entry_by_path)
+        return self._dict_to_nodes(
+            tree, prefix=strip_prefix.rstrip("/"), entry_by_path=entry_by_path
+        )
 
     def _dict_to_nodes(
         self,
@@ -117,7 +119,9 @@ class DocsBrowser:
         entry_by_path: dict[str, DocEntry],
     ) -> list[DocNode]:
         nodes: list[DocNode] = []
-        for name, value in sorted(tree.items(), key=lambda item: self._tree_sort_key(prefix, item[0], item[1])):
+        for name, value in sorted(
+            tree.items(), key=lambda item: self._tree_sort_key(prefix, item[0], item[1])
+        ):
             if name == "index.md" and prefix != "docs":
                 continue
             path_parts = [part for part in [prefix, name] if part]
@@ -126,7 +130,9 @@ class DocsBrowser:
                 nodes.append(self._file_node(entry_by_path[current_path]))
             elif isinstance(value, dict):
                 index_path = f"{current_path}/index.md"
-                children = tuple(self._dict_to_nodes(value, prefix=current_path, entry_by_path=entry_by_path))
+                children = tuple(
+                    self._dict_to_nodes(value, prefix=current_path, entry_by_path=entry_by_path)
+                )
                 if index_path in entry_by_path and not children and "/specs/" in current_path:
                     nodes.append(self._file_node(entry_by_path[index_path], name=name))
                 else:
@@ -142,12 +148,16 @@ class DocsBrowser:
         return nodes
 
     def _file_node(self, entry: DocEntry, name: str | None = None) -> DocNode:
-        return DocNode(name=name or Path(entry.path).name, title=entry.title, type="file", path=entry.path)
+        return DocNode(
+            name=name or Path(entry.path).name, title=entry.title, type="file", path=entry.path
+        )
 
     def _directory_title(self, name: str) -> str:
         return name.replace("-", " ").replace("_", " ").title()
 
-    def _tree_sort_key(self, prefix: str, name: str, value: object) -> tuple[int, int, list[int | str]]:
+    def _tree_sort_key(
+        self, prefix: str, name: str, value: object
+    ) -> tuple[int, int, list[int | str]]:
         if prefix == "docs/product" and name == "principles.md":
             return (0, 0, self._natural_sort_key(name))
         return (1, 0 if isinstance(value, dict) else 1, self._natural_sort_key(name))
