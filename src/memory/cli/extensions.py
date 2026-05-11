@@ -469,6 +469,23 @@ def uninstall_extension(
     }
 
 
+def _resolve_mirror_home_or_exit(mirror_home: str | None) -> Path:
+    """Return the target mirror home.
+
+    If ``mirror_home`` is provided explicitly (CLI flag), use it as-is.
+    Otherwise fall back to ``MIRROR_HOME`` / ``MIRROR_USER`` in the
+    environment via ``resolve_mirror_home``. Exits with code 1 and a
+    clear message when neither path is available.
+    """
+    if mirror_home is not None:
+        return Path(mirror_home).expanduser()
+    try:
+        return resolve_mirror_home()
+    except ValueError as exc:
+        print(str(exc))
+        sys.exit(1)
+
+
 def cmd_extensions(args: list[str]) -> None:
     """python -m memory extensions [list|validate|sync|install|uninstall|expose-claude|clean-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]"""
     extensions_root, mirror_home, runtime, target_root, positional = _parse_args(args)
@@ -493,17 +510,18 @@ def cmd_extensions(args: list[str]) -> None:
                 "Usage: python -m memory extensions install <id> [--extensions-root PATH] [--mirror-home PATH] [--runtime NAME]"
             )
             sys.exit(1)
-        if mirror_home is None:
-            print("install requires --mirror-home PATH")
-            sys.exit(1)
         if extensions_root is None:
             print("install requires --extensions-root PATH")
             sys.exit(1)
+        try:
+            resolved_home = _resolve_mirror_home_or_exit(mirror_home)
+        except SystemExit:
+            raise
 
         result = install_extension(
             positional[1],
             source_root=extensions_root,
-            mirror_home=Path(mirror_home).expanduser(),
+            mirror_home=resolved_home,
             runtime=runtime,
         )
         print(f"Installed extension/{result['extension_id']}")
@@ -521,13 +539,11 @@ def cmd_extensions(args: list[str]) -> None:
                 "Usage: python -m memory extensions uninstall <id> [--mirror-home PATH] [--runtime NAME]"
             )
             sys.exit(1)
-        if mirror_home is None:
-            print("uninstall requires --mirror-home PATH")
-            sys.exit(1)
+        resolved_home = _resolve_mirror_home_or_exit(mirror_home)
         try:
             result = uninstall_extension(
                 positional[1],
-                mirror_home=Path(mirror_home).expanduser(),
+                mirror_home=resolved_home,
                 runtime=runtime,
             )
         except ExtensionValidationError as exc:
@@ -544,13 +560,11 @@ def cmd_extensions(args: list[str]) -> None:
         return
 
     if command == "expose-claude":
-        if mirror_home is None:
-            print("expose-claude requires --mirror-home PATH")
-            sys.exit(1)
+        resolved_home = _resolve_mirror_home_or_exit(mirror_home)
         project_root = target_root or Path.cwd()
         try:
             result = expose_claude_runtime_skills(
-                Path(mirror_home).expanduser(),
+                resolved_home,
                 project_root.expanduser(),
             )
         except ExtensionValidationError as exc:
