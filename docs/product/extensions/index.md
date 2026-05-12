@@ -90,13 +90,15 @@ imports `extension.py`, and calls its `register(api)` entrypoint.
 1. [Architecture](architecture.md) — how the pieces fit together.
 2. [Binding Model](binding-model.md) — how extensions connect to personas
    and journeys (this is the conceptually trickiest part).
-3. [API Reference](api-reference.md) — the full `ExtensionAPI` contract.
-4. [Migrations](migrations.md) — SQL migrations contract.
-5. [Authoring Guide](authoring-guide.md) — step-by-step authoring of a new
+3. [Journey-Bound Context](journey-bound-context.md) — how `journey -> project_path`
+   and `extension capability -> journey` combine during Mirror Mode.
+4. [API Reference](api-reference.md) — the full `ExtensionAPI` contract.
+5. [Migrations](migrations.md) — SQL migrations contract.
+6. [Authoring Guide](authoring-guide.md) — step-by-step authoring of a new
    extension, including the recommended documentation layout for the extension's
    own repository.
-6. [Testing Guide](testing-guide.md) — how to test extensions.
-7. [Roadmap](roadmap.md) — phased plan for the extension system.
+7. [Testing Guide](testing-guide.md) — how to test extensions.
+8. [Roadmap](roadmap.md) — phased plan for the extension system.
 
 User stories that drive the build of the system itself live under
 [User Stories](user-stories/). User stories for individual extensions live
