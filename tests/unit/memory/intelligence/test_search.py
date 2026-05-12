@@ -81,6 +81,21 @@ class TestRecencyScore:
         score = recency_score(recent)
         assert score > 0.9
 
+    def test_offset_aware_utc_date_is_supported(self):
+        from datetime import datetime, timedelta, timezone
+
+        recent = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+        score = recency_score(recent)
+        assert score > 0.9
+
+    def test_non_utc_offset_date_is_normalized(self):
+        from datetime import datetime, timedelta, timezone
+
+        offset = timezone(timedelta(hours=-3))
+        recent = (datetime.now(timezone.utc) - timedelta(days=1)).astimezone(offset).isoformat()
+        score = recency_score(recent)
+        assert score > 0.9
+
 
 class TestHybridScore:
     def test_all_max_inputs_return_one(self):
