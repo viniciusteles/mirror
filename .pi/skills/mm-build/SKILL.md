@@ -76,7 +76,7 @@ For Mirror Mind, the primary docs are:
 - `<project_path>/docs/getting-started.md`
 - `<project_path>/docs/project/briefing.md`
 - `<project_path>/docs/project/decisions.md`
-- `<project_path>/docs/project/runtime-interface.md`
+- `<project_path>/docs/product/specs/runtime-interface/index.md`
 - `<project_path>/docs/project/roadmap/index.md`
 - `<project_path>/docs/process/development-guide.md`
 - `<project_path>/docs/process/worklog.md`
@@ -104,7 +104,7 @@ Follow the project's existing documentation structure. Do not create a generic d
 - `REFERENCE.md`: CLI behavior, configuration, runtime contracts, or operational details change
 - `docs/project/briefing.md`: stable architectural premises change
 - `docs/project/decisions.md`: an incremental design decision is made
-- `docs/project/runtime-interface.md`: runtime lifecycle, hooks, skills, or extension contracts change
+- `docs/product/specs/runtime-interface/index.md`: runtime lifecycle, hooks, skills, or extension contracts change
 - `docs/project/roadmap/`: CV/Epic/Story status, plans, or verification guides change
 - `docs/process/worklog.md`: a meaningful milestone is completed
 - `docs/product/principles.md`: product, code, testing, or process principles change
