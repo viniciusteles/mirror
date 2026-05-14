@@ -241,6 +241,7 @@ For a typical extension:
 - runtime materialization lives under `~/.mirror/<user>/runtime/skills/<runtime>/`
 - Pi consumes the Pi runtime catalog automatically
 - Claude requires explicit project-level surfacing via `expose-claude`
+  with an explicit `--target-root`; there is no current-directory default
 
 Current reference path:
 
@@ -320,6 +321,8 @@ Claude runtime surfacing:
   the overlay catalog before writing the current surface
 - `uv run python -m memory extensions clean-claude --target-root /path/to/project`
   removes previously exposed Claude external-skill files from the project
+- `--target-root` is required for both `expose-claude` and `clean-claude`
+  so extension overlays cannot be accidentally written into the current repo
 - this is explicit and project-scoped
 
 Concrete `review-copy` flow:

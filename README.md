@@ -389,6 +389,7 @@ uv run python -m memory extensions install \
 
 # Pi picks it up automatically on session start.
 # Claude Code: expose it to a project explicitly.
+# --target-root is required; there is no current-directory default.
 uv run python -m memory extensions expose-claude \
   --mirror-home ~/.mirror/<user> \
   --target-root /path/to/project

@@ -20,6 +20,7 @@ Commands:
                        Usage: python -m memory detect-persona <query> [--mirror-home PATH]
   extensions           List, validate, sync, install, uninstall, expose, or clean external skills under the active Mirror home
                        Usage: python -m memory extensions [list|validate|sync|install|uninstall|expose-claude|clean-claude] [--mirror-home PATH] [--extensions-root PATH] [--runtime NAME] [--target-root PATH]
+                       expose-claude and clean-claude require --target-root PATH
   ext                  Dispatch into a command-skill extension's CLI
                        Usage: python -m memory ext [list | <id> [--help] | <id> <subcommand> [args...] | <id> bind|unbind|bindings|migrate ...]
   mirror               Mirror skill commands

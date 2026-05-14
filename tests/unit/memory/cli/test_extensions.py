@@ -570,9 +570,22 @@ def test_cleanup_claude_runtime_skills_removes_overlay_artifacts(tmp_path):
     assert not overlay_catalog.exists()
 
 
-def test_cmd_extensions_expose_claude_requires_mirror_home():
+def test_cmd_extensions_expose_claude_requires_mirror_home(tmp_path, monkeypatch):
+    monkeypatch.delenv("MIRROR_HOME", raising=False)
+    monkeypatch.delenv("MIRROR_USER", raising=False)
+
     with pytest.raises(SystemExit):
-        cmd_extensions(["expose-claude"])
+        cmd_extensions(["expose-claude", "--target-root", str(tmp_path / "project")])
+
+
+def test_cmd_extensions_expose_claude_requires_explicit_target_root(tmp_path, capsys):
+    mirror_home = tmp_path / ".mirror" / "pati"
+
+    with pytest.raises(SystemExit):
+        cmd_extensions(["expose-claude", "--mirror-home", str(mirror_home)])
+
+    output = capsys.readouterr().out
+    assert "expose-claude requires --target-root PATH" in output
 
 
 def test_cmd_extensions_expose_claude_writes_project_skill_surface(tmp_path, capsys):
@@ -591,6 +604,14 @@ def test_cmd_extensions_expose_claude_writes_project_skill_surface(tmp_path, cap
     output = capsys.readouterr().out
     assert "Exposed Claude external skills" in output
     assert (project_root / ".claude" / "skills" / "ext:review-copy" / "SKILL.md").exists()
+
+
+def test_cmd_extensions_clean_claude_requires_explicit_target_root(capsys):
+    with pytest.raises(SystemExit):
+        cmd_extensions(["clean-claude"])
+
+    output = capsys.readouterr().out
+    assert "clean-claude requires --target-root PATH" in output
 
 
 def test_cmd_extensions_clean_claude_removes_project_skill_surface(tmp_path, capsys):

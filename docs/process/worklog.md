@@ -9,6 +9,15 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-05-14 — Claude extension projection made explicit
+
+Removed an accidentally generated Claude external-skill overlay from the mirror
+repository and hardened the extension CLI so `expose-claude` and `clean-claude`
+now require `--target-root`. Claude projection remains an explicit
+project-local operation; Pi continues to consume installed external skills from
+`~/.mirror/<user>/runtime/skills/pi/`. Added gitignore guards for generated
+Claude extension overlays.
+
 ### 2026-05-09 — Initial Mirror Web Console docs browser
 
 Added the first local web console slice: a read-only documentation browser. The

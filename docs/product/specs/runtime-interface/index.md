@@ -194,6 +194,9 @@ uv run python -m memory extensions clean-claude \
   --target-root /path/to/project
 ```
 
+`--target-root` is mandatory for both commands. Claude projection is an explicit
+project operation, never an implicit write to the current working directory.
+
 This creates project-visible skill directories such as:
 
 ```text

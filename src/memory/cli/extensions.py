@@ -697,12 +697,14 @@ def cmd_extensions(args: list[str]) -> None:
         return
 
     if command == "expose-claude":
+        if target_root is None:
+            print("expose-claude requires --target-root PATH")
+            sys.exit(1)
         resolved_home = _resolve_mirror_home_or_exit(mirror_home)
-        project_root = target_root or Path.cwd()
         try:
             result = expose_claude_runtime_skills(
                 resolved_home,
-                project_root.expanduser(),
+                target_root.expanduser(),
             )
         except ExtensionValidationError as exc:
             print(str(exc))
@@ -716,8 +718,10 @@ def cmd_extensions(args: list[str]) -> None:
         return
 
     if command == "clean-claude":
-        project_root = target_root or Path.cwd()
-        result = cleanup_claude_runtime_skills(project_root.expanduser())
+        if target_root is None:
+            print("clean-claude requires --target-root PATH")
+            sys.exit(1)
+        result = cleanup_claude_runtime_skills(target_root.expanduser())
         print(f"Removed Claude external skills from {result['claude_skills_root']}")
         print(f"  overlay catalog: {result['overlay_catalog_path']}")
         for removed in result["removed"]:

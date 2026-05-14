@@ -299,7 +299,9 @@ After install, Pi should discover `ext-review-copy` automatically from the runti
 
 ### Use it on Claude Code
 
-Claude needs an explicit project-local skill projection step:
+Claude needs an explicit project-local skill projection step. The
+`--target-root` argument is required so generated extension overlays do not
+accidentally land in whatever repository happens to be the current directory:
 
 ```bash
 uv run python -m memory extensions expose-claude \

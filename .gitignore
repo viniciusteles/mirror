@@ -5,6 +5,8 @@ __pycache__/
 claude.sh
 .claude/settings.local.json
 .claude/worktrees/
+.claude/skills/ext:*/
+.claude/skills/extensions.external.json
 conversas/
 .venv/
 *.egg-info/
