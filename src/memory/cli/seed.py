@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 from memory.client import MemoryClient
-from memory.config import resolve_mirror_home
+from memory.config import default_db_path_for_home, resolve_mirror_home
 
 # Mapping: (layer, key) -> YAML file relative to identity root + content field.
 IDENTITY_MAP = {
@@ -138,10 +138,18 @@ def seed(
     truth after the first seed. Pass force=True to overwrite existing entries
     from the YAML files (e.g. to reset identity from scratch).
     """
+    explicit_mirror_home = mirror_home is not None
     identity_root = resolve_identity_root(identity_root, mirror_home=mirror_home)
     mirror_home = (
         Path(mirror_home).expanduser() if mirror_home is not None else identity_root.parent
     )
+
+    # When mirror_home is explicitly provided (CLI --mirror-home or function arg),
+    # derive db_path from it so the seed writes to the correct user home rather
+    # than the env-default DB. This makes --mirror-home behave consistently for
+    # both reads (identity files) and writes (database).
+    if _db_path is None and explicit_mirror_home:
+        _db_path = default_db_path_for_home(mirror_home)
 
     mem = MemoryClient(env=env) if _db_path is None else MemoryClient(db_path=_db_path)
     results = {"created": 0, "updated": 0, "errors": []}
