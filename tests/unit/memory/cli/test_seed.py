@@ -238,7 +238,9 @@ def test_seed_reads_from_explicit_mirror_home_identity_root(mocker, tmp_path, ca
 
     result = seed(env="test", mirror_home=mirror_home)
 
-    memory_client.assert_called_once_with(env="test")
+    # When --mirror-home is explicit, the seed must write to that home's DB,
+    # not to the env-default DB.
+    memory_client.assert_called_once_with(db_path=mirror_home / "memory.db")
     client.set_identity.assert_any_call("journey", "mirror-poc", mocker.ANY, "1.0.0")
     assert result["errors"] == []
     captured = capsys.readouterr()
@@ -261,12 +263,15 @@ def test_seed_explicit_mirror_home_overrides_environment_selection(mocker, tmp_p
 
     client = mocker.Mock()
     client.store.get_identity.return_value = None
-    mocker.patch("memory.cli.seed.MemoryClient", return_value=client)
+    memory_client = mocker.patch("memory.cli.seed.MemoryClient", return_value=client)
     mocker.patch.dict("os.environ", {"MIRROR_HOME": str(env_home)}, clear=False)
 
     result = seed(env="test", mirror_home=explicit_home)
 
     assert result["errors"] == []
+    # The explicit mirror_home must win over the MIRROR_HOME env var both for
+    # reading identity files and for resolving the database path.
+    memory_client.assert_called_once_with(db_path=explicit_home / "memory.db")
     client.set_identity.assert_any_call("journey", "mirror-poc", mocker.ANY, "1.0.0")
 
 
@@ -280,3 +285,40 @@ def test_seed_does_not_fall_back_to_repo_identity(mocker, tmp_path):
 
     assert any(error.startswith("self/soul:") for error in result["errors"])
     assert client.set_identity.call_args_list == []
+
+
+def test_seed_writes_to_explicit_mirror_home_database(tmp_path):
+    """Regression test: --mirror-home must drive both reads (identity files)
+    and writes (database path). Without this guarantee, seeding a demo or
+    secondary user home would silently pollute the env-default user's DB.
+    """
+    from memory.client import MemoryClient
+
+    explicit_home = tmp_path / ".mirror-demo" / "persona-x"
+    identity_root = explicit_home / "identity"
+    _write_core_identity(identity_root)
+    _write_journey(
+        identity_root / "journeys" / "mirror-poc.yaml",
+        key="journey_id",
+        value="mirror-poc",
+    )
+
+    other_home = tmp_path / ".mirror" / "other-user"
+    other_home.mkdir(parents=True)
+    other_db = other_home / "memory.db"
+
+    result = seed(env="test", mirror_home=explicit_home)
+
+    assert result["errors"] == []
+    expected_db = explicit_home / "memory.db"
+    assert expected_db.exists(), "seed must create DB inside the explicit mirror_home"
+    assert not other_db.exists(), (
+        "seed must not write to any other home when --mirror-home is explicit"
+    )
+
+    client = MemoryClient(db_path=expected_db)
+    try:
+        assert client.store.get_identity("journey", "mirror-poc") is not None
+        assert client.store.get_identity("self", "soul") is not None
+    finally:
+        client.close()
