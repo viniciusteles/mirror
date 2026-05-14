@@ -41,6 +41,7 @@ recoverable.
 | Code | Story | Status |
 |------|-------|--------|
 | [CV9.E2.S1](cv9-e2-s1-embedding-resilience/index.md) | Embedding Resilience | Planned |
+| [CV9.E2.S2](cv9-e2-s2-external-extension-runtime-surface/index.md) | External Extension Runtime Surface Parity | Planned |
 
 ---
 
@@ -54,6 +55,8 @@ CV9.E2 is done when:
   generation fails.
 - Runtime-visible commands surface actionable error messages for common external
   failure modes.
+- External extensions have a first-class skill discovery path across Pi, Claude
+  Code, Gemini CLI, and Codex where the runtime supports project-local skills.
 - The stabilization behavior is covered by focused unit tests and at least one
   CLI-level smoke/regression path where appropriate.
 

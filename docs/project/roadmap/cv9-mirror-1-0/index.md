@@ -37,6 +37,7 @@ CV9 is done:
 - `RuntimeSessionService` no longer owns raw transaction SQL; transaction boundaries are architecturally sound.
 - All direct `store.conn` calls are removed from the `src/memory/cli` package.
 - All runtimes (Pi, Gemini CLI, Codex, Claude Code) handle missing environment variables or API failures gracefully.
+- External extensions have consistent first-class skill discovery across supported runtimes, including the shared Gemini CLI/Codex `.agents/skills/` surface.
 - A robust installation script or `uv`-based distribution path exists.
 - Documentation (README, Getting Started, REFERENCE) is audited and confirmed accurate for 1.0 release.
 - CI remains green with high coverage.
