@@ -22,9 +22,11 @@ IDENTITY_MAP = {
     ("ego", "identity"): ("ego/identity.yaml", "identity"),
     ("ego", "behavior"): ("ego/behavior.yaml", "behavior"),
     ("ego", "constraints"): ("ego/constraints.yaml", "constraints"),
+    ("ego", "expression"): ("ego/expression.yaml", "expression"),
     ("user", "identity"): ("user/identity.yaml", "user"),
     ("organization", "identity"): ("organization/identity.yaml", "identity"),
     ("organization", "principles"): ("organization/principles.yaml", "principles"),
+    ("shadow", "profile"): ("shadow/profile.yaml", "profile"),
 }
 
 _REQUIRED_IDENTITY_KEYS = {
