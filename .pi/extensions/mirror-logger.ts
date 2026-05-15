@@ -199,12 +199,6 @@ export default function (pi: ExtensionAPI) {
 		log("INFO", `session-start result: ${summary || "(empty)"}`);
 		log("INFO", externalSkillSummary);
 		if (ctx.hasUI) {
-			if (summary) {
-				ctx.ui.notify(summary, "info");
-			}
-			if (externalSkills.length > 0) {
-				ctx.ui.notify(`Loaded ${externalSkills.length} external Pi skill(s)`, "info");
-			}
 			const status = summary || "Memory ready";
 			ctx.ui.setStatus(
 				"mirror",
