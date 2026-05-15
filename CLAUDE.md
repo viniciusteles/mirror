@@ -26,7 +26,7 @@ Mirror Mind works through several interfaces over one shared Python core
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported.**
   L4 parity via shell hooks. Skills live under `.pi/skills/` and are surfaced
   through `.agents/skills/`. Invoked with the `/mm-` prefix.
-- **[Codex](https://github.com/google-gemini/codex) — supported alternative.**
+- **[Codex](https://github.com/openai/codex) — supported alternative.**
   L3 parity via wrapper script and skill symlinks. Skills live under
   `.pi/skills/` and are surfaced through `.agents/skills/`. Invoked with
   `$mm-*` syntax, for example `$mm-build`.
