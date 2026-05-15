@@ -103,6 +103,7 @@ There is also content in REFERENCE that is redundant or misplaced:
 ## See also
 
 - [CV9.E4 Documentation & Polish](../index.md)
+- [Plan](plan.md)
 - [S2 — Getting Started Consolidation](../cv9-e4-s2-getting-started-consolidation/index.md)
 - [S4 — Principles Reorganization](../cv9-e4-s4-principles-reorganization/index.md)
 - [S5 — CLAUDE.md Reduction](../cv9-e4-s5-claude-md-reduction/index.md)
