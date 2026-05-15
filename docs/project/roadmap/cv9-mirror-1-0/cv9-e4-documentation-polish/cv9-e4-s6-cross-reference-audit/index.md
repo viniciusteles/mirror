@@ -91,6 +91,7 @@ spec — so a reader knows how to weight it.
 ## See also
 
 - [CV9.E4 Documentation & Polish](../index.md)
+- [Plan](plan.md)
 - [S1 — README Reduction](../cv9-e4-s1-readme-reduction/index.md)
 - [S2 — Getting Started Consolidation](../cv9-e4-s2-getting-started-consolidation/index.md)
 - [S3 — REFERENCE Split](../cv9-e4-s3-reference-split/index.md)

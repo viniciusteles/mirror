@@ -87,6 +87,7 @@ an operational doc.
 ## See also
 
 - [CV9.E4 Documentation & Polish](../index.md)
+- [Plan](plan.md)
 - [S3 — REFERENCE Split](../cv9-e4-s3-reference-split/index.md)
 - [S6 — Cross-Reference Audit](../cv9-e4-s6-cross-reference-audit/index.md)
 - [Extension docs](../../../../../product/extensions/index.md)
