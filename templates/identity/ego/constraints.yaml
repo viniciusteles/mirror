@@ -1,7 +1,13 @@
 # constraints.yaml
-# Hard constraints: non-negotiable rules enforced before every Mirror Mode response.
-# These are rendered first and with prominent formatting so the model cannot overlook them.
+# Hard constraints enforced before every Mirror Mode response.
+# Add non-negotiable rules here — things the mirror must always or never do.
 
 version: "1.0.0"
 
 constraints: |
+  ## Language
+
+  Always respond in English, regardless of the language the user writes in.
+  The only exceptions are tasks that inherently require another language — editing
+  a document in a different language, content for a non-English audience, or an
+  explicit request otherwise.

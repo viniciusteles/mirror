@@ -46,15 +46,25 @@ templates/identity/
   ego/
     identity.yaml
     behavior.yaml
+    constraints.yaml
   user/
     identity.yaml
   organization/
     identity.yaml
     principles.yaml
   personas/
-    writer.yaml
-    thinker.yaml
+    coach.yaml
+    designer.yaml
+    doctor.yaml
     engineer.yaml
+    financial.yaml
+    prompt-engineer.yaml
+    researcher.yaml
+    strategist.yaml
+    teacher.yaml
+    therapist.yaml
+    thinker.yaml
+    writer.yaml
   journeys/
     personal-growth.yaml
 ```
@@ -68,21 +78,39 @@ Required core identity for seeding:
 
 Optional:
 - `organization/`
-- `personas/` — starter lenses for writing, thinking, and engineering
+- `personas/` — 12 starter lenses covering the most common domains
 - `journeys/` — starter long-running arc for personal growth
 
 ## Starter defaults
 
-The repository ships meaningful starter defaults rather than placeholder files:
+All templates ship with real, opinionated content — not placeholder fill-in forms.
+`memory init <name>` followed by `memory seed` produces a working mirror with
+no manual editing required.
 
-- `personas/writer.yaml` — writing, editing, publishing, and voice refinement
-- `personas/thinker.yaml` — ideas, decisions, framing, hypotheses, and conceptual clarity
-- `personas/engineer.yaml` — software, systems, debugging, tests, and technical design
-- `journeys/personal-growth.yaml` — a broadly useful journey for reflection, self-knowledge, and intentional change
+The `{{user_name}}` token in `self/soul.yaml` and `user/identity.yaml` is
+replaced automatically with the user's name during `memory init`.
 
-These files are safe to seed as-is for a first run. A user can then edit, delete,
-or replace them in their own `~/.mirror/<user>/identity/` home before or after
-seeding.
+### Personas (12)
+
+| File | Domain |
+|------|--------|
+| `writer.yaml` | Writing, editing, voice, publishing |
+| `thinker.yaml` | Ideas, decisions, conceptual clarity, framing |
+| `engineer.yaml` | Software, systems, debugging, architecture |
+| `therapist.yaml` | Emotional processing, patterns, inner work |
+| `strategist.yaml` | Business positioning, decisions, trade-offs |
+| `coach.yaml` | Accountability, goals, habits, momentum |
+| `researcher.yaml` | Inquiry, synthesis, evidence, analysis |
+| `teacher.yaml` | Pedagogy, explanation, curriculum, mentoring |
+| `doctor.yaml` | Health, symptoms, medical literacy |
+| `financial.yaml` | Money, budgeting, investment, financial decisions |
+| `designer.yaml` | Product design, UX, visual design, creative direction |
+| `prompt-engineer.yaml` | Prompt design, AI system architecture, Mirror self-improvement |
+
+### Journey
+
+- `journeys/personal-growth.yaml` — a broadly useful journey for reflection,
+  self-knowledge, and intentional change
 
 ## Notes
 

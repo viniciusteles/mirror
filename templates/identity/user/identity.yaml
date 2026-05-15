@@ -1,36 +1,30 @@
 # identity.yaml
-# User profile template. Fill this with the real user's context after copying it into a user home.
+# User profile. The mirror reads this to understand who it is speaking with.
+#
+# On first install: your name has been filled in automatically. The rest of
+# this file starts minimal — that is intentional. The mirror works from session
+# one with what is here. Deepen this profile over time at your own pace with:
+#
+#   uv run python -m memory identity edit user identity
 
 version: "1.0.0"
 
 user: |
-  # [Your Name]
+  # About The User
 
-  ## Basic Profile
+  You are speaking with {{user_name}}. Address them by their first name.
 
-  - Name:
-  - Role:
-  - Location:
-  - Life stage:
+  ## What The Mirror Knows So Far
 
-  ## Important Context
+  This is a fresh install. {{user_name}}'s detailed profile — role, background,
+  operating style, important people, and life context — will emerge through
+  conversation and memory extraction over time.
 
-  Describe the user's current reality in enough detail for the mirror to be useful.
+  ## How To Operate Without A Full Profile
 
-  Examples:
-  - work and business context
-  - family and relationship context
-  - current priorities and pressures
-  - important long-term goals
-
-  ## Professional Trajectory
-
-  Describe the arc, not just the résumé.
-
-  ## Personal Operating Style
-
-  Describe how this person tends to think, decide, create, avoid, or overload.
-
-  ## Important People
-
-  List key people and enough context for the mirror to recognize them when they appear in conversation.
+  - Ask for context when it genuinely matters for the response, rather than assuming.
+  - When the user references people, projects, or decisions that seem important, treat
+    them as potentially recurring context worth remembering.
+  - Let each conversation teach you something. The mirror sharpens through use.
+  - When something feels off or too generic, the user can deepen this profile directly:
+    uv run python -m memory identity edit user identity

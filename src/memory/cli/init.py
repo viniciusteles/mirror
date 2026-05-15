@@ -19,6 +19,14 @@ def default_user_home(user: str, home: Path | None = None) -> Path:
     return selected_home / ".mirror" / user
 
 
+def _substitute_user_name(identity_root: Path, user: str) -> None:
+    """Replace {{user_name}} tokens in all YAML files with the actual user name."""
+    for yaml_file in identity_root.rglob("*.yaml"):
+        content = yaml_file.read_text(encoding="utf-8")
+        if "{{user_name}}" in content:
+            yaml_file.write_text(content.replace("{{user_name}}", user), encoding="utf-8")
+
+
 def init_user_home(
     user: str,
     *,
@@ -37,6 +45,7 @@ def init_user_home(
 
     destination_home.mkdir(parents=True, exist_ok=True)
     shutil.copytree(templates_root, identity_root, dirs_exist_ok=True)
+    _substitute_user_name(identity_root, user)
     return identity_root
 
 
@@ -47,11 +56,12 @@ def main(argv: list[str] | None = None) -> None:
 
     identity_root = init_user_home(args.user)
     print(f"Created user home: {identity_root.parent}")
-    print(f"Copied templates to: {identity_root}")
-    print("Next steps:")
-    print(f"  1. Set MIRROR_HOME={identity_root.parent}")
-    print(f"  2. Edit files under {identity_root}")
-    print("  3. Run: uv run python -m memory seed")
+    print(f"Identity ready at: {identity_root}")
+    print("\nNext steps:")
+    print(f"  1. Add to your .env: MIRROR_HOME={identity_root.parent}")
+    print("  2. Run: uv run python -m memory seed")
+    print("\nYour identity is ready to use. Deepen it over time with:")
+    print("  uv run python -m memory identity edit user identity")
 
 
 if __name__ == "__main__":

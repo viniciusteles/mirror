@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from memory.cli.init import find_templates_identity_root, init_user_home
+from memory.cli.init import _substitute_user_name, find_templates_identity_root, init_user_home
 
 
 def _write_template(path: Path, content: str = "template") -> None:
@@ -77,6 +77,50 @@ def test_init_user_home_fails_when_templates_are_missing(tmp_path):
         assert "templates" in str(exc)
 
     assert not destination_root.exists()
+
+
+def test_substitute_user_name_replaces_token_in_yaml_files(tmp_path):
+    identity_root = tmp_path / "identity"
+    soul = identity_root / "self" / "soul.yaml"
+    soul.parent.mkdir(parents=True)
+    soul.write_text("soul: |\n  I am {{user_name}}'s mirror.\n", encoding="utf-8")
+
+    user_yaml = identity_root / "user" / "identity.yaml"
+    user_yaml.parent.mkdir(parents=True)
+    user_yaml.write_text("user: |\n  You are speaking with {{user_name}}.\n", encoding="utf-8")
+
+    _substitute_user_name(identity_root, "alice")
+
+    assert "{{user_name}}" not in soul.read_text(encoding="utf-8")
+    assert "alice" in soul.read_text(encoding="utf-8")
+    assert "{{user_name}}" not in user_yaml.read_text(encoding="utf-8")
+    assert "alice" in user_yaml.read_text(encoding="utf-8")
+
+
+def test_substitute_user_name_leaves_files_without_token_unchanged(tmp_path):
+    identity_root = tmp_path / "identity"
+    config = identity_root / "self" / "config.yaml"
+    config.parent.mkdir(parents=True)
+    original = "name: Mirror AI\nversion: '1.0.0'\n"
+    config.write_text(original, encoding="utf-8")
+
+    _substitute_user_name(identity_root, "alice")
+
+    assert config.read_text(encoding="utf-8") == original
+
+
+def test_init_user_home_substitutes_user_name_in_templates(tmp_path):
+    templates_root = tmp_path / "templates" / "identity"
+    soul = templates_root / "self" / "soul.yaml"
+    soul.parent.mkdir(parents=True)
+    soul.write_text("soul: |\n  I am {{user_name}}'s mirror.\n", encoding="utf-8")
+
+    destination_root = tmp_path / ".mirror" / "alice"
+    init_user_home("alice", templates_identity_root=templates_root, user_home=destination_root)
+
+    seeded_soul = (destination_root / "identity" / "self" / "soul.yaml").read_text(encoding="utf-8")
+    assert "{{user_name}}" not in seeded_soul
+    assert "alice" in seeded_soul
 
 
 def test_find_templates_identity_root_finds_repo_templates(tmp_path):

@@ -90,10 +90,16 @@ Run:
 uv run python -m memory init your-name
 ```
 
-This copies the repository templates into:
+This copies the identity templates into `~/.mirror/your-name/identity/` and
+substitutes your name into the template files automatically. **No manual editing
+required** — the templates ship with real, opinionated content that works from
+session one.
 
-```text
-~/.mirror/your-name/identity/
+Your identity starts generic and sharpens through use. When something feels off
+or too impersonal, refine it at your own pace:
+
+```bash
+uv run python -m memory identity edit user identity
 ```
 
 ### Legacy install note
@@ -120,32 +126,41 @@ This workflow is safety-first:
 - no merge into an existing target `memory.db`
 - only clean Portuguese legacy DBs are supported
 
-## 4. Fill in your identity
+---
 
-Mirror Mind seeds from the active user home. Edit the YAML files under:
+## 4. What ships in your identity
 
-```text
-~/.mirror/your-name/identity/
-```
+The templates are editorial products, not fill-in forms. After `memory init`,
+your identity home contains:
 
-The minimum required structure is:
+**Core identity** (used in every session):
+- `self/soul.yaml` — worldview, operating principles, core role
+- `ego/identity.yaml` — behavioral postures, how the mirror shows up
+- `ego/behavior.yaml` — tone, intellectual method, language rules
+- `user/identity.yaml` — your name, with room to deepen over time
 
-| File | What it holds |
-|------|---------------|
-| `~/.mirror/your-name/identity/self/soul.yaml` | Who you are at the deepest level — purpose, values, worldview |
-| `~/.mirror/your-name/identity/ego/identity.yaml` | Operational identity — what you do, how you present |
-| `~/.mirror/your-name/identity/ego/behavior.yaml` | Tone and style — how the mirror speaks |
-| `~/.mirror/your-name/identity/user/identity.yaml` | Your profile: name, role, background |
-| `~/.mirror/your-name/identity/organization/identity.yaml` | Your company or project (optional) |
+**12 starter personas** — specialized lenses the mirror activates by context:
 
-Optional sections live under the same `identity/` root:
-- `organization/`
-- `personas/`
-- `journeys/`
+| Persona | Domain |
+|---------|--------|
+| `writer` | Writing, editing, voice, publishing |
+| `thinker` | Ideas, decisions, conceptual clarity |
+| `engineer` | Software, systems, debugging, architecture |
+| `therapist` | Emotional processing, patterns, inner work |
+| `strategist` | Business positioning, decisions, trade-offs |
+| `coach` | Accountability, goals, habits, momentum |
+| `researcher` | Inquiry, synthesis, evidence, analysis |
+| `teacher` | Pedagogy, explanation, curriculum, mentoring |
+| `doctor` | Health, symptoms, medical literacy |
+| `financial` | Money, budgeting, investment, financial decisions |
+| `designer` | Product design, UX, visual design, creative direction |
+| `prompt-engineer` | Prompt design, AI system architecture, Mirror self-improvement |
 
-The starter templates include three useful default personas — `writer`, `thinker`, and `engineer` — plus one broadly useful starter journey: `personal-growth`. You can keep them, edit them, delete them, or add your own before seeding. They are intentionally generic so the first seed produces meaningful runtime data instead of placeholder records.
+**1 starter journey** — `personal-growth`, a broadly useful arc for
+reflection, self-knowledge, and intentional change.
 
-Repository templates now live under `templates/identity/`. Live identity belongs under `~/.mirror/<user>/identity/`; normal seed input does not come from the repository.
+All of this is ready to seed and use immediately. Edit, add, or remove anything
+in your `~/.mirror/your-name/identity/` home as your needs evolve.
 
 ---
 
@@ -377,12 +392,18 @@ Expected: the default personas (`writer`, `thinker`, `engineer`) or your customi
 ### Onboarding success checklist
 
 You should now have all of the following:
-- `~/.mirror/<user>/identity/` exists and contains your edited identity YAML files
+- `~/.mirror/<user>/identity/` exists with your name already substituted in the templates
 - `uv run python -m memory seed` completes without errors
-- your personas appear in `uv run python -m memory list personas --verbose`
-- your journeys appear in `uv run python -m memory list journeys`
+- 12 personas appear in `uv run python -m memory list personas --verbose`
+- `personal-growth` appears in `uv run python -m memory list journeys`
 - persona routing responds sensibly in `uv run python -m memory detect-persona "..."`
-- Claude Code or Pi can now use the seeded database-backed runtime state
+- your runtime (Pi, Gemini CLI, Codex, or Claude Code) can use the seeded database
+
+**Your first session will use a generic identity — that is expected and correct.**
+The mirror sharpens through use. Deepen your profile over time with:
+```bash
+uv run python -m memory identity edit user identity
+```
 
 ---
 

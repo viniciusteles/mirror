@@ -1,5 +1,6 @@
 # identity.yaml
-# Organization context template.
+# Organization context. Fill this in if the mirror should understand your company,
+# studio, project, or professional vehicle. Leave it blank if not applicable.
 
 version: "1.0.0"
 
@@ -16,8 +17,8 @@ identity: |
 
   ## Why It Exists
 
-  Describe the deeper reason the organization matters.
+  Describe the deeper reason the organization matters — beyond what it does.
 
   ## Relationship To The User
 
-  Explain how the user is connected to it: founder, operator, teacher, advisor, etc.
+  Explain how the user is connected: founder, operator, teacher, advisor, employee.

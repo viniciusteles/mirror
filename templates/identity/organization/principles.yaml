@@ -1,5 +1,6 @@
 # principles.yaml
-# Organizational principles template.
+# Organizational principles. Fill this in if the mirror should apply specific
+# values or standards when working on anything related to this organization.
 
 version: "1.0.0"
 
