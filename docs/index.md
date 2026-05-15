@@ -23,7 +23,7 @@ Runtime expansion result: **Gemini CLI first at L4 full parity; Codex second at 
 What Mirror Mind is and how it behaves.
 
 - [Product index](product/index.md) — map of product documentation
-- [Principles](product/principles.md) — product, code, testing, and process guidelines
+- [Principles](product/principles.md) — product behavior principles
 - [Envisioning](product/envisioning/index.md) — UoC model, lenses, Maestro framing, and coherence as product architecture
 - [Specs](product/specs/index.md) — concrete product and runtime behavior specifications
 
@@ -34,6 +34,7 @@ What Mirror Mind is and how it behaves.
 How we work.
 
 - [Development Guide](process/development-guide.md) — navigator/driver model, TDD, verification checklist
+- [Engineering Principles](process/engineering-principles.md) — code, testing, and process guidelines
 - [Worklog](process/worklog.md) — operational progress (what was done, what is next)
 - [Troubleshooting](process/troubleshooting.md) — known bugs in the wild, their root causes, and the fixes that addressed them
 
@@ -42,5 +43,7 @@ How we work.
 ## Reference
 
 - [Getting Started](getting-started.md) — prerequisites, installation, first session
-- [REFERENCE.md](../REFERENCE.md) — detailed operational reference
+- [REFERENCE.md](../REFERENCE.md) — command reference and configuration
+- [Architecture](architecture.md) — system design, layers, schema, and runtime model
+- [Python API](api.md) — programmatic interface for developers
 - [CLAUDE.md](../CLAUDE.md) — routing, modes, and available skills

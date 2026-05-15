@@ -1,5 +1,10 @@
 [< Product](../index.md)
 
+> **Status: Exploratory synthesis.** This document captures a product
+> architecture direction that emerged from an active session. It contains
+> open design questions and is not a stable spec. Design questions graduate
+> to specs when their CV begins planning.
+
 # Coherence as Product Architecture
 
 This document captures the current product architecture synthesis for the
