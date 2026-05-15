@@ -44,11 +44,11 @@ def test_starter_persona_templates_are_meaningful_runtime_defaults():
 
 def test_core_identity_templates_have_real_content():
     """Verify the core identity YAML files ship with real, non-placeholder content."""
+    # constraints.yaml is intentionally empty by default — users add their own
     required_files = [
         ("self/soul.yaml", "soul"),
         ("ego/identity.yaml", "identity"),
         ("ego/behavior.yaml", "behavior"),
-        ("ego/constraints.yaml", "constraints"),
         ("user/identity.yaml", "user"),
     ]
     for yaml_path, field in required_files:
