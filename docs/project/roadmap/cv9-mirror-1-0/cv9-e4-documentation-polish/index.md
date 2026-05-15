@@ -2,7 +2,7 @@
 
 # CV9.E4 — Documentation & Polish
 
-**Status:** Planning  
+**Status:** ✅ Done  
 **Goal:** Redesign the documentation information architecture so each document has a single, clear responsibility and a single, clear audience. Remove duplication. Fill structural gaps. Make the doc set navigable by someone who does not already know where everything is.
 
 ---
@@ -125,13 +125,13 @@ The redesign is organized around two axes: **audience** and **responsibility**.
 
 | Code | Story | Status |
 |------|-------|--------|
-| [S1](cv9-e4-s1-readme-reduction/index.md) | README reduction — pare down to a public hook | — |
-| [S2](cv9-e4-s2-getting-started-consolidation/index.md) | Getting Started consolidation — single authoritative onboarding document | — |
-| [S3](cv9-e4-s3-reference-split/index.md) | REFERENCE split — command reference stays; architecture moves to `docs/architecture.md` | — |
-| [S4](cv9-e4-s4-principles-reorganization/index.md) | Principles reorganization — product principles vs engineering/process principles | — |
-| [S5](cv9-e4-s5-claude-md-reduction/index.md) | CLAUDE.md / AGENTS.md reduction — minimal structured context with pointers | — |
-| [S6](cv9-e4-s6-cross-reference-audit/index.md) | Cross-reference audit — all breadcrumbs and links accurate and consistent | — |
-| [S7](cv9-e4-s7-api-doc/index.md) | Python API doc — `docs/api.md` as dedicated reference for developers | — |
+| [S1](cv9-e4-s1-readme-reduction/index.md) | README reduction — pare down to a public hook | ✅ |
+| [S2](cv9-e4-s2-getting-started-consolidation/index.md) | Getting Started consolidation — single authoritative onboarding document | ✅ |
+| [S3](cv9-e4-s3-reference-split/index.md) | REFERENCE split — command reference stays; architecture moves to `docs/architecture.md` | ✅ |
+| [S4](cv9-e4-s4-principles-reorganization/index.md) | Principles reorganization — product principles vs engineering/process principles | ✅ |
+| [S5](cv9-e4-s5-claude-md-reduction/index.md) | CLAUDE.md / AGENTS.md reduction — minimal structured context with pointers | ✅ |
+| [S6](cv9-e4-s6-cross-reference-audit/index.md) | Cross-reference audit — all breadcrumbs and links accurate and consistent | ✅ |
+| [S7](cv9-e4-s7-api-doc/index.md) | Python API doc — `docs/api.md` as dedicated reference for developers | ✅ |
 
 ---
 

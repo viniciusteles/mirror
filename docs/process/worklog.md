@@ -9,6 +9,50 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-05-15 — CV9.E4 complete: Documentation Polish
+
+All 7 stories shipped. The documentation information architecture is redesigned
+around audience and responsibility.
+
+**S1 — README reduction.** Rewrote README.md around the contractor/team
+narrative arc. Under 100 lines. Removed persona table, init walkthrough,
+per-runtime instructions, commands table, and directory tree. Exits immediately
+to Getting Started and REFERENCE.
+
+**S2 — Getting Started consolidation.** Rewrote getting-started.md as a pure
+linear onboarding document. Added subscription decision table (Codex Plus /
+Claude Code Pro / Gemini AI Pro). Removed legacy migration workflow (REFERENCE
+only). Reduced extension content to one paragraph with a pointer. Kept
+12-persona table and verification checklist.
+
+**S3 — REFERENCE split.** Created `docs/architecture.md` — 8 sections covering
+system overview, repo structure, layer model, identity model, memory model,
+runtime model, database schema, and runtime session model. REFERENCE.md trimmed
+to three sections: commands table, configuration, and legacy migration workflow
+(with removal-candidate note). Removed personas table, Mirror Mode procedure,
+Python API (→ api.md), extensions operational guide (pointer only).
+
+**S4 — Principles reorganization.** Split `docs/product/principles.md` into two
+files. `principles.md` now contains only the six product behavior principles.
+New `docs/process/engineering-principles.md` receives Code, Testing, and
+Process sections. Updated `docs/index.md` and `docs/product/index.md` to
+reflect the new structure.
+
+**S5 — CLAUDE.md reduction.** Rewrote CLAUDE.md as a minimal structured context
+file with two sections: Mirror Operating Instructions (all sessions) and Project
+Context (Builder Mode on this repo). Replaced architecture description, commands
+table, memory system detail, and extension detail with pointers.
+
+**S6 — Cross-reference audit.** Added exploratory/synthesis label to
+`docs/product/envisioning/index.md`. Verified all pointers introduced in S1–S5
+resolve correctly.
+
+**S7 — Python API doc.** Created `docs/api.md` covering all public
+`MemoryClient` methods: lifecycle, conversations, memories, identity/journeys,
+tasks, and attachments.
+
+1125 tests pass. CI green.
+
 ### 2026-05-15 — CV9.E3.S1 complete: Zero-Friction Identity Onboarding
 
 Delivers the first story of CV9.E3. A new user types their name once, runs
