@@ -81,4 +81,5 @@ None. S1 is the starting point of the E4 sequence.
 ## See also
 
 - [CV9.E4 Documentation & Polish](../index.md)
+- [Plan](plan.md)
 - [S2 — Getting Started Consolidation](../cv9-e4-s2-getting-started-consolidation/index.md)
