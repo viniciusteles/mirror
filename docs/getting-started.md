@@ -136,7 +136,7 @@ your identity home contains:
 **Core identity** (used in every session):
 - `self/soul.yaml` — worldview, operating principles, core role
 - `ego/identity.yaml` — behavioral postures, how the mirror shows up
-- `ego/behavior.yaml` — tone, intellectual method, language rules
+- `ego/behavior.yaml` — tone, intellectual method, universal constraints
 - `user/identity.yaml` — your name, with room to deepen over time
 
 **12 starter personas** — specialized lenses the mirror activates by context:

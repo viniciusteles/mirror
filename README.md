@@ -125,7 +125,8 @@ For a more detailed walkthrough — including verification steps and an onboardi
 
 ## Setting up your identity
 
-Mirror Mind is a framework — it ships with generic templates. Your real identity lives in your user home, not in the repository.
+Mirror Mind ships with opinionated, ready-to-use identity templates. Your name
+is the only input required — no YAML editing needed before the first session.
 
 ### 1. Initialize your user home
 
@@ -133,11 +134,9 @@ Mirror Mind is a framework — it ships with generic templates. Your real identi
 uv run python -m memory init your-name
 ```
 
-This copies the repository templates into:
-
-```text
-~/.mirror/your-name/identity/
-```
+This copies the identity templates into `~/.mirror/your-name/identity/` and
+substitutes your name into the template files automatically. The templates ship
+as real, opinionated content — not placeholder fill-in forms.
 
 ### 1a. Migrate a legacy Portuguese-era database if needed
 
@@ -164,41 +163,44 @@ Safety contract:
 - only clean Portuguese-era legacy DBs are supported in this flow
 - mixed-state or already-English DBs fail explicitly
 
-### 2. Define your soul and ego
+### 2. What ships in your identity
 
-Edit the YAML files in your user home:
+After `memory init`, your identity home contains:
 
-- **`~/.mirror/your-name/identity/self/soul.yaml`** — Who you are at the deepest level. Purpose, values, worldview.
-- **`~/.mirror/your-name/identity/ego/identity.yaml`** — Your operational identity. What you do, how you present yourself.
-- **`~/.mirror/your-name/identity/ego/behavior.yaml`** — Tone and style rules. How the mirror should speak.
-- **`~/.mirror/your-name/identity/user/identity.yaml`** — Your profile: name, role, background.
-- **`~/.mirror/your-name/identity/organization/identity.yaml`** — Your company or project (optional).
+**Core identity** (used in every session):
+- `self/soul.yaml` — worldview, operating principles, core role
+- `ego/identity.yaml` — behavioral postures, how the mirror shows up
+- `ego/behavior.yaml` — tone, intellectual method, universal constraints
+- `user/identity.yaml` — your name, with room to deepen over time
 
-### 3. Review your starter personas
+**12 starter personas** — specialized lenses the mirror activates by context:
 
-The templates include three useful default personas:
+| Persona | Domain |
+|---------|--------|
+| `writer` | Writing, editing, voice, publishing |
+| `thinker` | Ideas, decisions, conceptual clarity |
+| `engineer` | Software, systems, debugging, architecture |
+| `therapist` | Emotional processing, patterns, inner work |
+| `strategist` | Business positioning, decisions, trade-offs |
+| `coach` | Accountability, goals, habits, momentum |
+| `researcher` | Inquiry, synthesis, evidence, analysis |
+| `teacher` | Pedagogy, explanation, curriculum, mentoring |
+| `doctor` | Health, symptoms, medical literacy |
+| `financial` | Money, budgeting, investment, financial decisions |
+| `designer` | Product design, UX, visual design, creative direction |
+| `prompt-engineer` | Prompt design, AI system architecture, Mirror self-improvement |
 
-- `writer` — writing, editing, publishing, and voice refinement
-- `thinker` — ideas, decisions, framing, hypotheses, and conceptual clarity
-- `engineer` — software, systems, debugging, tests, and technical design
+**1 starter journey**: `personal-growth` — reflection, self-knowledge, values,
+habits, meaning, and intentional change.
 
-You can keep them, edit them, delete them, or add your own under
-`~/.mirror/your-name/identity/personas/`. Edit each file with the persona's
-identity, approach, and routing keywords. Personas inherit from `ego`
-(behavior) or `self` (full soul) depending on depth.
+Your identity starts generic and sharpens through use. Refine any layer at your
+own pace:
 
-### 4. Review your starter journey
+```bash
+uv run python -m memory identity edit user identity
+```
 
-The templates include one broadly useful default journey:
-
-- `personal-growth` — reflection, self-knowledge, values, habits, meaning, and intentional change
-
-You can keep it, edit it, delete it, or add your own under
-`~/.mirror/your-name/identity/journeys/`.
-
-A journey is any project, arc, or area of your life where things are happening and the mirror needs context. See [Journeys](#journeys) below.
-
-### 5. Populate the memory bank
+### 3. Populate the memory bank
 
 Use the CLI as the runtime-neutral path:
 

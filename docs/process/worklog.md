@@ -9,6 +9,44 @@ Update when a meaningful milestone is reached.
 
 ## Done
 
+### 2026-05-15 — CV9.E3.S1 complete: Zero-Friction Identity Onboarding
+
+Delivers the first story of CV9.E3. A new user types their name once, runs
+two commands, and has a working mirror. No YAML editing required before the
+first session.
+
+**`memory init <name>` now substitutes the user's name** into all template
+files automatically via `_substitute_user_name()`. The `{{user_name}}` token
+in `self/soul.yaml` and `user/identity.yaml` is replaced at init time.
+
+**Templates rewritten as editorial products.** All core identity files —
+`self/soul.yaml`, `ego/identity.yaml`, `ego/behavior.yaml`, `ego/constraints.yaml`,
+`user/identity.yaml` — now ship with real, opinionated content derived from
+lived identity. Biographical specifics stripped; philosophical operating
+principles, behavioral postures, and tone rules kept as universals. No
+fill-in instructions, no placeholder text.
+
+**Language rules removed from the default templates.** The English-only
+constraints previously baked into `ego/behavior.yaml` and `ego/constraints.yaml`
+reflected Vinícius's specific setup, not a generic default. Most new users
+are Brazilian Portuguese speakers. The mirror now responds in the user's
+natural language from session one.
+
+**Persona catalog expanded from 3 to 12.** Nine new personas added:
+therapist, strategist, coach, researcher, teacher, doctor, financial,
+designer, prompt-engineer. Each ships with identity, approach, capabilities,
+briefing, and routing keywords. All are editorial products, not stubs.
+
+**Progressive enhancement as the native narrative.** Onboarding docs
+reframed: the first session uses generic identity — that is correct. The
+mirror sharpens through use. `/mm-identity edit` is surfaced as the
+natural next step, not as a remediation.
+
+**README and Getting Started updated** to reflect the zero-edit flow,
+the 12-persona table, and the progressive enhancement path.
+
+10 new tests. 1125 pass. ruff clean. CI green.
+
 ### 2026-05-14 — Claude extension projection made explicit
 
 Removed an accidentally generated Claude external-skill overlay from the mirror

@@ -2,7 +2,7 @@
 
 # CV9.E3.S1 — Zero-Friction Identity Onboarding
 
-**Status:** Planning  
+**Status:** ✅ Done  
 **Epic:** CV9.E3 Distribution & Tooling
 
 ---

@@ -3,7 +3,7 @@
 # CV9.E3 — Distribution & Tooling
 
 **Epic:** Make Mirror Mind simple to install, configure, and grow into  
-**Status:** Planning
+**Status:** 🟢 In Progress
 
 ---
 
@@ -23,7 +23,7 @@ over time.
 
 | Code | Story | Status |
 |------|-------|--------|
-| [CV9.E3.S1](cv9-e3-s1-identity-onboarding/index.md) | Zero-Friction Identity Onboarding | Planning |
+| [CV9.E3.S1](cv9-e3-s1-identity-onboarding/index.md) | Zero-Friction Identity Onboarding | ✅ Done |
 
 ---
 
