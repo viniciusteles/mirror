@@ -107,6 +107,7 @@ But Getting Started also has its own structural problems:
 ## See also
 
 - [CV9.E4 Documentation & Polish](../index.md)
+- [Plan](plan.md)
 - [S1 — README Reduction](../cv9-e4-s1-readme-reduction/index.md)
 - [S3 — REFERENCE Split](../cv9-e4-s3-reference-split/index.md)
 - [Extension docs](../../../../../product/extensions/index.md)

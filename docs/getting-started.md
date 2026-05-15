@@ -34,7 +34,7 @@ One account for infrastructure, one for the conversation interface. Both are req
 
 ## Prerequisites
 
-- [Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) — preferred runtime (multi-model)
+- [Pi](https://github.com/earendil-works/pi/tree/main/packages/coding-agent) — preferred runtime (multi-model)
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported runtime (`brew install gemini-cli`)
 - [Codex](https://github.com/openai/codex) — supported runtime
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — supported alternative runtime

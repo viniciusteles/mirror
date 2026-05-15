@@ -20,7 +20,7 @@ grows sharper the more you use it.
 Mirror Mind works through several interfaces over one shared Python core
 (`src/memory/`). Logic lives once; the interface is a thin wrapper.
 
-- **[Pi](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent)
+- **[Pi](https://github.com/earendil-works/pi/tree/main/packages/coding-agent)
   — preferred.** Multi-model coding agent. Skills live under `.pi/skills/` and
   are invoked with the `/mm-` prefix.
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli) — fully supported.**
