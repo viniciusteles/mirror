@@ -1,6 +1,6 @@
 # Mirror Mind
 
-![Before and after illustration: a person faces an opaque AI mirror that cannot reflect them, then a polished Mirror Mind reflection that carries their identity, memory, projects, and preferences.](docs/assets/mirror-mind-before-after-cartoon-600px.jpg)
+![A person reviews a blueprint with one lead contractor while a coordinated specialist team builds different parts of a house behind them, representing Mirror Mind as one unified AI interface with many expert lenses.](docs/assets/mirror-mind-contractor-team-1200px.jpg)
 
 Imagine hiring a contractor to build a house. A good contractor doesn't show up
 alone — they bring a team: the architect, the structural engineer, the
