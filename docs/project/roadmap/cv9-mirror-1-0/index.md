@@ -26,7 +26,7 @@ The major themes are:
 |------|------|----------------------|--------|
 | CV9.E1 | Boundary Hardening | A clean, layered architecture with no direct SQL in CLI and clear transaction boundaries | 🟡 Planned |
 | [CV9.E2](cv9-e2-stabilization/index.md) | Stabilization & Robustness | Improved error handling and feature-flag safety across all runtimes | 🟡 Planned |
-| CV9.E3 | Distribution & Tooling | A simple, robust way to install and update Mirror Mind | 🟡 Planned |
+| [CV9.E3](cv9-e3-distribution-tooling/index.md) | Distribution & Tooling | A simple, robust way to install and update Mirror Mind | 🟡 Planning |
 | CV9.E4 | Documentation & Polish | Comprehensive, accurate, and helpful documentation for the public | 🟡 Planned |
 
 ---
