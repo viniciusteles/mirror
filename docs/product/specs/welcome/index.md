@@ -32,12 +32,11 @@ single block. One source, four interfaces, one voice.
 
 ## Anatomy
 
-The welcome has up to **four lines** plus a closing invitation:
+The welcome is **two lines** plus a closing invitation:
 
 ```
 ◇ Mirror · <user>
-Active journey: <slug> — <stage> · next: <next>
-<context line>
+<N> journeys · <N> personas · <N> memories · <N> conversations · since <Month YYYY>
 
 → Where shall we begin?
 ```
@@ -45,51 +44,44 @@ Active journey: <slug> — <stage> · next: <next>
 | Line | When it appears | Source |
 |------|-----------------|--------|
 | Header (`◇ Mirror · <user>`) | Always, if a Mirror home is resolvable | `resolve_mirror_home().name` |
-| Active journey | If at least one journey identity has `Status: active` | `list_active_journeys()` + `get_journey_path()` |
-| Context | Conditional — see below | recent memories or conversations |
-| Invitation (`→ Where shall we begin?`) | Always | constant |
+| Stats | Always, when header renders | counts from the database |
+| Invitation (`→ Where shall we begin?`) | Always, when header renders | constant |
 
 If the header cannot be resolved (no `MIRROR_HOME`, no `MIRROR_USER`), the
-welcome is empty.
+welcome is empty. There is no other path to empty output — a fresh database
+still shows the welcome, even when every counter is zero.
 
-### Choosing the active journey
+### Why stats and not narrative
 
-When multiple journeys are active, the welcome picks the one most recently
-engaged. The order of preference is:
+An earlier iteration of the welcome showed the active journey and the last
+insight from that journey. Useful as a signal, but it created a false
+expectation: the welcome is rendered as a `ctx.ui.notify` popup and is **not
+part of the conversation context the model receives**. A user reading `Last
+insight: "X"` would naturally ask the assistant about X and get a confused
+or hallucinated reply.
 
-1. Journey of the most recent conversation
-2. Journey of the most recent memory
-3. First active journey returned by `list_active_journeys()`
+Stats fix this by removing the narrative content from the welcome. Numbers
+do not invite conversation — they just convey scale, structure, and
+longevity. To converse about state, the user activates Mirror Mode
+(`/mm-mirror`) which loads identity and memories into the conversation
+context properly.
 
-This reflects the spirit of "where the mirror is currently engaged" rather
-than an alphabetical accident.
+### Stats
 
-### Choosing the context line
+The stats line shows five values, always in this order, always separated by
+` · `:
 
-The third line adapts to the state. The first rule that matches wins:
+| Value | Computation |
+|-------|-------------|
+| `<N> journeys` | Active journeys: identity rows with `layer='journey'` whose content declares `Status: active`. Same source as `list_active_journeys()`. |
+| `<N> personas` | Identity rows with `layer='persona'`. |
+| `<N> memories` | `COUNT(*) FROM memories`. |
+| `<N> conversations` | `COUNT(*) FROM conversations`. |
+| `since <Month YYYY>` | `MIN(started_at) FROM conversations`, formatted as `since <abbrev-month> <year>`. When there are no conversations, render `since today`. |
 
-1. **Last insight** — if there is a memory in the active journey with
-   `layer in (self, ego)` created in the last 30 days, render its title:
-   `Last insight: "<title>"`.
-2. **Last conversation** — else, if there is a conversation in the active
-   journey that ended within the last 48 hours, render relative time and
-   title: `Last conversation <N>h ago — <title>` (falls back to summary or
-   "untitled").
-3. **Nothing** — omit the line entirely. The welcome stays two-line.
-
-This keeps the welcome useful when there is state, and quiet when there isn't.
-
-### Stage and next
-
-The "Active journey" line includes stage and next-action extracted from the
-journey path identity with the same regex patterns used by
-`memory journeys`:
-
-- Stage: `**Current stage:**` / `**Etapa atual:**` / `**Fase:**`
-- Next: `**Next:**` / `**Next action:**` / `**Próximo:**` / `**Próxima ação:**`
-
-If a part is missing, that fragment is dropped. The line never has dangling
-separators (no `— ·`).
+Counts above 1000 use a thousands separator (`1,247 memories`). Counts
+below that render bare (`5 journeys`). Values of zero render literally
+(`0 memories`) — a fresh mirror should look new, not pretend not to be.
 
 ---
 
