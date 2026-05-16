@@ -125,13 +125,10 @@ marked done. The index flags this explicitly. The verification sequence:
    concepts) and one in the engineer domain (code, debugging). Confirm the
    correct persona activates for each.
 
-3. **Hard constraints** — send a message in Portuguese. Confirm the response
-   is in English.
-
-4. **Builder Mode** — invoke `/mm-build mirror`. Confirm the skill loads, the
+3. **Builder Mode** — invoke `/mm-build mirror`. Confirm the skill loads, the
    project context is correct, and the working directory is set.
 
-5. **Skill discovery** — invoke a skill by name (e.g. `/mm-memories`). Confirm
+4. **Skill discovery** — invoke a skill by name (e.g. `/mm-memories`). Confirm
    the AI loads the correct SKILL.md and follows the procedure.
 
 If any of these fail after the reduction, restore the relevant content before
