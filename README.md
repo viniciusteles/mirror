@@ -26,14 +26,35 @@ you are in each one, what's been decided, what's unresolved. The second session
 is faster than the first. The tenth is faster still. They don't start from zero
 — because they were there.
 
-And over time, something deeper happens. The team doesn't just know your
-projects. They know you — your values, your patterns of thinking, your recurring
-tensions, your voice. Every conversation is analyzed and the signal is
-extracted: decisions, insights, commitments. The intelligence accumulates. The
-reflection sharpens.
+---
 
-This is not a chatbot with memory. This is a mirror — conscious, accumulative,
-and yours.
+![Before and after illustration: a person faces an opaque AI mirror that cannot reflect them, then a polished Mirror Mind reflection that carries their identity, memory, projects, and preferences.](docs/assets/mirror-mind-before-after-cartoon-600px.jpg)
+
+But what makes this team exceptional is not just coordination. It's that they
+know *you*.
+
+Every time you open a new AI session, you re-explain yourself. You re-establish
+your context. You repeat your values, your constraints, your situation — again.
+And the AI, no matter how capable, responds as if it's meeting you for the first
+time. The advice it gives could fit anyone. It doesn't know that you made that
+decision three months ago and why. It doesn't know what you're navigating right
+now, what tensions are unresolved, what you committed to last week. It answers in
+a vacuum. That's not a team. That's a very smart set of strangers.
+
+Mirror Mind accumulates. Every conversation is analyzed and the signal is
+extracted: decisions, insights, commitments, patterns. The intelligence compounds.
+Your team doesn't just know your projects — they know your voice, your values,
+your recurring tensions, the way you think. The strategist gives you advice
+calibrated to your risk profile. The therapist surfaces the tension you circled
+around three sessions ago. The engineer remembers why you made the architectural
+call that shaped everything downstream.
+
+That's what the mirror is: a conscious, accumulative reflection of your own
+intelligence — sharpened by every conversation, carried across time. The
+contractor metaphor explains how you interact with it. The mirror explains why
+it works.
+
+This is not a chatbot with memory. This is a mirror — and yours.
 
 ---
 
@@ -45,20 +66,6 @@ identity lives in your machine, not a server.
 
 → Get started in ten minutes: [Getting Started](docs/getting-started.md)  
 → Full command reference: [REFERENCE.md](REFERENCE.md)
-
----
-
-## Origins and Credits
-
-Mirror Mind is a continuation of the original mirror work created by **Alisson
-Vale** in
-[alissonvale/mirror-poc](https://github.com/alissonvale/mirror-poc/).
-This repository extends that foundation for English-speaking users, Pi-based
-multi-model use, and stronger multi-user and multi-session runtime behavior.
-
-The move toward **Pi** was inspired by **Henrique Bastos** and his early work
-in [henriquebastos/mirror-mind](https://github.com/henriquebastos/mirror-mind),
-which showed a strong path toward a more model-flexible runtime.
 
 ---
 
@@ -87,6 +94,31 @@ which showed a strong path toward a more model-flexible runtime.
 - [Decisions](docs/project/decisions.md) — incremental decision log
 - [Roadmap](docs/project/roadmap/index.md) — current and planned capability values
 - [Development Guide](docs/process/development-guide.md) — how to work on this codebase
+
+---
+
+## Origins and Credits
+
+Mirror Mind began as [Alisson Vale](https://github.com/alissonvale/)'s original
+`mirror-mind` — a Portuguese-language,
+Claude Code-only implementation built around his own identity and circumstances.
+He created the concept and the Jungian architecture.
+
+[Vinícius Teles](https://github.com/viniciusteles) extended that foundation into
+this repository, turning a personal experiment into a reusable framework:
+
+- **English** — full migration from Portuguese across code, CLI, schema, identity, and docs
+- **Framework/user separation** — user identity and memory live privately under `~/.mirror/<user>/`, outside the repository
+- **Multi-runtime** — from Claude Code only to four runtimes: Pi, Gemini CLI, Codex, and Claude Code
+- **Multi-user** — independent mirrors for multiple users on the same machine
+- **Multi-session** — concurrent sessions tracked safely in a database-backed session registry
+- **Intelligence depth** — hybrid semantic and lexical search, honest reinforcement, two-pass extraction, memory consolidation, and shadow cultivation
+- **Extension system** — a stable contract for adding user-specific capabilities outside the core; extensions own their own SQLite tables, CLI subcommands, and Mirror Mode context providers without touching the framework
+
+The move toward Pi as the preferred runtime was inspired by
+[Henrique Bastos](https://github.com/henriquebastos) and his early work in
+[henriquebastos/mirror-mind](https://github.com/henriquebastos/mirror-mind),
+which showed a strong path toward a more model-flexible runtime.
 
 ---
 
