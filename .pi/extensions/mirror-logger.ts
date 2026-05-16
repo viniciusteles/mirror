@@ -198,7 +198,16 @@ export default function (pi: ExtensionAPI) {
 			: "External skills: none";
 		log("INFO", `session-start result: ${summary || "(empty)"}`);
 		log("INFO", externalSkillSummary);
+
+		const welcome = (await runPy(["-m", "memory", "welcome"])).trim();
+		if (welcome) {
+			log("INFO", `welcome: ${welcome.split("\n")[0]}`);
+		}
+
 		if (ctx.hasUI) {
+			if (welcome) {
+				ctx.ui.notify(welcome, "info");
+			}
 			const status = summary || "Memory ready";
 			ctx.ui.setStatus(
 				"mirror",
